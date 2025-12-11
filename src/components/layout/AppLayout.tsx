@@ -21,6 +21,7 @@ import {
   Calculator,
   Scale,
   Building2,
+  Tags,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/accounts', label: 'Contas', icon: Wallet },
   { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
+  { path: '/tags', label: 'Tags', icon: Tags },
   { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
   { path: '/debts', label: 'Dívidas', icon: CreditCard },
   { path: '/investments', label: 'Investimentos', icon: TrendingUp },
