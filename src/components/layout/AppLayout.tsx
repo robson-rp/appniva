@@ -22,6 +22,7 @@ import {
   Scale,
   Building2,
   Tags,
+  MessageCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
   { path: '/accounts', label: 'Contas', icon: Wallet },
   { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
   { path: '/tags', label: 'Tags', icon: Tags },
