@@ -13,6 +13,7 @@ interface TransactionFilters {
   accountId?: string;
   type?: 'income' | 'expense' | 'transfer';
   categoryId?: string;
+  costCenterId?: string;
 }
 
 export function useTransactions(filters?: TransactionFilters) {
@@ -29,7 +30,8 @@ export function useTransactions(filters?: TransactionFilters) {
           *,
           account:accounts!transactions_account_id_fkey(id, name, currency),
           category:categories(id, name, icon, color, type),
-          related_account:accounts!transactions_related_account_id_fkey(id, name)
+          related_account:accounts!transactions_related_account_id_fkey(id, name),
+          cost_center:cost_centers(id, name, type)
         `)
         .eq('user_id', user.id)
         .order('date', { ascending: false })
@@ -49,6 +51,9 @@ export function useTransactions(filters?: TransactionFilters) {
       }
       if (filters?.categoryId) {
         query = query.eq('category_id', filters.categoryId);
+      }
+      if (filters?.costCenterId) {
+        query = query.eq('cost_center_id', filters.costCenterId);
       }
 
       const { data, error } = await query.limit(500);
