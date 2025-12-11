@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useHistoricalStats } from '@/hooks/useHistoricalStats';
+import { toast } from 'sonner';
 
 interface FutureExpense {
   name: string;
@@ -11,7 +14,7 @@ interface FutureExpense {
   month: number;
 }
 
-interface SimulatorFormData {
+export interface SimulatorFormData {
   name: string;
   monthly_income_estimate: number;
   monthly_expense_estimate: number;
@@ -27,10 +30,12 @@ interface SimulatorFormProps {
   onSubmit: (data: SimulatorFormData) => void;
   onSimulate: (data: SimulatorFormData) => void;
   isLoading?: boolean;
+  autoFillFromHistory?: boolean;
 }
 
-export function SimulatorForm({ defaultValues, onSubmit, onSimulate, isLoading }: SimulatorFormProps) {
-  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<SimulatorFormData>({
+export function SimulatorForm({ defaultValues, onSubmit, onSimulate, isLoading, autoFillFromHistory = false }: SimulatorFormProps) {
+  const { data: historicalStats, isLoading: isLoadingStats } = useHistoricalStats(6);
+  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<SimulatorFormData>({
     defaultValues: {
       name: '',
       monthly_income_estimate: 0,
@@ -51,8 +56,75 @@ export function SimulatorForm({ defaultValues, onSubmit, onSimulate, isLoading }
 
   const formValues = watch();
 
+  // Auto-fill when historical stats load and autoFillFromHistory is true
+  useEffect(() => {
+    if (autoFillFromHistory && historicalStats && historicalStats.monthsAnalyzed > 0) {
+      const currentIncome = watch('monthly_income_estimate');
+      const currentExpense = watch('monthly_expense_estimate');
+      
+      // Only auto-fill if fields are at default values (0)
+      if (currentIncome === 0 && historicalStats.averageMonthlyIncome > 0) {
+        setValue('monthly_income_estimate', historicalStats.averageMonthlyIncome);
+      }
+      if (currentExpense === 0 && historicalStats.averageMonthlyExpense > 0) {
+        setValue('monthly_expense_estimate', historicalStats.averageMonthlyExpense);
+      }
+      if (historicalStats.averageInvestmentReturn > 0) {
+        setValue('investment_return_rate', historicalStats.averageInvestmentReturn);
+      }
+    }
+  }, [historicalStats, autoFillFromHistory, setValue, watch]);
+
+  const handleFillFromHistory = () => {
+    if (!historicalStats || historicalStats.monthsAnalyzed === 0) {
+      toast.error('Sem dados históricos suficientes');
+      return;
+    }
+
+    setValue('monthly_income_estimate', historicalStats.averageMonthlyIncome);
+    setValue('monthly_expense_estimate', historicalStats.averageMonthlyExpense);
+    if (historicalStats.averageInvestmentReturn > 0) {
+      setValue('investment_return_rate', historicalStats.averageInvestmentReturn);
+    }
+    
+    toast.success(`Dados preenchidos com base em ${historicalStats.monthsAnalyzed} meses de histórico`);
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Historical Data Banner */}
+      {historicalStats && historicalStats.monthsAnalyzed > 0 && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium">Dados históricos disponíveis</p>
+                <p className="text-xs text-muted-foreground">
+                  {historicalStats.monthsAnalyzed} meses analisados • 
+                  Média: {new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', maximumFractionDigits: 0 }).format(historicalStats.averageMonthlyIncome)}/mês receita, 
+                  {new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', maximumFractionDigits: 0 }).format(historicalStats.averageMonthlyExpense)}/mês despesa
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleFillFromHistory}
+              disabled={isLoadingStats}
+            >
+              {isLoadingStats ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-1" />
+              )}
+              Usar Dados Reais
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Basic Info */}
       <Card>
         <CardHeader>
