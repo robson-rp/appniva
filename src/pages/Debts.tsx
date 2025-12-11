@@ -24,18 +24,21 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DebtCard } from '@/components/debts/DebtCard';
 import { DebtForm } from '@/components/debts/DebtForm';
 import { PaymentForm } from '@/components/debts/PaymentForm';
+import { DebtEvolutionChart } from '@/components/debts/DebtEvolutionChart';
 import { 
   useDebts, 
   useCreateDebt, 
   useUpdateDebt, 
   useDeleteDebt, 
   useCreatePayment,
+  useAllDebtPayments,
   Debt,
   CreateDebtInput,
 } from '@/hooks/useDebts';
 
 export default function Debts() {
   const { data: debts, isLoading } = useDebts();
+  const { data: allPayments, isLoading: isLoadingPayments } = useAllDebtPayments();
   const createDebt = useCreateDebt();
   const updateDebt = useUpdateDebt();
   const deleteDebt = useDeleteDebt();
@@ -220,6 +223,11 @@ export default function Debts() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Debt Evolution Chart */}
+      {debts && debts.length > 0 && (
+        <DebtEvolutionChart debts={debts} payments={allPayments || []} />
+      )}
 
       {/* Debts List */}
       <Tabs defaultValue="active" className="space-y-4">
