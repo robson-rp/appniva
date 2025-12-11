@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  ScanText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ const navItems = [
   { path: '/investments', label: 'Investimentos', icon: TrendingUp },
   { path: '/goals', label: 'Metas', icon: Target },
   { path: '/insights', label: 'Insights', icon: Lightbulb },
+  { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
 ];
 
 export default function AppLayout() {
