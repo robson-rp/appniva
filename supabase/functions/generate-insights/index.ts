@@ -76,6 +76,31 @@ serve(async (req) => {
       .select("*")
       .eq("user_id", user.id);
 
+    // Get active debts
+    const { data: debts } = await supabase
+      .from("debts")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("status", "active");
+
+    // Check for upcoming debt payments (within 7 days)
+    const today = new Date();
+    const sevenDaysFromNow = new Date(today);
+    sevenDaysFromNow.setDate(today.getDate() + 7);
+    
+    const upcomingDebtPayments = (debts || []).filter((d: any) => {
+      if (!d.next_payment_date) return false;
+      const paymentDate = new Date(d.next_payment_date);
+      return paymentDate >= today && paymentDate <= sevenDaysFromNow;
+    });
+
+    const overdueDebts = (debts || []).filter((d: any) => {
+      if (!d.next_payment_date) return false;
+      return new Date(d.next_payment_date) < today;
+    });
+
+    const totalDebtBalance = (debts || []).reduce((sum: number, d: any) => sum + Number(d.current_balance), 0);
+
     // Calculate summary stats
     const income = (transactions || [])
       .filter((t: any) => t.type === "income")
@@ -118,6 +143,34 @@ serve(async (req) => {
       activeGoalsCount: (goals || []).length,
     };
 
+    // Generate debt payment alerts first (these are high priority)
+    const debtAlerts: any[] = [];
+    
+    for (const debt of upcomingDebtPayments) {
+      const paymentDate = new Date(debt.next_payment_date);
+      const daysUntil = Math.ceil((paymentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      debtAlerts.push({
+        user_id: user.id,
+        insight_type: "high_expense",
+        title: `Prestação de ${debt.name} em ${daysUntil} dias`,
+        message: `A prestação de ${debt.installment_amount.toFixed(2)} AOA da dívida "${debt.name}" vence em ${daysUntil} dias (${paymentDate.toLocaleDateString("pt-PT")}). Saldo restante: ${debt.current_balance.toFixed(2)} AOA.`,
+      });
+    }
+
+    for (const debt of overdueDebts) {
+      debtAlerts.push({
+        user_id: user.id,
+        insight_type: "budget_overrun",
+        title: `Prestação de ${debt.name} em atraso!`,
+        message: `A prestação de ${debt.installment_amount.toFixed(2)} AOA da dívida "${debt.name}" está em atraso desde ${new Date(debt.next_payment_date).toLocaleDateString("pt-PT")}. Regularize o pagamento para evitar juros adicionais.`,
+      });
+    }
+
+    // Insert debt alerts immediately
+    if (debtAlerts.length > 0) {
+      await supabase.from("insights").insert(debtAlerts);
+    }
+
     // Call AI to generate insights
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -146,6 +199,8 @@ Tipos de insights disponíveis (USA APENAS ESTES):
 - Poupança: ${financialSummary.savings.toFixed(2)} AOA (${financialSummary.savingsRate.toFixed(1)}%)
 - Saldo total em contas: ${totalBalance.toFixed(2)} AOA
 - Total investido: ${totalInvestments.toFixed(2)} AOA
+- Total em dívidas: ${totalDebtBalance.toFixed(2)} AOA
+- Dívidas activas: ${(debts || []).length}
 - Progresso das metas: ${financialSummary.goalsProgress.toFixed(1)}%
 - Metas activas: ${financialSummary.activeGoalsCount}
 
@@ -248,8 +303,8 @@ Gera insights relevantes para esta situação financeira. IMPORTANTE: Usa APENAS
     return new Response(
       JSON.stringify({ 
         success: true, 
-        count: insights.length,
-        insights 
+        count: insights.length + debtAlerts.length,
+        insights: [...debtAlerts, ...insights]
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

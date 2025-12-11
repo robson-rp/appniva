@@ -16,6 +16,7 @@ import {
   X,
   ChevronDown,
   ScanText,
+  CreditCard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ const navItems = [
   { path: '/accounts', label: 'Contas', icon: Wallet },
   { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
   { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
+  { path: '/debts', label: 'Dívidas', icon: CreditCard },
   { path: '/investments', label: 'Investimentos', icon: TrendingUp },
   { path: '/goals', label: 'Metas', icon: Target },
   { path: '/insights', label: 'Insights', icon: Lightbulb },
