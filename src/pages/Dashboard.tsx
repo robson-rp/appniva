@@ -1,5 +1,5 @@
 import { useAccounts } from '@/hooks/useAccounts';
-import { useMonthlyStats, useExpensesByCategory, useRecentTransactions } from '@/hooks/useTransactions';
+import { useMonthlyStats, useExpensesByCategory, useRecentTransactions, useMonthlyTrends } from '@/hooks/useTransactions';
 import { useInvestmentStats } from '@/hooks/useInvestments';
 import { useActiveGoals } from '@/hooks/useGoals';
 import { useInsights } from '@/hooks/useInsights';
@@ -8,9 +8,10 @@ import { formatCurrency, formatDate } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, LineChart, Line, CartesianGrid, Legend, AreaChart, Area } from 'recharts';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank, Target, Lightbulb, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -21,13 +22,29 @@ export default function Dashboard() {
   const { data: goals, isLoading: loadingGoals } = useActiveGoals();
   const { data: insights } = useInsights();
   const { data: recentTransactions } = useRecentTransactions(5);
+  const { data: monthlyTrends, isLoading: loadingTrends } = useMonthlyTrends(6);
 
   const currency = profile?.primary_currency || 'AOA';
   const totalBalance = accounts?.reduce((sum, acc) => sum + Number(acc.current_balance), 0) || 0;
   const totalInvested = investmentStats?.total || 0;
   const netWorth = totalBalance + totalInvested;
 
-  const isLoading = loadingAccounts || loadingStats || loadingExpenses || loadingInvestments || loadingGoals;
+  const isLoading = loadingAccounts || loadingStats || loadingExpenses || loadingInvestments || loadingGoals || loadingTrends;
+
+  const chartConfig = {
+    income: {
+      label: "Receitas",
+      color: "hsl(var(--income))",
+    },
+    expense: {
+      label: "Despesas", 
+      color: "hsl(var(--expense))",
+    },
+    balance: {
+      label: "Balanço",
+      color: "hsl(var(--accent))",
+    },
+  };
 
   if (isLoading) {
     return (
@@ -111,6 +128,104 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Monthly Trends Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Tendências Mensais (Últimos 6 Meses)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {monthlyTrends && monthlyTrends.length > 0 ? (
+            <ChartContainer config={chartConfig} className="h-80 w-full">
+              <AreaChart data={monthlyTrends} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--income))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--income))" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--expense))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--expense))" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="monthLabel" className="text-xs fill-muted-foreground" />
+                <YAxis 
+                  className="text-xs fill-muted-foreground" 
+                  tickFormatter={(value) => {
+                    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                    if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+                    return value;
+                  }}
+                />
+                <ChartTooltip 
+                  content={<ChartTooltipContent 
+                    formatter={(value, name) => [formatCurrency(Number(value), currency), name === 'income' ? 'Receitas' : 'Despesas']}
+                  />} 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="income" 
+                  stroke="hsl(var(--income))" 
+                  fillOpacity={1} 
+                  fill="url(#incomeGradient)"
+                  strokeWidth={2}
+                  name="income"
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="expense" 
+                  stroke="hsl(var(--expense))" 
+                  fillOpacity={1} 
+                  fill="url(#expenseGradient)"
+                  strokeWidth={2}
+                  name="expense"
+                />
+              </AreaChart>
+            </ChartContainer>
+          ) : (
+            <div className="h-80 flex items-center justify-center text-muted-foreground">
+              Sem dados suficientes
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Income vs Expense Comparison */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Comparação Receitas vs Despesas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {monthlyTrends && monthlyTrends.length > 0 ? (
+            <ChartContainer config={chartConfig} className="h-72 w-full">
+              <BarChart data={monthlyTrends} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="monthLabel" className="text-xs fill-muted-foreground" />
+                <YAxis 
+                  className="text-xs fill-muted-foreground"
+                  tickFormatter={(value) => {
+                    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                    if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+                    return value;
+                  }}
+                />
+                <ChartTooltip 
+                  content={<ChartTooltipContent 
+                    formatter={(value, name) => [formatCurrency(Number(value), currency), name === 'income' ? 'Receitas' : 'Despesas']}
+                  />} 
+                />
+                <Bar dataKey="income" fill="hsl(var(--income))" radius={[4, 4, 0, 0]} name="income" />
+                <Bar dataKey="expense" fill="hsl(var(--expense))" radius={[4, 4, 0, 0]} name="expense" />
+              </BarChart>
+            </ChartContainer>
+          ) : (
+            <div className="h-72 flex items-center justify-center text-muted-foreground">
+              Sem dados suficientes
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Expenses by Category */}

@@ -222,3 +222,59 @@ export function useDeleteTransaction() {
     },
   });
 }
+
+export function useMonthlyTrends(months: number = 6) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['transactions', 'monthly-trends', user?.id, months],
+    queryFn: async () => {
+      if (!user) return [];
+
+      const trends: { month: string; monthLabel: string; income: number; expense: number; balance: number }[] = [];
+      const today = new Date();
+
+      for (let i = months - 1; i >= 0; i--) {
+        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const monthKey = `${year}-${month}`;
+        
+        const startDate = `${monthKey}-01`;
+        const lastDay = new Date(year, date.getMonth() + 1, 0).getDate();
+        const endDate = `${monthKey}-${lastDay}`;
+
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('type, amount')
+          .eq('user_id', user.id)
+          .gte('date', startDate)
+          .lte('date', endDate);
+
+        if (error) throw error;
+
+        const stats = (data || []).reduce(
+          (acc, t) => {
+            if (t.type === 'income') acc.income += Number(t.amount);
+            if (t.type === 'expense') acc.expense += Number(t.amount);
+            return acc;
+          },
+          { income: 0, expense: 0 }
+        );
+
+        const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        
+        trends.push({
+          month: monthKey,
+          monthLabel: monthNames[date.getMonth()],
+          income: stats.income,
+          expense: stats.expense,
+          balance: stats.income - stats.expense,
+        });
+      }
+
+      return trends;
+    },
+    enabled: !!user,
+  });
+}
