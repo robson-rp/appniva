@@ -144,6 +144,36 @@ export const useCreateTag = () => {
   });
 };
 
+export const useUpdateTag = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id: string; name: string; color?: string }) => {
+      const { data: result, error } = await supabase
+        .from('tags')
+        .update({ name: data.name, color: data.color })
+        .eq('id', data.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ['tags-stats'] });
+      toast.success('Tag atualizada');
+    },
+    onError: (error: any) => {
+      if (error.code === '23505') {
+        toast.error('Tag com este nome já existe');
+      } else {
+        toast.error('Erro ao atualizar tag');
+      }
+    },
+  });
+};
+
 export const useDeleteTag = () => {
   const queryClient = useQueryClient();
 
@@ -163,6 +193,40 @@ export const useDeleteTag = () => {
     },
     onError: () => {
       toast.error('Erro ao excluir tag');
+    },
+  });
+};
+
+export const useMergeTags = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ sourceTagId, targetTagId }: { sourceTagId: string; targetTagId: string }) => {
+      // Update all transaction_tags from source to target
+      const { error: updateError } = await supabase
+        .from('transaction_tags')
+        .update({ tag_id: targetTagId })
+        .eq('tag_id', sourceTagId);
+
+      if (updateError) throw updateError;
+
+      // Delete the source tag
+      const { error: deleteError } = await supabase
+        .from('tags')
+        .delete()
+        .eq('id', sourceTagId);
+
+      if (deleteError) throw deleteError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ['tags-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['transaction-tags'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      toast.success('Tags mescladas com sucesso');
+    },
+    onError: () => {
+      toast.error('Erro ao mesclar tags');
     },
   });
 };
