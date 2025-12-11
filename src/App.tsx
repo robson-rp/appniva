@@ -12,10 +12,10 @@ import Accounts from "@/pages/Accounts";
 import Transactions from "@/pages/Transactions";
 import Budgets from "@/pages/Budgets";
 import Investments from "@/pages/Investments";
+import Goals from "@/pages/Goals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-const GoalsPage = () => <div className="p-4"><h1 className="text-2xl font-bold">Metas</h1><p className="text-muted-foreground mt-2">Módulo de metas em desenvolvimento...</p></div>;
 const InsightsPage = () => <div className="p-4"><h1 className="text-2xl font-bold">Insights</h1><p className="text-muted-foreground mt-2">Módulo de insights em desenvolvimento...</p></div>;
 const ProfilePage = () => <div className="p-4"><h1 className="text-2xl font-bold">Perfil</h1><p className="text-muted-foreground mt-2">Página de perfil em desenvolvimento...</p></div>;
 const AdminPage = () => <div className="p-4"><h1 className="text-2xl font-bold">Administração</h1><p className="text-muted-foreground mt-2">Painel de administração em desenvolvimento...</p></div>;
@@ -37,7 +37,7 @@ const App = () => (
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/budgets" element={<Budgets />} />
               <Route path="/investments" element={<Investments />} />
-              <Route path="/goals" element={<GoalsPage />} />
+              <Route path="/goals" element={<Goals />} />
               <Route path="/insights" element={<InsightsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin" element={<AdminPage />} />
