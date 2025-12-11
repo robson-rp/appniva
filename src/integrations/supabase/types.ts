@@ -216,6 +216,108 @@ export type Database = {
           },
         ]
       }
+      debt_payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          debt_id: string
+          id: string
+          notes: string | null
+          payment_date: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          debt_id: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          debt_id?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debt_payments_debt_id_fkey"
+            columns: ["debt_id"]
+            isOneToOne: false
+            referencedRelation: "debts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "debt_payments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debts: {
+        Row: {
+          created_at: string | null
+          currency: string
+          current_balance: number
+          id: string
+          installment_amount: number
+          installment_frequency: Database["public"]["Enums"]["installment_frequency"]
+          institution: string | null
+          interest_rate_annual: number
+          name: string
+          next_payment_date: string | null
+          notes: string | null
+          principal_amount: number
+          status: Database["public"]["Enums"]["debt_status"]
+          type: Database["public"]["Enums"]["debt_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string
+          current_balance: number
+          id?: string
+          installment_amount: number
+          installment_frequency?: Database["public"]["Enums"]["installment_frequency"]
+          institution?: string | null
+          interest_rate_annual?: number
+          name: string
+          next_payment_date?: string | null
+          notes?: string | null
+          principal_amount: number
+          status?: Database["public"]["Enums"]["debt_status"]
+          type?: Database["public"]["Enums"]["debt_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string
+          current_balance?: number
+          id?: string
+          installment_amount?: number
+          installment_frequency?: Database["public"]["Enums"]["installment_frequency"]
+          institution?: string | null
+          interest_rate_annual?: number
+          name?: string
+          next_payment_date?: string | null
+          notes?: string | null
+          principal_amount?: number
+          status?: Database["public"]["Enums"]["debt_status"]
+          type?: Database["public"]["Enums"]["debt_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       goal_contributions: {
         Row: {
           amount: number
@@ -583,6 +685,14 @@ export type Database = {
       app_role: "admin" | "user"
       category_type: "expense" | "income"
       coupon_frequency: "semiannual" | "annual"
+      debt_status: "active" | "closed"
+      debt_type:
+        | "personal"
+        | "mortgage"
+        | "car"
+        | "credit_card"
+        | "student"
+        | "other"
       goal_status: "in_progress" | "completed" | "cancelled"
       insight_type:
         | "high_expense"
@@ -590,6 +700,7 @@ export type Database = {
         | "savings_opportunity"
         | "goal_progress"
         | "investment_maturity"
+      installment_frequency: "monthly" | "quarterly" | "semiannual" | "annual"
       interest_payment_frequency:
         | "monthly"
         | "quarterly"
@@ -734,6 +845,15 @@ export const Constants = {
       app_role: ["admin", "user"],
       category_type: ["expense", "income"],
       coupon_frequency: ["semiannual", "annual"],
+      debt_status: ["active", "closed"],
+      debt_type: [
+        "personal",
+        "mortgage",
+        "car",
+        "credit_card",
+        "student",
+        "other",
+      ],
       goal_status: ["in_progress", "completed", "cancelled"],
       insight_type: [
         "high_expense",
@@ -742,6 +862,7 @@ export const Constants = {
         "goal_progress",
         "investment_maturity",
       ],
+      installment_frequency: ["monthly", "quarterly", "semiannual", "annual"],
       interest_payment_frequency: [
         "monthly",
         "quarterly",
