@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTransactions, useCreateTransaction, useDeleteTransaction, useMonthlyStats } from '@/hooks/useTransactions';
 import { TransactionForm } from '@/components/transactions/TransactionForm';
 import { TransactionFilters } from '@/components/transactions/TransactionFilters';
 import { TransactionsTable } from '@/components/transactions/TransactionsTable';
+import { TagsAggregation } from '@/components/transactions/TagsAggregation';
 import { formatCurrency, getCurrentMonth } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +22,8 @@ export default function Transactions() {
     accountId?: string;
     type?: 'income' | 'expense' | 'transfer';
     categoryId?: string;
+    costCenterId?: string;
+    tagId?: string;
   }>({});
 
   const { data: transactions, isLoading } = useTransactions(filters);
@@ -32,6 +36,7 @@ export default function Transactions() {
     const payload = {
       ...data,
       category_id: data.category_id || null,
+      cost_center_id: data.cost_center_id || null,
       related_account_id: data.related_account_id || null,
       description: data.description || null,
     };
@@ -84,33 +89,47 @@ export default function Transactions() {
         </div>
       </div>
 
-      {/* Filters */}
-      <Collapsible open={showFilters} onOpenChange={setShowFilters}>
-        <CollapsibleTrigger asChild>
-          <Button variant="outline" className="gap-2">
-            <Filter className="h-4 w-4" />
-            {showFilters ? 'Esconder Filtros' : 'Mostrar Filtros'}
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-4">
-          <TransactionFilters filters={filters} onFiltersChange={setFilters} />
-        </CollapsibleContent>
-      </Collapsible>
+      {/* Tabs for List and Tags */}
+      <Tabs defaultValue="list" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="list">Lista</TabsTrigger>
+          <TabsTrigger value="tags">Por Tags</TabsTrigger>
+        </TabsList>
 
-      {/* Transactions Table */}
-      {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map(i => (
-            <Skeleton key={i} className="h-14 rounded-lg" />
-          ))}
-        </div>
-      ) : (
-        <TransactionsTable
-          transactions={transactions || []}
-          onDelete={handleDelete}
-          isDeleting={deleteTransaction.isPending}
-        />
-      )}
+        <TabsContent value="list" className="space-y-4">
+          {/* Filters */}
+          <Collapsible open={showFilters} onOpenChange={setShowFilters}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Filter className="h-4 w-4" />
+                {showFilters ? 'Esconder Filtros' : 'Mostrar Filtros'}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4">
+              <TransactionFilters filters={filters} onFiltersChange={setFilters} />
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Transactions Table */}
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map(i => (
+                <Skeleton key={i} className="h-14 rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <TransactionsTable
+              transactions={transactions || []}
+              onDelete={handleDelete}
+              isDeleting={deleteTransaction.isPending}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="tags">
+          <TagsAggregation />
+        </TabsContent>
+      </Tabs>
 
       {/* Create Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
