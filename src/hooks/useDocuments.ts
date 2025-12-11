@@ -3,6 +3,28 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
+export interface ExtractedTransaction {
+  amount: number;
+  type: 'credit' | 'debit';
+  description: string;
+  date: string;
+  suggested_category: string;
+}
+
+export interface ExtractedData {
+  document_type?: 'receipt' | 'bank_statement';
+  amount?: number;
+  description?: string;
+  date?: string;
+  suggested_category?: string;
+  raw_text?: string;
+  // Bank statement specific fields
+  bank_name?: string;
+  account_holder?: string;
+  statement_period?: { start: string; end: string };
+  transactions?: ExtractedTransaction[];
+}
+
 export interface UploadedDocument {
   id: string;
   user_id: string;
@@ -10,13 +32,7 @@ export interface UploadedDocument {
   file_type: 'image' | 'pdf';
   original_filename: string | null;
   processed: boolean;
-  extracted_data: {
-    amount?: number;
-    description?: string;
-    date?: string;
-    suggested_category?: string;
-    raw_text?: string;
-  } | null;
+  extracted_data: ExtractedData | null;
   created_at: string;
   updated_at: string;
 }
