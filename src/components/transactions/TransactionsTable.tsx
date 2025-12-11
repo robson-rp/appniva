@@ -1,4 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Trash2 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, Trash2, Building2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ interface Transaction {
   account: { id: string; name: string; currency: string } | null;
   category: { id: string; name: string; icon: string | null; color: string | null; type: string } | null;
   related_account: { id: string; name: string } | null;
+  cost_center: { id: string; name: string; type: 'income_center' | 'expense_center' } | null;
 }
 
 interface TransactionsTableProps {
@@ -54,6 +55,7 @@ export function TransactionsTable({ transactions, onDelete, isDeleting }: Transa
             <TableHead>Tipo</TableHead>
             <TableHead>Conta</TableHead>
             <TableHead>Categoria</TableHead>
+            <TableHead>Centro de Custo</TableHead>
             <TableHead>Descrição</TableHead>
             <TableHead className="text-right">Montante</TableHead>
             <TableHead className="w-[60px]"></TableHead>
@@ -93,6 +95,24 @@ export function TransactionsTable({ transactions, onDelete, isDeleting }: Transa
                       style={{ borderColor: transaction.category.color || undefined }}
                     >
                       {transaction.category.name}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">—</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {transaction.cost_center ? (
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "text-xs gap-1",
+                        transaction.cost_center.type === 'income_center' 
+                          ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                          : 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                      )}
+                    >
+                      <Building2 className="h-3 w-3" />
+                      {transaction.cost_center.name}
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground text-sm">—</span>
