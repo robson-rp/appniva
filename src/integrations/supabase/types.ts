@@ -465,6 +465,42 @@ export type Database = {
           },
         ]
       }
+      uploaded_documents: {
+        Row: {
+          created_at: string
+          extracted_data: Json | null
+          file_type: string
+          file_url: string
+          id: string
+          original_filename: string | null
+          processed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          extracted_data?: Json | null
+          file_type: string
+          file_url: string
+          id?: string
+          original_filename?: string | null
+          processed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          extracted_data?: Json | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          original_filename?: string | null
+          processed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
