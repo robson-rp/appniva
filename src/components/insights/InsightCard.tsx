@@ -34,7 +34,7 @@ const insightConfig: Record<string, { icon: typeof Lightbulb; color: string; bgC
     color: 'text-income', 
     bgColor: 'bg-income/10' 
   },
-  budget_alert: { 
+  budget_overrun: { 
     icon: AlertTriangle, 
     color: 'text-warning', 
     bgColor: 'bg-warning/10' 
@@ -44,30 +44,24 @@ const insightConfig: Record<string, { icon: typeof Lightbulb; color: string; bgC
     color: 'text-expense', 
     bgColor: 'bg-expense/10' 
   },
-  goal_reminder: { 
+  goal_progress: { 
     icon: Target, 
     color: 'text-primary', 
     bgColor: 'bg-primary/10' 
   },
-  investment_tip: { 
+  investment_maturity: { 
     icon: Landmark, 
     color: 'text-accent-teal', 
     bgColor: 'bg-accent-teal/10' 
-  },
-  general: { 
-    icon: Lightbulb, 
-    color: 'text-muted-foreground', 
-    bgColor: 'bg-muted' 
   },
 };
 
 const insightTypeLabels: Record<string, string> = {
   savings_opportunity: 'Poupança',
-  budget_alert: 'Orçamento',
+  budget_overrun: 'Orçamento',
   high_expense: 'Despesas',
-  goal_reminder: 'Metas',
-  investment_tip: 'Investimentos',
-  general: 'Geral',
+  goal_progress: 'Metas',
+  investment_maturity: 'Investimentos',
 };
 
 export function InsightCard({ insight, onMarkAsRead, onDelete }: InsightCardProps) {
