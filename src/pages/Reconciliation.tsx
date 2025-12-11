@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, RefreshCw, FileText } from 'lucide-react';
+import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useAccounts } from '@/hooks/useAccounts';
 import {
   useReconciliations,
@@ -17,6 +17,7 @@ import {
   ImportedTransaction,
 } from '@/hooks/useReconciliation';
 import { CSVImporter } from '@/components/reconciliation/CSVImporter';
+import { OCRImporter } from '@/components/reconciliation/OCRImporter';
 import { ReconciliationTable } from '@/components/reconciliation/ReconciliationTable';
 import { ReconciliationSummary } from '@/components/reconciliation/ReconciliationSummary';
 import { TransactionLinkDialog } from '@/components/reconciliation/TransactionLinkDialog';
@@ -162,23 +163,7 @@ export default function Reconciliation() {
           <TabsContent value="import">
             <div className="grid md:grid-cols-2 gap-6">
               <CSVImporter onImport={handleImport} isLoading={importMutation.isPending} />
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <FileText className="h-5 w-5" />
-                    Dados do OCR
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Você também pode importar dados de extratos processados via OCR na página de
-                    documentos.
-                  </p>
-                  <Button variant="outline" onClick={() => navigate('/ocr-upload')}>
-                    Ir para Upload OCR
-                  </Button>
-                </CardContent>
-              </Card>
+              <OCRImporter onImport={handleImport} isLoading={importMutation.isPending} />
             </div>
           </TabsContent>
 
