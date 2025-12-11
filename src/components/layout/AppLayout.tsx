@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUnreadInsightsCount } from '@/hooks/useInsights';
 import {
   LayoutDashboard,
   Wallet,
@@ -28,7 +29,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -44,6 +45,7 @@ const navItems = [
 
 export default function AppLayout() {
   const { user, profile, isAdmin, loading, signOut } = useAuth();
+  const { data: unreadCount = 0 } = useUnreadInsightsCount();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -112,15 +114,25 @@ export default function AppLayout() {
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const showBadge = item.path === '/insights' && unreadCount > 0;
+            
             return (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                className={cn('sidebar-link', isActive && 'sidebar-link-active')}
+                className={cn('sidebar-link relative', isActive && 'sidebar-link-active')}
               >
                 <item.icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {showBadge && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
               </Link>
             );
           })}
