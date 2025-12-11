@@ -7,6 +7,7 @@ import { TRANSACTION_TYPES } from '@/lib/constants';
 import { useActiveAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { useCostCenters } from '@/hooks/useCostCenters';
+import { useTags } from '@/hooks/useTags';
 
 interface TransactionFiltersProps {
   filters: {
@@ -16,6 +17,7 @@ interface TransactionFiltersProps {
     type?: 'income' | 'expense' | 'transfer';
     categoryId?: string;
     costCenterId?: string;
+    tagId?: string;
   };
   onFiltersChange: (filters: TransactionFiltersProps['filters']) => void;
 }
@@ -24,6 +26,7 @@ export function TransactionFilters({ filters, onFiltersChange }: TransactionFilt
   const { data: accounts } = useActiveAccounts();
   const { data: categories } = useCategories();
   const { data: costCenters } = useCostCenters();
+  const { data: tags } = useTags();
 
   const hasActiveFilters = Object.values(filters).some(v => v);
 
@@ -50,7 +53,7 @@ export function TransactionFilters({ filters, onFiltersChange }: TransactionFilt
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Data Início</Label>
           <Input
@@ -143,6 +146,26 @@ export function TransactionFilters({ filters, onFiltersChange }: TransactionFilt
               {costCenters?.map((center) => (
                 <SelectItem key={center.id} value={center.id}>
                   {center.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Tag</Label>
+          <Select
+            value={filters.tagId || 'all'}
+            onValueChange={(value) => updateFilter('tagId', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Todas as tags" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as tags</SelectItem>
+              {tags?.map((tag) => (
+                <SelectItem key={tag.id} value={tag.id}>
+                  {tag.name}
                 </SelectItem>
               ))}
             </SelectContent>

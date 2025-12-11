@@ -14,6 +14,7 @@ interface TransactionFilters {
   type?: 'income' | 'expense' | 'transfer';
   categoryId?: string;
   costCenterId?: string;
+  tagId?: string;
 }
 
 export function useTransactions(filters?: TransactionFilters) {
@@ -56,9 +57,23 @@ export function useTransactions(filters?: TransactionFilters) {
         query = query.eq('cost_center_id', filters.costCenterId);
       }
 
-      const { data, error } = await query.limit(500);
+      let { data, error } = await query.limit(500);
 
       if (error) throw error;
+
+      // Filter by tag if specified (needs post-processing due to N:N relationship)
+      if (filters?.tagId && data) {
+        const { data: taggedTransactions, error: tagError } = await supabase
+          .from('transaction_tags')
+          .select('transaction_id')
+          .eq('tag_id', filters.tagId);
+
+        if (tagError) throw tagError;
+
+        const taggedIds = new Set(taggedTransactions?.map((tt) => tt.transaction_id) || []);
+        data = data.filter((t: any) => taggedIds.has(t.id));
+      }
+
       return data;
     },
     enabled: !!user,

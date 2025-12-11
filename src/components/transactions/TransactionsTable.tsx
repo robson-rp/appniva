@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { formatCurrency, formatDate, TRANSACTION_TYPES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { TagManager } from './TagManager';
 
 interface Transaction {
   id: string;
@@ -56,6 +57,7 @@ export function TransactionsTable({ transactions, onDelete, isDeleting }: Transa
             <TableHead>Conta</TableHead>
             <TableHead>Categoria</TableHead>
             <TableHead>Centro de Custo</TableHead>
+            <TableHead>Tags</TableHead>
             <TableHead>Descrição</TableHead>
             <TableHead className="text-right">Montante</TableHead>
             <TableHead className="w-[60px]"></TableHead>
@@ -118,7 +120,10 @@ export function TransactionsTable({ transactions, onDelete, isDeleting }: Transa
                     <span className="text-muted-foreground text-sm">—</span>
                   )}
                 </TableCell>
-                <TableCell className="max-w-[200px] truncate text-sm text-muted-foreground">
+                <TableCell>
+                  <TagManager transactionId={transaction.id} />
+                </TableCell>
+                <TableCell className="max-w-[150px] truncate text-sm text-muted-foreground">
                   {transaction.description || '—'}
                 </TableCell>
                 <TableCell className="text-right">
