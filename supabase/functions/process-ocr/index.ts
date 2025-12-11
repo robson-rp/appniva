@@ -45,11 +45,50 @@ serve(async (req) => {
       );
     }
 
-    console.log("Processing document:", document.id, document.file_url);
+    console.log("Processing document:", document.id, document.file_url, "type:", document.file_type);
 
-    // Build prompt for OCR extraction
-    const systemPrompt = `Você é um especialista em extração de dados de documentos financeiros angolanos.
-Analise a imagem do documento financeiro (recibo, factura ou extrato bancário) e extraia as seguintes informações:
+    const isPdf = document.file_type === "pdf";
+    
+    // Build prompt based on document type
+    const systemPrompt = isPdf
+      ? `Você é um especialista em extração de dados de extratos bancários angolanos.
+Analise o documento PDF de extrato bancário e extraia TODAS as transações encontradas.
+
+Para cada transação, extraia:
+1. amount: O valor monetário (número positivo, sem símbolos de moeda)
+2. type: "credit" para depósitos/entradas ou "debit" para levantamentos/saídas
+3. description: Descrição da transação
+4. date: Data da transação no formato YYYY-MM-DD
+5. suggested_category: Uma categoria sugerida entre: Alimentação, Transporte, Saúde, Educação, Entretenimento, Compras, Serviços, Moradia, Salário, Transferência, Outros
+
+Responda APENAS com um objeto JSON válido contendo:
+{
+  "document_type": "bank_statement",
+  "bank_name": "Nome do banco se identificável",
+  "account_holder": "Nome do titular se identificável",
+  "statement_period": { "start": "YYYY-MM-DD", "end": "YYYY-MM-DD" },
+  "transactions": [
+    {
+      "amount": 15000,
+      "type": "debit",
+      "description": "Pagamento Supermercado Kero",
+      "date": "2024-01-15",
+      "suggested_category": "Alimentação"
+    },
+    {
+      "amount": 500000,
+      "type": "credit",
+      "description": "Transferência Recebida",
+      "date": "2024-01-10",
+      "suggested_category": "Transferência"
+    }
+  ],
+  "raw_text": "Texto extraído do documento..."
+}
+
+Se não conseguir extrair algum campo, use null. Extraia o máximo de transações possível.`
+      : `Você é um especialista em extração de dados de documentos financeiros angolanos.
+Analise a imagem do documento financeiro (recibo, factura) e extraia as seguintes informações:
 
 1. amount: O valor monetário principal (número, sem símbolos de moeda)
 2. description: Descrição do estabelecimento ou serviço
@@ -58,6 +97,7 @@ Analise a imagem do documento financeiro (recibo, factura ou extrato bancário) 
 
 Responda APENAS com um objeto JSON válido, sem texto adicional. Exemplo:
 {
+  "document_type": "receipt",
   "amount": 15000,
   "description": "Supermercado Kero - Compras",
   "date": "2024-01-15",
@@ -83,7 +123,9 @@ Se não conseguir extrair algum campo, use null.`;
             content: [
               {
                 type: "text",
-                text: "Extraia os dados financeiros deste documento:",
+                text: isPdf 
+                  ? "Extraia TODAS as transações deste extrato bancário:" 
+                  : "Extraia os dados financeiros deste documento:",
               },
               {
                 type: "image_url",
@@ -133,16 +175,25 @@ Se não conseguir extrair algum campo, use null.`;
         cleanContent = cleanContent.slice(0, -3);
       }
       extractedData = JSON.parse(cleanContent.trim());
+      
+      // Ensure document_type is set
+      if (!extractedData.document_type) {
+        extractedData.document_type = isPdf ? "bank_statement" : "receipt";
+      }
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
       extractedData = {
+        document_type: isPdf ? "bank_statement" : "receipt",
         amount: null,
         description: "Não foi possível extrair dados",
         date: null,
         suggested_category: "Outros",
         raw_text: content,
+        transactions: isPdf ? [] : undefined,
       };
     }
+
+    console.log("Extracted data:", JSON.stringify(extractedData, null, 2));
 
     // Update document with extracted data
     const { error: updateError } = await supabase
