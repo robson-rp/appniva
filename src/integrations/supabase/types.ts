@@ -56,6 +56,60 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_reconciliations: {
+        Row: {
+          account_id: string
+          created_at: string
+          external_amount: number
+          external_date: string | null
+          external_description: string | null
+          id: string
+          status: Database["public"]["Enums"]["reconciliation_status"]
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          external_amount: number
+          external_date?: string | null
+          external_description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["reconciliation_status"]
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          external_amount?: number
+          external_date?: string | null
+          external_description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["reconciliation_status"]
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_reconciliations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_reconciliations_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bond_otnrs: {
         Row: {
           coupon_frequency: Database["public"]["Enums"]["coupon_frequency"]
@@ -764,6 +818,7 @@ export type Database = {
         | "real_estate"
         | "equity"
         | "other"
+      reconciliation_status: "matched" | "mismatched" | "pending"
       transaction_type: "income" | "expense" | "transfer"
     }
     CompositeTypes: {
@@ -928,6 +983,7 @@ export const Constants = {
         "equity",
         "other",
       ],
+      reconciliation_status: ["matched", "mismatched", "pending"],
       transaction_type: ["income", "expense", "transfer"],
     },
   },

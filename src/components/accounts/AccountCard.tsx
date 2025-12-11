@@ -1,4 +1,5 @@
-import { Landmark, Smartphone, Wallet, Circle, MoreVertical, Power, Pencil } from 'lucide-react';
+import { Landmark, Smartphone, Wallet, Circle, MoreVertical, Power, Pencil, Scale } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ account, onEdit, onToggleStatus }: AccountCardProps) {
+  const navigate = useNavigate();
   const accountType = ACCOUNT_TYPES.find(t => t.value === account.account_type);
   const IconComponent = iconMap[accountType?.icon as keyof typeof iconMap] || Circle;
 
@@ -68,6 +70,10 @@ export function AccountCard({ account, onEdit, onToggleStatus }: AccountCardProp
               <DropdownMenuItem onClick={() => onToggleStatus(account.id, !account.is_active)}>
                 <Power className="h-4 w-4 mr-2" />
                 {account.is_active ? 'Desactivar' : 'Activar'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`/reconciliation/${account.id}`)}>
+                <Scale className="h-4 w-4 mr-2" />
+                Reconciliação
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
