@@ -21,6 +21,7 @@ import OCRReview from "@/pages/OCRReview";
 import Debts from "@/pages/Debts";
 import Simulator from "@/pages/Simulator";
 import Reconciliation from "@/pages/Reconciliation";
+import ReconciliationSelect from "@/pages/ReconciliationSelect";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/ocr/review/:id" element={<OCRReview />} />
               <Route path="/debts" element={<Debts />} />
               <Route path="/simulator" element={<Simulator />} />
+              <Route path="/reconciliation" element={<ReconciliationSelect />} />
               <Route path="/reconciliation/:accountId" element={<Reconciliation />} />
             </Route>
             <Route path="*" element={<NotFound />} />
