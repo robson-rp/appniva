@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
@@ -20,6 +20,7 @@ import { CSVImporter } from '@/components/reconciliation/CSVImporter';
 import { OCRUploader } from '@/components/reconciliation/OCRUploader';
 import { ReconciliationTable } from '@/components/reconciliation/ReconciliationTable';
 import { ReconciliationSummary } from '@/components/reconciliation/ReconciliationSummary';
+import { ReconciliationReport } from '@/components/reconciliation/ReconciliationReport';
 import { TransactionLinkDialog } from '@/components/reconciliation/TransactionLinkDialog';
 
 export default function Reconciliation() {
@@ -139,12 +140,13 @@ export default function Reconciliation() {
 
         {/* Main Content */}
         <Tabs defaultValue="reconciliation" className="space-y-4">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="reconciliation">Reconciliação</TabsTrigger>
             <TabsTrigger value="import">Importar Dados</TabsTrigger>
             <TabsTrigger value="transactions">
-              Transações Internas ({transactions?.length || 0})
+              Transações ({transactions?.length || 0})
             </TabsTrigger>
+            <TabsTrigger value="report">Relatório</TabsTrigger>
           </TabsList>
 
           <TabsContent value="reconciliation" className="space-y-4">
@@ -223,6 +225,18 @@ export default function Reconciliation() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="report">
+            {loadingRecs ? (
+              <Skeleton className="h-96" />
+            ) : (
+              <ReconciliationReport
+                reconciliations={reconciliations || []}
+                accountName={account?.name || 'Conta'}
+                internalBalance={internalBalance}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </div>
