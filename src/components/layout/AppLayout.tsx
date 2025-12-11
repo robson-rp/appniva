@@ -18,6 +18,7 @@ import {
   ChevronDown,
   ScanText,
   CreditCard,
+  Calculator,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ const navItems = [
   { path: '/investments', label: 'Investimentos', icon: TrendingUp },
   { path: '/goals', label: 'Metas', icon: Target },
   { path: '/insights', label: 'Insights', icon: Lightbulb },
+  { path: '/simulator', label: 'Simulador', icon: Calculator },
   { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
 ];
 

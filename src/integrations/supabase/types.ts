@@ -507,6 +507,57 @@ export type Database = {
         }
         Relationships: []
       }
+      scenarios: {
+        Row: {
+          created_at: string | null
+          exchange_rate_projection: number | null
+          future_expenses: Json | null
+          id: string
+          inflation_rate: number
+          investment_return_rate: number
+          monthly_expense_estimate: number
+          monthly_income_estimate: number
+          name: string
+          notes: string | null
+          salary_increase_rate: number
+          time_horizon_years: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          exchange_rate_projection?: number | null
+          future_expenses?: Json | null
+          id?: string
+          inflation_rate?: number
+          investment_return_rate?: number
+          monthly_expense_estimate?: number
+          monthly_income_estimate?: number
+          name: string
+          notes?: string | null
+          salary_increase_rate?: number
+          time_horizon_years?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          exchange_rate_projection?: number | null
+          future_expenses?: Json | null
+          id?: string
+          inflation_rate?: number
+          investment_return_rate?: number
+          monthly_expense_estimate?: number
+          monthly_income_estimate?: number
+          name?: string
+          notes?: string | null
+          salary_increase_rate?: number
+          time_horizon_years?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       term_deposits: {
         Row: {
           auto_renew: boolean | null
