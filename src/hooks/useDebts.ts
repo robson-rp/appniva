@@ -114,6 +114,24 @@ export function useDebtPayments(debtId: string) {
   });
 }
 
+export function useAllDebtPayments() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['all-debt-payments', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('debt_payments')
+        .select('*')
+        .order('payment_date', { ascending: true });
+
+      if (error) throw error;
+      return data as DebtPayment[];
+    },
+    enabled: !!user,
+  });
+}
+
 export function useCreateDebt() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
