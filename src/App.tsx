@@ -15,10 +15,10 @@ import Investments from "@/pages/Investments";
 import Goals from "@/pages/Goals";
 import Insights from "@/pages/Insights";
 import Profile from "@/pages/Profile";
+import Admin from "@/pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-const AdminPage = () => <div className="p-4"><h1 className="text-2xl font-bold">Administração</h1><p className="text-muted-foreground mt-2">Painel de administração em desenvolvimento...</p></div>;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -40,7 +40,7 @@ const App = () => (
               <Route path="/goals" element={<Goals />} />
               <Route path="/insights" element={<Insights />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin" element={<Admin />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
