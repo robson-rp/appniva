@@ -19,6 +19,7 @@ import {
 import { CostCenterCard } from '@/components/cost-centers/CostCenterCard';
 import { CostCenterForm } from '@/components/cost-centers/CostCenterForm';
 import { CostCenterCharts } from '@/components/cost-centers/CostCenterCharts';
+import { CostCenterBudgetList } from '@/components/cost-centers/CostCenterBudgetList';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -87,6 +88,7 @@ const CostCenters = () => {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="budgets">Orçamentos</TabsTrigger>
           <TabsTrigger value="expense">Centros de Despesa</TabsTrigger>
           <TabsTrigger value="income">Centros de Receita</TabsTrigger>
         </TabsList>
@@ -113,6 +115,10 @@ const CostCenters = () => {
               </Button>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="budgets" className="space-y-6">
+          <CostCenterBudgetList />
         </TabsContent>
 
         <TabsContent value="expense" className="space-y-4">
