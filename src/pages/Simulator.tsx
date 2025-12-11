@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Calculator, Save, Plus, Trash2, MoreHorizontal } from 'lucide-react';
+import { Calculator, Plus, MoreHorizontal, GitCompare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { SimulatorForm } from '@/components/simulator/SimulatorForm';
 import { WealthProjectionChart } from '@/components/simulator/WealthProjectionChart';
 import { SimulationResults } from '@/components/simulator/SimulationResults';
+import { ScenarioComparison } from '@/components/simulator/ScenarioComparison';
 import { 
   useScenarios, 
   useCreateScenario, 
@@ -52,6 +54,25 @@ export default function Simulator() {
   const [deleteScenarioId, setDeleteScenarioId] = useState<string | null>(null);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [activeTab, setActiveTab] = useState('new');
+  const [selectedForComparison, setSelectedForComparison] = useState<string[]>([]);
+
+  // Get scenarios selected for comparison
+  const scenariosToCompare = useMemo(() => {
+    if (!scenarios) return [];
+    return scenarios.filter(s => selectedForComparison.includes(s.id));
+  }, [scenarios, selectedForComparison]);
+
+  const toggleScenarioComparison = (scenarioId: string) => {
+    setSelectedForComparison(prev => {
+      if (prev.includes(scenarioId)) {
+        return prev.filter(id => id !== scenarioId);
+      }
+      if (prev.length >= 5) {
+        return prev; // Max 5 scenarios
+      }
+      return [...prev, scenarioId];
+    });
+  };
 
   // Calculate initial wealth from accounts
   const initialWealth = useMemo(() => {
@@ -167,13 +188,19 @@ export default function Simulator() {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="new">Nova Simulação</TabsTrigger>
           <TabsTrigger value="saved">
-            Cenários Guardados ({scenarios?.length || 0})
+            Cenários ({scenarios?.length || 0})
           </TabsTrigger>
           {simulationResult && (
             <TabsTrigger value="results">Resultados</TabsTrigger>
+          )}
+          {selectedForComparison.length >= 2 && (
+            <TabsTrigger value="compare" className="gap-1">
+              <GitCompare className="h-4 w-4" />
+              Comparar ({selectedForComparison.length})
+            </TabsTrigger>
           )}
         </TabsList>
 
@@ -201,67 +228,118 @@ export default function Simulator() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {scenarios?.map((scenario) => (
-                <Card key={scenario.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-start justify-between pb-2">
-                    <div>
-                      <CardTitle className="text-base">{scenario.name}</CardTitle>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {scenario.time_horizon_years} anos
-                      </p>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleLoadScenario(scenario)}>
-                          Carregar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setDeleteScenarioId(scenario.id)}
-                          className="text-destructive"
-                        >
-                          Eliminar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Rendimento</p>
-                        <p className="font-medium">{formatCurrency(scenario.monthly_income_estimate)}/mês</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Despesas</p>
-                        <p className="font-medium">{formatCurrency(scenario.monthly_expense_estimate)}/mês</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Retorno Inv.</p>
-                        <p className="font-medium">{scenario.investment_return_rate}%/ano</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Inflação</p>
-                        <p className="font-medium">{scenario.inflation_rate}%/ano</p>
-                      </div>
-                    </div>
+            <>
+              {selectedForComparison.length > 0 && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 mb-4">
+                  <GitCompare className="h-4 w-4" />
+                  <span className="text-sm">
+                    {selectedForComparison.length} cenário(s) selecionado(s) para comparação.
+                  </span>
+                  {selectedForComparison.length >= 2 && (
                     <Button 
-                      variant="outline" 
-                      className="w-full mt-4"
-                      onClick={() => handleLoadScenario(scenario)}
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => setActiveTab('compare')}
                     >
-                      Simular
+                      Ver Comparação
                     </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  )}
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => setSelectedForComparison([])}
+                  >
+                    Limpar
+                  </Button>
+                </div>
+              )}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {scenarios?.map((scenario) => (
+                  <Card 
+                    key={scenario.id} 
+                    className={`hover:shadow-md transition-shadow ${
+                      selectedForComparison.includes(scenario.id) 
+                        ? 'ring-2 ring-primary' 
+                        : ''
+                    }`}
+                  >
+                    <CardHeader className="flex flex-row items-start justify-between pb-2">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedForComparison.includes(scenario.id)}
+                          onCheckedChange={() => toggleScenarioComparison(scenario.id)}
+                          className="mt-1"
+                        />
+                        <div>
+                          <CardTitle className="text-base">{scenario.name}</CardTitle>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {scenario.time_horizon_years} anos
+                          </p>
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleLoadScenario(scenario)}>
+                            Carregar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => setDeleteScenarioId(scenario.id)}
+                            className="text-destructive"
+                          >
+                            Eliminar
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Rendimento</p>
+                          <p className="font-medium">{formatCurrency(scenario.monthly_income_estimate)}/mês</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Despesas</p>
+                          <p className="font-medium">{formatCurrency(scenario.monthly_expense_estimate)}/mês</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Retorno Inv.</p>
+                          <p className="font-medium">{scenario.investment_return_rate}%/ano</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Inflação</p>
+                          <p className="font-medium">{scenario.inflation_rate}%/ano</p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="w-full mt-4"
+                        onClick={() => handleLoadScenario(scenario)}
+                      >
+                        Simular
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
         </TabsContent>
+
+        {/* Comparison Tab */}
+        {selectedForComparison.length >= 2 && (
+          <TabsContent value="compare" className="space-y-6 mt-6">
+            <ScenarioComparison
+              scenarios={scenariosToCompare}
+              initialWealth={initialWealth}
+              goals={goalsForSimulation}
+            />
+          </TabsContent>
+        )}
 
         {simulationResult && (
           <TabsContent value="results" className="space-y-6 mt-6">
