@@ -25,6 +25,7 @@ import { DebtCard } from '@/components/debts/DebtCard';
 import { DebtForm } from '@/components/debts/DebtForm';
 import { PaymentForm } from '@/components/debts/PaymentForm';
 import { DebtEvolutionChart } from '@/components/debts/DebtEvolutionChart';
+import { AmortizationSimulator } from '@/components/debts/AmortizationSimulator';
 import { 
   useDebts, 
   useCreateDebt, 
@@ -227,6 +228,11 @@ export default function Debts() {
       {/* Debt Evolution Chart */}
       {debts && debts.length > 0 && (
         <DebtEvolutionChart debts={debts} payments={allPayments || []} />
+      )}
+
+      {/* Amortization Simulator */}
+      {debts && debts.length > 0 && (
+        <AmortizationSimulator debts={debts} />
       )}
 
       {/* Debts List */}
