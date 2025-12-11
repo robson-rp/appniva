@@ -10,6 +10,7 @@ import { TransactionForm } from '@/components/transactions/TransactionForm';
 import { TransactionFilters } from '@/components/transactions/TransactionFilters';
 import { TransactionsTable } from '@/components/transactions/TransactionsTable';
 import { TagsAggregation } from '@/components/transactions/TagsAggregation';
+import { DuplicateDetector } from '@/components/transactions/DuplicateDetector';
 import { formatCurrency, getCurrentMonth } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
@@ -97,6 +98,9 @@ export default function Transactions() {
         </TabsList>
 
         <TabsContent value="list" className="space-y-4">
+          {/* Duplicate Detector */}
+          <DuplicateDetector transactions={transactions} />
+
           {/* Filters */}
           <Collapsible open={showFilters} onOpenChange={setShowFilters}>
             <CollapsibleTrigger asChild>
