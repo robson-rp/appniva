@@ -124,6 +124,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY não configurada");
     }
 
+    // Valid enum values from database: high_expense, budget_overrun, savings_opportunity, goal_progress, investment_maturity
     const systemPrompt = `És um consultor financeiro pessoal especializado em finanças angolanas. 
 Analisa os dados financeiros do utilizador e gera insights personalizados, práticos e accionáveis.
 
@@ -132,13 +133,12 @@ Gera entre 2 a 5 insights baseados nos dados. Cada insight deve ser:
 - Accionável com sugestões concretas
 - Em português de Portugal (não brasileiro)
 
-Tipos de insights disponíveis:
+Tipos de insights disponíveis (USA APENAS ESTES):
 - savings_opportunity: quando há oportunidade de poupar mais
-- budget_alert: quando um orçamento está próximo ou ultrapassou o limite
+- budget_overrun: quando um orçamento ultrapassou o limite
 - high_expense: quando uma categoria de despesa é muito alta
-- goal_reminder: lembrete sobre metas financeiras
-- investment_tip: sugestão sobre investimentos
-- general: dicas gerais de saúde financeira`;
+- goal_progress: progresso ou lembrete sobre metas financeiras
+- investment_maturity: informação sobre vencimento de investimentos`;
 
     const userPrompt = `Dados financeiros do mês ${currentMonth}:
 - Rendimento: ${income.toFixed(2)} AOA
@@ -155,7 +155,7 @@ ${Object.entries(expensesByCategory).map(([cat, amt]) => `- ${cat}: ${(amt as nu
 Estado dos orçamentos:
 ${budgetStatus.map((b: any) => `- ${b.category}: ${b.spent.toFixed(2)}/${b.limit.toFixed(2)} AOA (${b.percentage.toFixed(0)}%)`).join("\n") || "Nenhum orçamento definido"}
 
-Gera insights relevantes para esta situação financeira.`;
+Gera insights relevantes para esta situação financeira. IMPORTANTE: Usa APENAS os tipos: savings_opportunity, budget_overrun, high_expense, goal_progress, investment_maturity.`;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -185,7 +185,7 @@ Gera insights relevantes para esta situação financeira.`;
                       properties: {
                         insight_type: {
                           type: "string",
-                          enum: ["savings_opportunity", "budget_alert", "high_expense", "goal_reminder", "investment_tip", "general"],
+                          enum: ["savings_opportunity", "budget_overrun", "high_expense", "goal_progress", "investment_maturity"],
                         },
                         title: { type: "string", description: "Título curto e impactante (máximo 50 caracteres)" },
                         message: { type: "string", description: "Mensagem detalhada com análise e sugestões (100-200 palavras)" },
