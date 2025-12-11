@@ -121,7 +121,10 @@ export function TransactionsTable({ transactions, onDelete, isDeleting }: Transa
                   )}
                 </TableCell>
                 <TableCell>
-                  <TagManager transactionId={transaction.id} />
+                  <TagManager 
+                    transactionId={transaction.id} 
+                    description={transaction.description || undefined}
+                  />
                 </TableCell>
                 <TableCell className="max-w-[150px] truncate text-sm text-muted-foreground">
                   {transaction.description || '—'}
