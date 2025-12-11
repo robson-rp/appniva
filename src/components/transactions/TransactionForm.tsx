@@ -13,6 +13,7 @@ import { TRANSACTION_TYPES } from '@/lib/constants';
 import { useActiveAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { useCategorizeTransaction, useLogPrediction } from '@/hooks/useCategoryPrediction';
+import { useCostCenters } from '@/hooks/useCostCenters';
 import { Database } from '@/integrations/supabase/types';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +25,7 @@ const transactionSchema = z.object({
   amount: z.coerce.number().positive('Montante deve ser positivo'),
   date: z.string().min(1, 'Data é obrigatória'),
   category_id: z.string().optional(),
+  cost_center_id: z.string().optional(),
   description: z.string().max(500).optional(),
   related_account_id: z.string().optional(),
 }).refine((data) => {
@@ -52,6 +54,7 @@ interface CategorySuggestion {
 
 export function TransactionForm({ onSubmit, isLoading }: TransactionFormProps) {
   const { data: accounts } = useActiveAccounts();
+  const { data: costCenters } = useCostCenters();
   const [suggestion, setSuggestion] = useState<CategorySuggestion | null>(null);
   const [suggestionAccepted, setSuggestionAccepted] = useState<boolean | null>(null);
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
@@ -67,6 +70,7 @@ export function TransactionForm({ onSubmit, isLoading }: TransactionFormProps) {
       amount: 0,
       date: new Date().toISOString().split('T')[0],
       category_id: '',
+      cost_center_id: '',
       description: '',
       related_account_id: '',
     },
@@ -389,6 +393,35 @@ export function TransactionForm({ onSubmit, isLoading }: TransactionFormProps) {
             )}
           />
         )}
+
+        <FormField
+          control={form.control}
+          name="cost_center_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Centro de Custo (opcional)</FormLabel>
+              <Select 
+                onValueChange={(value) => field.onChange(value === 'none' ? '' : value)} 
+                value={field.value || 'none'}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione o centro de custo" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {costCenters?.filter(c => c.is_active).map((center) => (
+                    <SelectItem key={center.id} value={center.id}>
+                      {center.name} ({center.type === 'income_center' ? 'Receita' : 'Despesa'})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? 'A registar...' : 'Registar Transacção'}
