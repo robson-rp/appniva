@@ -171,6 +171,51 @@ export type Database = {
         }
         Relationships: []
       }
+      category_prediction_logs: {
+        Row: {
+          accepted: boolean | null
+          confidence: number
+          created_at: string
+          description: string
+          id: string
+          predicted_category_id: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          accepted?: boolean | null
+          confidence: number
+          created_at?: string
+          description: string
+          id?: string
+          predicted_category_id?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          accepted?: boolean | null
+          confidence?: number
+          created_at?: string
+          description?: string
+          id?: string
+          predicted_category_id?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_prediction_logs_predicted_category_id_fkey"
+            columns: ["predicted_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "category_prediction_logs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_contributions: {
         Row: {
           amount: number
