@@ -19,6 +19,7 @@ import {
   ScanText,
   CreditCard,
   Calculator,
+  Scale,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ const navItems = [
   { path: '/goals', label: 'Metas', icon: Target },
   { path: '/insights', label: 'Insights', icon: Lightbulb },
   { path: '/simulator', label: 'Simulador', icon: Calculator },
+  { path: '/reconciliation', label: 'Reconciliação', icon: Scale },
   { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
 ];
 
