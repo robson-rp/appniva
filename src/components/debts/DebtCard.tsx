@@ -1,4 +1,4 @@
-import { format, differenceInDays, differenceInMonths } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { 
   CreditCard, 
@@ -12,6 +12,7 @@ import {
   Building2,
   AlertTriangle,
   CheckCircle2,
+  History,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,9 +48,10 @@ interface DebtCardProps {
   onEdit: (debt: Debt) => void;
   onDelete: (debt: Debt) => void;
   onPayment: (debt: Debt) => void;
+  onViewHistory: (debt: Debt) => void;
 }
 
-export function DebtCard({ debt, onEdit, onDelete, onPayment }: DebtCardProps) {
+export function DebtCard({ debt, onEdit, onDelete, onPayment, onViewHistory }: DebtCardProps) {
   const config = debtTypeConfig[debt.type];
   const Icon = config.icon;
   
@@ -132,6 +134,10 @@ export function DebtCard({ debt, onEdit, onDelete, onPayment }: DebtCardProps) {
                   Registar Pagamento
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem onClick={() => onViewHistory(debt)}>
+                <History className="h-4 w-4 mr-2" />
+                Ver Histórico
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onEdit(debt)}>
                 Editar
               </DropdownMenuItem>

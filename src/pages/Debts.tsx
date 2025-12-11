@@ -26,6 +26,7 @@ import { DebtForm } from '@/components/debts/DebtForm';
 import { PaymentForm } from '@/components/debts/PaymentForm';
 import { DebtEvolutionChart } from '@/components/debts/DebtEvolutionChart';
 import { AmortizationSimulator } from '@/components/debts/AmortizationSimulator';
+import { PaymentHistory } from '@/components/debts/PaymentHistory';
 import { 
   useDebts, 
   useCreateDebt, 
@@ -48,6 +49,7 @@ export default function Debts() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
 
   // Calculate summary stats
@@ -105,6 +107,11 @@ export default function Debts() {
   const handlePayment = (debt: Debt) => {
     setSelectedDebt(debt);
     setIsPaymentOpen(true);
+  };
+
+  const handleViewHistory = (debt: Debt) => {
+    setSelectedDebt(debt);
+    setIsHistoryOpen(true);
   };
 
   const handleFormSubmit = (data: CreateDebtInput) => {
@@ -270,6 +277,7 @@ export default function Debts() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onPayment={handlePayment}
+                  onViewHistory={handleViewHistory}
                 />
               ))}
             </div>
@@ -292,6 +300,7 @@ export default function Debts() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onPayment={handlePayment}
+                  onViewHistory={handleViewHistory}
                 />
               ))}
             </div>
@@ -354,6 +363,22 @@ export default function Debts() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Payment History Dialog */}
+      <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Histórico de Pagamentos - {selectedDebt?.name}</DialogTitle>
+          </DialogHeader>
+          {selectedDebt && (
+            <PaymentHistory
+              debtId={selectedDebt.id}
+              debtName={selectedDebt.name}
+              currency={selectedDebt.currency}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
