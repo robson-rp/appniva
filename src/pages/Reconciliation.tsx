@@ -17,7 +17,7 @@ import {
   ImportedTransaction,
 } from '@/hooks/useReconciliation';
 import { CSVImporter } from '@/components/reconciliation/CSVImporter';
-import { OCRImporter } from '@/components/reconciliation/OCRImporter';
+import { OCRUploader } from '@/components/reconciliation/OCRUploader';
 import { ReconciliationTable } from '@/components/reconciliation/ReconciliationTable';
 import { ReconciliationSummary } from '@/components/reconciliation/ReconciliationSummary';
 import { TransactionLinkDialog } from '@/components/reconciliation/TransactionLinkDialog';
@@ -163,7 +163,7 @@ export default function Reconciliation() {
           <TabsContent value="import">
             <div className="grid md:grid-cols-2 gap-6">
               <CSVImporter onImport={handleImport} isLoading={importMutation.isPending} />
-              <OCRImporter onImport={handleImport} isLoading={importMutation.isPending} />
+              <OCRUploader onImport={handleImport} isImporting={importMutation.isPending} />
             </div>
           </TabsContent>
 
