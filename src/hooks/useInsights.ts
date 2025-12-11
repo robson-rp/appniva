@@ -91,127 +91,60 @@ export function useMarkAllInsightsAsRead() {
 }
 
 export function useGenerateInsights() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Não autenticado');
 
-      const currentMonth = new Date().toISOString().slice(0, 7);
-      const startDate = `${currentMonth}-01`;
-      const [year, monthNum] = currentMonth.split('-').map(Number);
-      const lastDay = new Date(year, monthNum, 0).getDate();
-      const endDate = `${currentMonth}-${lastDay}`;
+      const { data, error } = await supabase.functions.invoke('generate-insights');
 
-      // Get current month expenses
-      const { data: currentExpenses } = await supabase
-        .from('transactions')
-        .select('amount')
-        .eq('user_id', user.id)
-        .eq('type', 'expense')
-        .gte('date', startDate)
-        .lte('date', endDate);
-
-      const totalExpenses = (currentExpenses || []).reduce(
-        (sum, t) => sum + Number(t.amount),
-        0
-      );
-
-      // Get current month income
-      const { data: currentIncome } = await supabase
-        .from('transactions')
-        .select('amount')
-        .eq('user_id', user.id)
-        .eq('type', 'income')
-        .gte('date', startDate)
-        .lte('date', endDate);
-
-      const totalIncome = (currentIncome || []).reduce(
-        (sum, t) => sum + Number(t.amount),
-        0
-      );
-
-      // Get budget overruns
-      const { data: budgets } = await supabase
-        .from('budgets')
-        .select(`
-          amount_limit,
-          category:categories(name)
-        `)
-        .eq('user_id', user.id)
-        .eq('month', currentMonth);
-
-      const { data: expensesByCategory } = await supabase
-        .from('transactions')
-        .select('category_id, amount')
-        .eq('user_id', user.id)
-        .eq('type', 'expense')
-        .gte('date', startDate)
-        .lte('date', endDate);
-
-      const categoryExpenses = (expensesByCategory || []).reduce((acc, t) => {
-        if (t.category_id) {
-          acc[t.category_id] = (acc[t.category_id] || 0) + Number(t.amount);
-        }
-        return acc;
-      }, {} as Record<string, number>);
-
-      const insights: Array<{
-        user_id: string;
-        insight_type: Database['public']['Enums']['insight_type'];
-        title: string;
-        message: string;
-      }> = [];
-
-      // Check for savings opportunity
-      const savings = totalIncome - totalExpenses;
-      if (savings > 0 && totalIncome > 0 && savings / totalIncome >= 0.1) {
-        insights.push({
-          user_id: user.id,
-          insight_type: 'savings_opportunity',
-          title: 'Oportunidade de Poupança',
-          message: `Parabéns! Este mês poupaste ${Math.round(
-            (savings / totalIncome) * 100
-          )}% do teu rendimento. Considera investir parte deste valor num depósito a prazo ou associá-lo a uma meta.`,
-        });
+      if (error) {
+        throw new Error(error.message || 'Erro ao gerar insights');
       }
 
-      // Check budget overruns
-      for (const budget of budgets || []) {
-        const budgetId = (budget as any).category?.name;
-        if (budgetId) {
-          // This is simplified - in real implementation you'd match by category_id
-        }
+      if (data?.error) {
+        throw new Error(data.error);
       }
 
-      // Check if expenses are high relative to income
-      if (totalIncome > 0 && totalExpenses / totalIncome > 0.9) {
-        insights.push({
-          user_id: user.id,
-          insight_type: 'high_expense',
-          title: 'Despesas Elevadas',
-          message: `As tuas despesas representam ${Math.round(
-            (totalExpenses / totalIncome) * 100
-          )}% do teu rendimento este mês. Considera rever os teus gastos nas categorias principais.`,
-        });
-      }
-
-      if (insights.length > 0) {
-        const { error } = await supabase.from('insights').insert(insights);
-        if (error) throw error;
-      }
-
-      return insights.length;
+      return data;
     },
-    onSuccess: (count) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['insights'] });
-      if (count > 0) {
-        toast.success(`${count} novo(s) insight(s) gerado(s)`);
+      if (data?.count > 0) {
+        toast.success(`${data.count} novo(s) insight(s) gerado(s) com IA`);
+      } else {
+        toast.info('Nenhum novo insight gerado');
       }
     },
-    onError: () => {
-      toast.error('Erro ao gerar insights');
+    onError: (error: Error) => {
+      if (error.message.includes('429') || error.message.includes('Limite')) {
+        toast.error('Limite de pedidos excedido. Tenta mais tarde.');
+      } else if (error.message.includes('402') || error.message.includes('Créditos')) {
+        toast.error('Créditos de IA esgotados.');
+      } else {
+        toast.error(error.message || 'Erro ao gerar insights');
+      }
+    },
+  });
+}
+
+export function useDeleteInsight() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('insights')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['insights'] });
+      toast.success('Insight eliminado');
     },
   });
 }
