@@ -47,7 +47,50 @@ serve(async (req) => {
 
     console.log("Processing document:", document.id, document.file_url, "type:", document.file_type);
 
+    // Extract the file path from the URL
+    const urlParts = document.file_url.split('/storage/v1/object/public/');
+    let filePath: string;
+    
+    if (urlParts.length > 1) {
+      // URL format: .../storage/v1/object/public/bucket-name/path
+      const pathWithBucket = urlParts[1];
+      const bucketEndIndex = pathWithBucket.indexOf('/');
+      filePath = pathWithBucket.substring(bucketEndIndex + 1);
+    } else {
+      // Try alternative format
+      const altParts = document.file_url.split('/financial-documents/');
+      if (altParts.length > 1) {
+        filePath = altParts[1];
+      } else {
+        throw new Error("Não foi possível extrair o caminho do arquivo");
+      }
+    }
+
+    console.log("Downloading file from path:", filePath);
+
+    // Download the file from storage
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from("financial-documents")
+      .download(filePath);
+
+    if (downloadError || !fileData) {
+      console.error("Download error:", downloadError);
+      throw new Error("Não foi possível baixar o documento");
+    }
+
+    // Convert to base64
+    const arrayBuffer = await fileData.arrayBuffer();
+    const base64Data = btoa(
+      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+
     const isPdf = document.file_type === "pdf";
+    const mimeType = isPdf ? "application/pdf" : `image/${document.file_type === "image" ? "jpeg" : document.file_type}`;
+    const dataUrl = `data:${mimeType};base64,${base64Data}`;
+
+    console.log("File converted to base64, size:", base64Data.length);
+
+    
     
     // Build prompt based on document type
     const systemPrompt = isPdf
@@ -129,7 +172,7 @@ Se não conseguir extrair algum campo, use null.`;
               },
               {
                 type: "image_url",
-                image_url: { url: document.file_url },
+                image_url: { url: dataUrl },
               },
             ],
           },
