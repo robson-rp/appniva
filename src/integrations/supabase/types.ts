@@ -270,6 +270,39 @@ export type Database = {
           },
         ]
       }
+      cost_centers: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          type: Database["public"]["Enums"]["cost_center_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          type: Database["public"]["Enums"]["cost_center_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          type?: Database["public"]["Enums"]["cost_center_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       debt_payments: {
         Row: {
           amount: number
@@ -655,6 +688,7 @@ export type Database = {
           account_id: string
           amount: number
           category_id: string | null
+          cost_center_id: string | null
           created_at: string | null
           currency: string
           date: string
@@ -669,6 +703,7 @@ export type Database = {
           account_id: string
           amount: number
           category_id?: string | null
+          cost_center_id?: string | null
           created_at?: string | null
           currency?: string
           date?: string
@@ -683,6 +718,7 @@ export type Database = {
           account_id?: string
           amount?: number
           category_id?: string | null
+          cost_center_id?: string | null
           created_at?: string | null
           currency?: string
           date?: string
@@ -706,6 +742,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_cost_center_id_fkey"
+            columns: ["cost_center_id"]
+            isOneToOne: false
+            referencedRelation: "cost_centers"
             referencedColumns: ["id"]
           },
           {
@@ -789,6 +832,7 @@ export type Database = {
       account_type: "bank" | "wallet" | "cash" | "other"
       app_role: "admin" | "user"
       category_type: "expense" | "income"
+      cost_center_type: "income_center" | "expense_center"
       coupon_frequency: "semiannual" | "annual"
       debt_status: "active" | "closed"
       debt_type:
@@ -950,6 +994,7 @@ export const Constants = {
       account_type: ["bank", "wallet", "cash", "other"],
       app_role: ["admin", "user"],
       category_type: ["expense", "income"],
+      cost_center_type: ["income_center", "expense_center"],
       coupon_frequency: ["semiannual", "annual"],
       debt_status: ["active", "closed"],
       debt_type: [

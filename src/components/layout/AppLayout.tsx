@@ -20,6 +20,7 @@ import {
   CreditCard,
   Calculator,
   Scale,
+  Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ const navItems = [
   { path: '/debts', label: 'Dívidas', icon: CreditCard },
   { path: '/investments', label: 'Investimentos', icon: TrendingUp },
   { path: '/goals', label: 'Metas', icon: Target },
+  { path: '/cost-centers', label: 'Centros de Custo', icon: Building2 },
   { path: '/insights', label: 'Insights', icon: Lightbulb },
   { path: '/simulator', label: 'Simulador', icon: Calculator },
   { path: '/reconciliation', label: 'Reconciliação', icon: Scale },
