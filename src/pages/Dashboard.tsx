@@ -12,6 +12,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { TrendingUp, TrendingDown, Wallet, PiggyBank, Target, Lightbulb, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { FinancialScoreCard } from '@/components/dashboard/FinancialScoreCard';
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -226,6 +227,9 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Financial Score */}
+      <FinancialScoreCard />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Expenses by Category */}

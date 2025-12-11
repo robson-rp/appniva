@@ -446,6 +446,33 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_scores: {
+        Row: {
+          created_at: string
+          criteria_json: Json
+          generated_at: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          criteria_json?: Json
+          generated_at?: string
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          criteria_json?: Json
+          generated_at?: string
+          id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       goal_contributions: {
         Row: {
           amount: number
