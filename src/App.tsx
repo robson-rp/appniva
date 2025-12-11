@@ -24,6 +24,7 @@ import Reconciliation from "@/pages/Reconciliation";
 import ReconciliationSelect from "@/pages/ReconciliationSelect";
 import CostCenters from "@/pages/CostCenters";
 import Tags from "@/pages/Tags";
+import Assistant from "@/pages/Assistant";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/reconciliation/:accountId" element={<Reconciliation />} />
               <Route path="/cost-centers" element={<CostCenters />} />
               <Route path="/tags" element={<Tags />} />
+              <Route path="/assistant" element={<Assistant />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
