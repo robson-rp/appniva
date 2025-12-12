@@ -37,7 +37,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
-const navItems = [
+const userNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
   { path: '/accounts', label: 'Contas', icon: Wallet },
@@ -53,6 +53,10 @@ const navItems = [
   { path: '/simulator', label: 'Simulador', icon: Calculator },
   { path: '/reconciliation', label: 'Reconciliação', icon: Scale },
   { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
+];
+
+const adminNavItems = [
+  { path: '/admin', label: 'Painel Admin', icon: Settings },
 ];
 
 export default function AppLayout() {
@@ -76,9 +80,17 @@ export default function AppLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  if (profile && !profile.onboarding_completed && location.pathname !== '/onboarding') {
+  // Skip onboarding for admins
+  if (!isAdmin && profile && !profile.onboarding_completed && location.pathname !== '/onboarding') {
     return <Navigate to="/onboarding" replace />;
   }
+
+  // Redirect admins to admin panel by default
+  if (isAdmin && location.pathname === '/dashboard') {
+    return <Navigate to="/admin" replace />;
+  }
+
+  const navItems = isAdmin ? adminNavItems : userNavItems;
 
   const initials = profile?.name
     ?.split(' ')
@@ -106,7 +118,7 @@ export default function AppLayout() {
       >
         {/* Logo */}
         <div className="flex h-16 items-center justify-between px-6">
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <Link to={isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
               <Wallet className="h-5 w-5 text-sidebar-primary-foreground" />
             </div>
@@ -148,23 +160,6 @@ export default function AppLayout() {
               </Link>
             );
           })}
-
-          {isAdmin && (
-            <>
-              <div className="my-4 border-t border-sidebar-border" />
-              <Link
-                to="/admin"
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  'sidebar-link',
-                  location.pathname === '/admin' && 'sidebar-link-active'
-                )}
-              >
-                <Settings className="h-5 w-5" />
-                <span>Administração</span>
-              </Link>
-            </>
-          )}
         </nav>
 
         {/* User Section */}
