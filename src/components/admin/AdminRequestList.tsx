@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { useAdminProductRequests, useUpdateRequestStatus } from '@/hooks/useAdminProducts';
 import { RequestStatus } from '@/hooks/useFinancialProducts';
+import { useLogAuditAction } from '@/hooks/useAuditLog';
 import { Loader2, Search, FileCheck, Clock, CheckCircle, XCircle, Ban } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
@@ -60,6 +61,7 @@ export function AdminRequestList() {
 
   const { data: requests, isLoading } = useAdminProductRequests();
   const updateStatus = useUpdateRequestStatus();
+  const logAction = useLogAuditAction();
 
   const filteredRequests = requests?.filter((r) => {
     const matchesSearch =
@@ -78,11 +80,23 @@ export function AdminRequestList() {
   const handleUpdateStatus = async () => {
     if (!selectedRequest) return;
 
+    const actionType = newStatus === 'approved' ? 'approve_request' : newStatus === 'rejected' ? 'reject_request' : undefined;
+
     await updateStatus.mutateAsync({
       id: selectedRequest.id,
       status: newStatus,
       response_notes: responseNotes || undefined,
     });
+
+    if (actionType) {
+      logAction.mutate({
+        action_type: actionType,
+        target_table: 'product_requests',
+        target_id: selectedRequest.id,
+        target_user_id: selectedRequest.user_id,
+        details: { product_name: selectedRequest.product?.name || '', new_status: newStatus },
+      });
+    }
 
     setSelectedRequest(null);
   };
