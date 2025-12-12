@@ -7,13 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { AdminProductList } from '@/components/admin/AdminProductList';
 import { AdminRequestList } from '@/components/admin/AdminRequestList';
+import { AdminUserDetails } from '@/components/admin/AdminUserDetails';
 
 interface UserWithRole {
   id: string;
@@ -37,6 +40,7 @@ interface AdminStats {
 export default function Admin() {
   const { isAdmin, loading } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
 
   // Fetch users with their roles
   const { data: users, isLoading: usersLoading } = useQuery({
@@ -202,6 +206,7 @@ export default function Admin() {
                         <TableHead>Moeda</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead>Registo</TableHead>
+                        <TableHead className="text-right">Acções</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -223,6 +228,17 @@ export default function Admin() {
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {user.created_at ? format(new Date(user.created_at), "d 'de' MMM, yyyy", { locale: pt }) : '-'}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedUser(user)}
+                              disabled={user.role === 'admin'}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Ver Dados
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -249,6 +265,15 @@ export default function Admin() {
           <AdminRequestList />
         </TabsContent>
       </Tabs>
+
+      {/* User Details Dialog */}
+      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          {selectedUser && (
+            <AdminUserDetails user={selectedUser} onClose={() => setSelectedUser(null)} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
