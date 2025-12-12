@@ -18,7 +18,7 @@ import { Loader2, Plus, X } from 'lucide-react';
 
 interface AdminProductFormProps {
   product?: FinancialProduct;
-  onSuccess?: () => void;
+  onSuccess?: (action: 'create' | 'update', productName: string, productId?: string) => void;
   onCancel?: () => void;
 }
 
@@ -67,11 +67,11 @@ export function AdminProductForm({ product, onSuccess, onCancel }: AdminProductF
 
     if (product) {
       await updateProduct.mutateAsync({ id: product.id, ...data });
+      onSuccess?.('update', name, product.id);
     } else {
       await createProduct.mutateAsync(data);
+      onSuccess?.('create', name);
     }
-
-    onSuccess?.();
   };
 
   const addFeature = () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,12 +11,14 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck, Eye } from 'lucide-react';
+import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck, Eye, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { AdminProductList } from '@/components/admin/AdminProductList';
 import { AdminRequestList } from '@/components/admin/AdminRequestList';
 import { AdminUserDetails } from '@/components/admin/AdminUserDetails';
+import { AdminAuditLogs } from '@/components/admin/AdminAuditLogs';
+import { useLogAuditAction } from '@/hooks/useAuditLog';
 
 interface UserWithRole {
   id: string;
@@ -41,6 +43,34 @@ export default function Admin() {
   const { isAdmin, loading } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
+  const [activeTab, setActiveTab] = useState('users');
+  const logAction = useLogAuditAction();
+
+  // Log tab views
+  useEffect(() => {
+    if (!isAdmin) return;
+    
+    const actionMap: Record<string, 'view_users' | 'view_products' | 'view_requests'> = {
+      users: 'view_users',
+      products: 'view_products',
+      requests: 'view_requests',
+    };
+    
+    const action = actionMap[activeTab];
+    if (action) {
+      logAction.mutate({ action_type: action });
+    }
+  }, [activeTab, isAdmin]);
+
+  // Log when viewing user details
+  const handleViewUserData = (user: UserWithRole) => {
+    logAction.mutate({
+      action_type: 'view_user_data',
+      target_user_id: user.id,
+      details: { user_name: user.name, user_email: user.email },
+    });
+    setSelectedUser(user);
+  };
 
   // Fetch users with their roles
   const { data: users, isLoading: usersLoading } = useQuery({
@@ -153,7 +183,7 @@ export default function Admin() {
         ))}
       </div>
 
-      <Tabs defaultValue="users" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
@@ -166,6 +196,10 @@ export default function Admin() {
           <TabsTrigger value="requests" className="flex items-center gap-2">
             <FileCheck className="h-4 w-4" />
             Solicitações
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Auditoria
           </TabsTrigger>
         </TabsList>
 
@@ -233,7 +267,7 @@ export default function Admin() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setSelectedUser(user)}
+                              onClick={() => handleViewUserData(user)}
                               disabled={user.role === 'admin'}
                             >
                               <Eye className="h-4 w-4 mr-1" />
@@ -263,6 +297,10 @@ export default function Admin() {
 
         <TabsContent value="requests">
           <AdminRequestList />
+        </TabsContent>
+
+        <TabsContent value="audit">
+          <AdminAuditLogs />
         </TabsContent>
       </Tabs>
 

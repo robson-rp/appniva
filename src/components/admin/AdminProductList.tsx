@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useAdminProducts, useDeleteProduct } from '@/hooks/useAdminProducts';
+import { useLogAuditAction } from '@/hooks/useAuditLog';
 import { AdminProductForm } from './AdminProductForm';
 import { FinancialProduct, ProductType } from '@/hooks/useFinancialProducts';
 import { Loader2, Plus, Pencil, Trash2, Search, Package } from 'lucide-react';
@@ -35,6 +36,7 @@ export function AdminProductList() {
 
   const { data: products, isLoading } = useAdminProducts();
   const deleteProduct = useDeleteProduct();
+  const logAction = useLogAuditAction();
 
   const filteredProducts = products?.filter(
     (p) =>
@@ -47,9 +49,25 @@ export function AdminProductList() {
     setShowForm(true);
   };
 
-  const handleFormSuccess = () => {
+  const handleFormSuccess = (action: 'create' | 'update', productName?: string, productId?: string) => {
+    logAction.mutate({
+      action_type: action === 'create' ? 'create_product' : 'update_product',
+      target_table: 'financial_products',
+      target_id: productId,
+      details: { product_name: productName || '' },
+    });
     setShowForm(false);
     setEditingProduct(undefined);
+  };
+
+  const handleDelete = (product: FinancialProduct) => {
+    deleteProduct.mutate(product.id);
+    logAction.mutate({
+      action_type: 'delete_product',
+      target_table: 'financial_products',
+      target_id: product.id,
+      details: { product_name: product.name },
+    });
   };
 
   const formatCurrency = (value: number, currency: string) => {
@@ -151,7 +169,7 @@ export function AdminProductList() {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => deleteProduct.mutate(product.id)}
+                                  onClick={() => handleDelete(product)}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
                                   Eliminar
