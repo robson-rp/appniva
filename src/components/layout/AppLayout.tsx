@@ -23,6 +23,7 @@ import {
   Building2,
   Tags,
   MessageCircle,
+  ShoppingBag,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ const navItems = [
   { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
   { path: '/debts', label: 'Dívidas', icon: CreditCard },
   { path: '/investments', label: 'Investimentos', icon: TrendingUp },
+  { path: '/products', label: 'Produtos', icon: ShoppingBag },
   { path: '/goals', label: 'Metas', icon: Target },
   { path: '/cost-centers', label: 'Centros de Custo', icon: Building2 },
   { path: '/insights', label: 'Insights', icon: Lightbulb },

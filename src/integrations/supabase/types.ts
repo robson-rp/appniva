@@ -446,6 +446,63 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_products: {
+        Row: {
+          created_at: string | null
+          currency: string
+          description: string | null
+          features: Json | null
+          id: string
+          institution_name: string
+          interest_rate_annual: number | null
+          is_active: boolean | null
+          max_amount: number | null
+          min_amount: number
+          name: string
+          product_type: Database["public"]["Enums"]["financial_product_type"]
+          requirements: Json | null
+          term_max_days: number | null
+          term_min_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          institution_name: string
+          interest_rate_annual?: number | null
+          is_active?: boolean | null
+          max_amount?: number | null
+          min_amount?: number
+          name: string
+          product_type: Database["public"]["Enums"]["financial_product_type"]
+          requirements?: Json | null
+          term_max_days?: number | null
+          term_min_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          institution_name?: string
+          interest_rate_annual?: number | null
+          is_active?: boolean | null
+          max_amount?: number | null
+          min_amount?: number
+          name?: string
+          product_type?: Database["public"]["Enums"]["financial_product_type"]
+          requirements?: Json | null
+          term_max_days?: number | null
+          term_min_days?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       financial_scores: {
         Row: {
           created_at: string
@@ -628,6 +685,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      product_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          product_id: string
+          requested_amount: number
+          requested_term_days: number | null
+          response_notes: string | null
+          status: Database["public"]["Enums"]["product_request_status"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          product_id: string
+          requested_amount: number
+          requested_term_days?: number | null
+          response_notes?: string | null
+          status?: Database["public"]["Enums"]["product_request_status"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string
+          requested_amount?: number
+          requested_term_days?: number | null
+          response_notes?: string | null
+          status?: Database["public"]["Enums"]["product_request_status"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "financial_products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -970,6 +1074,11 @@ export type Database = {
         | "credit_card"
         | "student"
         | "other"
+      financial_product_type:
+        | "term_deposit"
+        | "insurance"
+        | "microcredit"
+        | "fund"
       goal_status: "in_progress" | "completed" | "cancelled"
       insight_type:
         | "high_expense"
@@ -990,6 +1099,7 @@ export type Database = {
         | "real_estate"
         | "equity"
         | "other"
+      product_request_status: "pending" | "approved" | "rejected" | "cancelled"
       reconciliation_status: "matched" | "mismatched" | "pending"
       transaction_type: "income" | "expense" | "transfer"
     }
@@ -1133,6 +1243,12 @@ export const Constants = {
         "student",
         "other",
       ],
+      financial_product_type: [
+        "term_deposit",
+        "insurance",
+        "microcredit",
+        "fund",
+      ],
       goal_status: ["in_progress", "completed", "cancelled"],
       insight_type: [
         "high_expense",
@@ -1156,6 +1272,7 @@ export const Constants = {
         "equity",
         "other",
       ],
+      product_request_status: ["pending", "approved", "rejected", "cancelled"],
       reconciliation_status: ["matched", "mismatched", "pending"],
       transaction_type: ["income", "expense", "transfer"],
     },
