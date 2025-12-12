@@ -5,7 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
-import { Eye, CheckCircle, XCircle, Plus, Edit, Trash2, Users, Package, FileText } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, Plus, Edit, Trash2, Users, Package, FileText, UserX, UserCheck } from 'lucide-react';
 
 const actionIcons: Record<string, React.ReactNode> = {
   view_user_data: <Eye className="h-4 w-4" />,
@@ -17,6 +17,8 @@ const actionIcons: Record<string, React.ReactNode> = {
   create_product: <Plus className="h-4 w-4 text-blue-500" />,
   update_product: <Edit className="h-4 w-4 text-yellow-500" />,
   delete_product: <Trash2 className="h-4 w-4 text-red-500" />,
+  suspend_user: <UserX className="h-4 w-4 text-red-500" />,
+  activate_user: <UserCheck className="h-4 w-4 text-green-500" />,
 };
 
 const actionLabels: Record<string, string> = {
@@ -29,6 +31,8 @@ const actionLabels: Record<string, string> = {
   create_product: 'Criou produto',
   update_product: 'Actualizou produto',
   delete_product: 'Eliminou produto',
+  suspend_user: 'Suspendeu utilizador',
+  activate_user: 'Activou utilizador',
 };
 
 const actionVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -41,6 +45,8 @@ const actionVariants: Record<string, 'default' | 'secondary' | 'destructive' | '
   create_product: 'secondary',
   update_product: 'secondary',
   delete_product: 'destructive',
+  suspend_user: 'destructive',
+  activate_user: 'default',
 };
 
 export function AdminAuditLogs() {

@@ -10,7 +10,9 @@ export type AuditActionType =
   | 'delete_product'
   | 'view_requests'
   | 'view_products'
-  | 'view_users';
+  | 'view_users'
+  | 'suspend_user'
+  | 'activate_user';
 
 interface AuditLogEntry {
   id: string;

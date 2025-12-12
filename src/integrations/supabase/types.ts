@@ -774,30 +774,39 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
+          is_suspended: boolean
           monthly_income: number | null
           name: string
           onboarding_completed: boolean | null
           primary_currency: string | null
+          suspended_at: string | null
+          suspended_by: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           email: string
           id: string
+          is_suspended?: boolean
           monthly_income?: number | null
           name: string
           onboarding_completed?: boolean | null
           primary_currency?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           email?: string
           id?: string
+          is_suspended?: boolean
           monthly_income?: number | null
           name?: string
           onboarding_completed?: boolean | null
           primary_currency?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
           updated_at?: string | null
         }
         Relationships: []
