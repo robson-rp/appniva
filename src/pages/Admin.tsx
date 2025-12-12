@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck, Eye, History } from 'lucide-react';
+import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck, Eye, History, UserX, Power } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { AdminProductList } from '@/components/admin/AdminProductList';
@@ -19,6 +19,17 @@ import { AdminRequestList } from '@/components/admin/AdminRequestList';
 import { AdminUserDetails } from '@/components/admin/AdminUserDetails';
 import { AdminAuditLogs } from '@/components/admin/AdminAuditLogs';
 import { useLogAuditAction } from '@/hooks/useAuditLog';
+import { useUserSuspension } from '@/hooks/useUserSuspension';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface UserWithRole {
   id: string;
@@ -28,6 +39,8 @@ interface UserWithRole {
   onboarding_completed: boolean | null;
   created_at: string | null;
   role: string;
+  is_suspended: boolean;
+  suspended_at: string | null;
 }
 
 interface AdminStats {
@@ -44,7 +57,9 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
   const [activeTab, setActiveTab] = useState('users');
+  const [userToSuspend, setUserToSuspend] = useState<UserWithRole | null>(null);
   const logAction = useLogAuditAction();
+  const suspendUser = useUserSuspension();
 
   // Log tab views
   useEffect(() => {
@@ -72,6 +87,18 @@ export default function Admin() {
     setSelectedUser(user);
   };
 
+  const handleSuspendConfirm = () => {
+    if (userToSuspend) {
+      suspendUser.mutate({
+        userId: userToSuspend.id,
+        userName: userToSuspend.name,
+        userEmail: userToSuspend.email,
+        suspend: !userToSuspend.is_suspended,
+      });
+      setUserToSuspend(null);
+    }
+  };
+
   // Fetch users with their roles
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -94,6 +121,8 @@ export default function Admin() {
       return (profiles || []).map((profile) => ({
         ...profile,
         role: roleMap.get(profile.id) || 'user',
+        is_suspended: profile.is_suspended || false,
+        suspended_at: profile.suspended_at || null,
       })) as UserWithRole[];
     },
     enabled: isAdmin,
@@ -256,23 +285,51 @@ export default function Admin() {
                           </TableCell>
                           <TableCell>{user.primary_currency || 'AOA'}</TableCell>
                           <TableCell>
-                            <Badge variant={user.onboarding_completed ? 'outline' : 'secondary'}>
-                              {user.onboarding_completed ? 'Activo' : 'Pendente'}
-                            </Badge>
+                            {user.is_suspended ? (
+                              <Badge variant="destructive" className="gap-1">
+                                <UserX className="h-3 w-3" />
+                                Suspenso
+                              </Badge>
+                            ) : (
+                              <Badge variant={user.onboarding_completed ? 'outline' : 'secondary'}>
+                                {user.onboarding_completed ? 'Activo' : 'Pendente'}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {user.created_at ? format(new Date(user.created_at), "d 'de' MMM, yyyy", { locale: pt }) : '-'}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleViewUserData(user)}
-                              disabled={user.role === 'admin'}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              Ver Dados
-                            </Button>
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewUserData(user)}
+                                disabled={user.role === 'admin'}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                Ver Dados
+                              </Button>
+                              <Button
+                                variant={user.is_suspended ? 'outline' : 'ghost'}
+                                size="sm"
+                                onClick={() => setUserToSuspend(user)}
+                                disabled={user.role === 'admin'}
+                                className={user.is_suspended ? 'text-income hover:text-income' : 'text-destructive hover:text-destructive'}
+                              >
+                                {user.is_suspended ? (
+                                  <>
+                                    <Power className="h-4 w-4 mr-1" />
+                                    Activar
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserX className="h-4 w-4 mr-1" />
+                                    Suspender
+                                  </>
+                                )}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -312,6 +369,31 @@ export default function Admin() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Suspend/Activate User Dialog */}
+      <AlertDialog open={!!userToSuspend} onOpenChange={() => setUserToSuspend(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {userToSuspend?.is_suspended ? 'Activar Utilizador' : 'Suspender Utilizador'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {userToSuspend?.is_suspended
+                ? `Tem a certeza que deseja activar a conta de ${userToSuspend?.name}? O utilizador poderá voltar a aceder à plataforma.`
+                : `Tem a certeza que deseja suspender a conta de ${userToSuspend?.name}? O utilizador não poderá aceder à plataforma até ser activado novamente.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSuspendConfirm}
+              className={userToSuspend?.is_suspended ? '' : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'}
+            >
+              {userToSuspend?.is_suspended ? 'Activar' : 'Suspender'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
