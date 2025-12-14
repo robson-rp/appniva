@@ -11,13 +11,14 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck, Eye, History, UserX, Power } from 'lucide-react';
+import { Users, Wallet, TrendingUp, Target, Search, Shield, UserCheck, Package, FileCheck, Eye, History, UserX, Power, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { AdminProductList } from '@/components/admin/AdminProductList';
 import { AdminRequestList } from '@/components/admin/AdminRequestList';
 import { AdminUserDetails } from '@/components/admin/AdminUserDetails';
 import { AdminAuditLogs } from '@/components/admin/AdminAuditLogs';
+import { AdminMetricsDashboard } from '@/components/admin/AdminMetricsDashboard';
 import { useLogAuditAction } from '@/hooks/useAuditLog';
 import { useUserSuspension } from '@/hooks/useUserSuspension';
 import {
@@ -56,7 +57,7 @@ export default function Admin() {
   const { isAdmin, loading } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserWithRole | null>(null);
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState('metrics');
   const [userToSuspend, setUserToSuspend] = useState<UserWithRole | null>(null);
   const logAction = useLogAuditAction();
   const suspendUser = useUserSuspension();
@@ -65,10 +66,11 @@ export default function Admin() {
   useEffect(() => {
     if (!isAdmin) return;
     
-    const actionMap: Record<string, 'view_users' | 'view_products' | 'view_requests'> = {
+    const actionMap: Record<string, 'view_users' | 'view_products' | 'view_requests' | 'view_metrics'> = {
       users: 'view_users',
       products: 'view_products',
       requests: 'view_requests',
+      metrics: 'view_metrics',
     };
     
     const action = actionMap[activeTab];
@@ -213,7 +215,11 @@ export default function Admin() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList>
+        <TabsList className="flex-wrap">
+          <TabsTrigger value="metrics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Métricas
+          </TabsTrigger>
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Utilizadores
@@ -231,6 +237,10 @@ export default function Admin() {
             Auditoria
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="metrics">
+          <AdminMetricsDashboard />
+        </TabsContent>
 
         <TabsContent value="users">
           <Card>

@@ -11,6 +11,7 @@ export type AuditActionType =
   | 'view_requests'
   | 'view_products'
   | 'view_users'
+  | 'view_metrics'
   | 'suspend_user'
   | 'activate_user';
 

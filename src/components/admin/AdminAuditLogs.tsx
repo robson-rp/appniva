@@ -5,13 +5,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
-import { Eye, CheckCircle, XCircle, Plus, Edit, Trash2, Users, Package, FileText, UserX, UserCheck } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, Plus, Edit, Trash2, Users, Package, FileText, UserX, UserCheck, BarChart3 } from 'lucide-react';
 
 const actionIcons: Record<string, React.ReactNode> = {
   view_user_data: <Eye className="h-4 w-4" />,
   view_users: <Users className="h-4 w-4" />,
   view_requests: <FileText className="h-4 w-4" />,
   view_products: <Package className="h-4 w-4" />,
+  view_metrics: <BarChart3 className="h-4 w-4" />,
   approve_request: <CheckCircle className="h-4 w-4 text-green-500" />,
   reject_request: <XCircle className="h-4 w-4 text-red-500" />,
   create_product: <Plus className="h-4 w-4 text-blue-500" />,
@@ -26,6 +27,7 @@ const actionLabels: Record<string, string> = {
   view_users: 'Visualizou lista de utilizadores',
   view_requests: 'Visualizou solicitações',
   view_products: 'Visualizou produtos',
+  view_metrics: 'Visualizou métricas',
   approve_request: 'Aprovou solicitação',
   reject_request: 'Rejeitou solicitação',
   create_product: 'Criou produto',
@@ -40,6 +42,7 @@ const actionVariants: Record<string, 'default' | 'secondary' | 'destructive' | '
   view_users: 'outline',
   view_requests: 'outline',
   view_products: 'outline',
+  view_metrics: 'outline',
   approve_request: 'default',
   reject_request: 'destructive',
   create_product: 'secondary',
