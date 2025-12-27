@@ -13,7 +13,7 @@ import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight } from '
 import { Link } from 'react-router-dom';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { FinancialScoreCard } from '@/components/dashboard/FinancialScoreCard';
-import { FinancialSummaryWidget } from '@/components/dashboard/FinancialSummaryWidget';
+
 export default function Dashboard() {
   const { profile } = useAuth();
   const { data: accounts, isLoading: loadingAccounts } = useAccounts();
@@ -66,17 +66,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Financial Summary Widget */}
-        <div className="lg:col-span-1">
-          <FinancialSummaryWidget />
-        </div>
-
-        <div className="lg:col-span-2 space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Olá, {profile?.name?.split(' ')[0]}!</h1>
-            <p className="text-muted-foreground">Aqui está o resumo das tuas finanças</p>
-          </div>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Olá, {profile?.name?.split(' ')[0]}!</h1>
+        <p className="text-muted-foreground">Aqui está o resumo das tuas finanças</p>
+      </div>
 
           {/* Main Stats */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
@@ -342,8 +335,6 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
-        </div>
-      </div>
     </div>
   );
 }
