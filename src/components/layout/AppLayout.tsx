@@ -26,6 +26,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -136,7 +137,7 @@ export default function AppLayout() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {navItems.map((item) => {
+          {userNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             const showBadge = item.path === '/insights' && unreadCount > 0;
             
@@ -160,6 +161,31 @@ export default function AppLayout() {
               </Link>
             );
           })}
+          
+          {isAdmin && (
+            <>
+              <div className="py-3">
+                <Separator className="bg-sidebar-border" />
+                <p className="mt-3 mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                  Administração
+                </p>
+              </div>
+              {adminNavItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn('sidebar-link relative', isActive && 'sidebar-link-active')}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </>
+          )}
         </nav>
 
         {/* User Section */}
