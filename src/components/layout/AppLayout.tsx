@@ -24,6 +24,7 @@ import {
   Tags,
   MessageCircle,
   ShoppingBag,
+  RefreshCw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -43,6 +44,7 @@ const userNavItems = [
   { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
   { path: '/accounts', label: 'Contas', icon: Wallet },
   { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
+  { path: '/recurring', label: 'Recorrentes', icon: RefreshCw },
   { path: '/tags', label: 'Tags', icon: Tags },
   { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
   { path: '/debts', label: 'Dívidas', icon: CreditCard },

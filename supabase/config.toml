@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.financial-assistant]
 verify_jwt = true
+
+[functions.process-recurring-transactions]
+verify_jwt = false

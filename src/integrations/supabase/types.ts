@@ -811,6 +811,85 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_transactions: {
+        Row: {
+          account_id: string
+          amount: number
+          category_id: string | null
+          cost_center_id: string | null
+          created_at: string
+          description: string
+          end_date: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          last_executed_at: string | null
+          next_execution_date: string
+          start_date: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          category_id?: string | null
+          cost_center_id?: string | null
+          created_at?: string
+          description: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_executed_at?: string | null
+          next_execution_date: string
+          start_date?: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          category_id?: string | null
+          cost_center_id?: string | null
+          created_at?: string
+          description?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_executed_at?: string | null
+          next_execution_date?: string
+          start_date?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_transactions_cost_center_id_fkey"
+            columns: ["cost_center_id"]
+            isOneToOne: false
+            referencedRelation: "cost_centers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scenarios: {
         Row: {
           created_at: string | null
