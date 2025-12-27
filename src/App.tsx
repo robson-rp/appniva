@@ -27,6 +27,7 @@ import Tags from "@/pages/Tags";
 import Assistant from "@/pages/Assistant";
 import Products from "@/pages/Products";
 import RecurringTransactions from "@/pages/RecurringTransactions";
+import Subscriptions from "@/pages/Subscriptions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
               <Route path="/assistant" element={<Assistant />} />
               <Route path="/products" element={<Products />} />
               <Route path="/recurring" element={<RecurringTransactions />} />
+              <Route path="/subscriptions" element={<Subscriptions />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

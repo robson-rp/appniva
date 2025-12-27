@@ -941,6 +941,81 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          account_id: string | null
+          alert_days_before: number
+          amount: number
+          billing_cycle: string
+          category_id: string | null
+          color: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          last_alert_sent_at: string | null
+          name: string
+          next_renewal_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          alert_days_before?: number
+          amount: number
+          billing_cycle: string
+          category_id?: string | null
+          color?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          last_alert_sent_at?: string | null
+          name: string
+          next_renewal_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          alert_days_before?: number
+          amount?: number
+          billing_cycle?: string
+          category_id?: string | null
+          color?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          last_alert_sent_at?: string | null
+          name?: string
+          next_renewal_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           color: string | null
