@@ -8,12 +8,12 @@ import { formatCurrency, formatDate } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, LineChart, Line, CartesianGrid, Legend, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, Wallet, PiggyBank, Target, Lightbulb, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts';
+import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { FinancialScoreCard } from '@/components/dashboard/FinancialScoreCard';
-
+import { FinancialSummaryWidget } from '@/components/dashboard/FinancialSummaryWidget';
 export default function Dashboard() {
   const { profile } = useAuth();
   const { data: accounts, isLoading: loadingAccounts } = useAccounts();
@@ -66,13 +66,20 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Olá, {profile?.name?.split(' ')[0]}!</h1>
-        <p className="text-muted-foreground">Aqui está o resumo das tuas finanças</p>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Financial Summary Widget */}
+        <div className="lg:col-span-1">
+          <FinancialSummaryWidget />
+        </div>
 
-      {/* Main Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="lg:col-span-2 space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Olá, {profile?.name?.split(' ')[0]}!</h1>
+            <p className="text-muted-foreground">Aqui está o resumo das tuas finanças</p>
+          </div>
+
+          {/* Main Stats */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
         <Card className="stat-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -335,6 +342,8 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+        </div>
+      </div>
     </div>
   );
 }
