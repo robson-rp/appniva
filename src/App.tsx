@@ -28,6 +28,9 @@ import Assistant from "@/pages/Assistant";
 import Products from "@/pages/Products";
 import RecurringTransactions from "@/pages/RecurringTransactions";
 import Subscriptions from "@/pages/Subscriptions";
+import RetirementCalculator from "@/pages/RetirementCalculator";
+import EmergencyFundCalculator from "@/pages/EmergencyFundCalculator";
+import Install from "@/pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +68,9 @@ const App = () => (
               <Route path="/products" element={<Products />} />
               <Route path="/recurring" element={<RecurringTransactions />} />
               <Route path="/subscriptions" element={<Subscriptions />} />
+              <Route path="/retirement" element={<RetirementCalculator />} />
+              <Route path="/emergency-fund" element={<EmergencyFundCalculator />} />
+              <Route path="/install" element={<Install />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
