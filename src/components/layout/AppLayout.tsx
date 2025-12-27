@@ -90,7 +90,7 @@ export default function AppLayout() {
     return <Navigate to="/admin" replace />;
   }
 
-  const navItems = isAdmin ? adminNavItems : userNavItems;
+  const navItems = isAdmin ? [...userNavItems, ...adminNavItems] : userNavItems;
 
   const initials = profile?.name
     ?.split(' ')
