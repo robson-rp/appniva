@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  ChevronRight,
   ScanText,
   CreditCard,
   Calculator,
@@ -29,6 +30,9 @@ import {
   Umbrella,
   Shield,
   Smartphone,
+  Briefcase,
+  BarChart3,
+  Wrench,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -42,28 +46,56 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
-const userNavItems = [
+// Items always visible at top
+const mainNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
   { path: '/accounts', label: 'Contas', icon: Wallet },
   { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
-  { path: '/recurring', label: 'Recorrentes', icon: RefreshCw },
-  { path: '/subscriptions', label: 'Subscrições', icon: Repeat },
-  { path: '/tags', label: 'Tags', icon: Tags },
-  { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
-  { path: '/debts', label: 'Dívidas', icon: CreditCard },
-  { path: '/investments', label: 'Investimentos', icon: TrendingUp },
-  { path: '/products', label: 'Produtos', icon: ShoppingBag },
-  { path: '/goals', label: 'Metas', icon: Target },
-  { path: '/cost-centers', label: 'Centros de Custo', icon: Building2 },
-  { path: '/insights', label: 'Insights', icon: Lightbulb },
-  { path: '/simulator', label: 'Simulador', icon: Calculator },
-  { path: '/retirement', label: 'Reforma', icon: Umbrella },
-  { path: '/emergency-fund', label: 'Fundo Emergência', icon: Shield },
-  { path: '/reconciliation', label: 'Reconciliação', icon: Scale },
-  { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
-  { path: '/install', label: 'Instalar App', icon: Smartphone },
+];
+
+// Collapsible groups
+const navGroups = [
+  {
+    label: 'Planeamento',
+    icon: Briefcase,
+    items: [
+      { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
+      { path: '/goals', label: 'Metas', icon: Target },
+      { path: '/debts', label: 'Dívidas', icon: CreditCard },
+      { path: '/investments', label: 'Investimentos', icon: TrendingUp },
+      { path: '/subscriptions', label: 'Subscrições', icon: Repeat },
+      { path: '/recurring', label: 'Recorrentes', icon: RefreshCw },
+    ],
+  },
+  {
+    label: 'Análise',
+    icon: BarChart3,
+    items: [
+      { path: '/insights', label: 'Insights', icon: Lightbulb, hasBadge: true },
+      { path: '/simulator', label: 'Simulador', icon: Calculator },
+      { path: '/retirement', label: 'Reforma', icon: Umbrella },
+      { path: '/emergency-fund', label: 'Fundo Emergência', icon: Shield },
+      { path: '/reconciliation', label: 'Reconciliação', icon: Scale },
+    ],
+  },
+  {
+    label: 'Ferramentas',
+    icon: Wrench,
+    items: [
+      { path: '/cost-centers', label: 'Centros de Custo', icon: Building2 },
+      { path: '/tags', label: 'Tags', icon: Tags },
+      { path: '/products', label: 'Produtos', icon: ShoppingBag },
+      { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
+      { path: '/install', label: 'Instalar App', icon: Smartphone },
+    ],
+  },
 ];
 
 const adminNavItems = [
@@ -75,6 +107,19 @@ export default function AppLayout() {
   const { data: unreadCount = 0 } = useUnreadInsightsCount();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<string[]>(() => {
+    // Auto-open group that contains current path
+    const currentGroup = navGroups.find(g => g.items.some(i => i.path === location.pathname));
+    return currentGroup ? [currentGroup.label] : [];
+  });
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups(prev => 
+      prev.includes(label) 
+        ? prev.filter(l => l !== label)
+        : [...prev, label]
+    );
+  };
 
   if (loading) {
     return (
@@ -100,8 +145,6 @@ export default function AppLayout() {
   if (isAdmin && location.pathname === '/dashboard') {
     return <Navigate to="/admin" replace />;
   }
-
-  const navItems = isAdmin ? [...userNavItems, ...adminNavItems] : userNavItems;
 
   const initials = profile?.name
     ?.split(' ')
@@ -147,10 +190,9 @@ export default function AppLayout() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {userNavItems.map((item) => {
+          {/* Main items always visible */}
+          {mainNavItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const showBadge = item.path === '/insights' && unreadCount > 0;
-            
             return (
               <Link
                 key={item.path}
@@ -160,21 +202,78 @@ export default function AppLayout() {
               >
                 <item.icon className="h-5 w-5" />
                 <span>{item.label}</span>
-                {showBadge && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
-                  >
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </Badge>
-                )}
               </Link>
+            );
+          })}
+
+          <div className="py-2">
+            <Separator className="bg-sidebar-border" />
+          </div>
+
+          {/* Collapsible groups */}
+          {navGroups.map((group) => {
+            const isOpen = openGroups.includes(group.label);
+            const hasActiveItem = group.items.some(i => location.pathname === i.path);
+            
+            return (
+              <Collapsible
+                key={group.label}
+                open={isOpen}
+                onOpenChange={() => toggleGroup(group.label)}
+              >
+                <CollapsibleTrigger asChild>
+                  <button
+                    className={cn(
+                      'sidebar-link w-full justify-between',
+                      hasActiveItem && 'text-sidebar-primary'
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <group.icon className="h-5 w-5" />
+                      <span>{group.label}</span>
+                    </div>
+                    <ChevronRight className={cn(
+                      'h-4 w-4 transition-transform duration-200',
+                      isOpen && 'rotate-90'
+                    )} />
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-3">
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    const showBadge = item.hasBadge && unreadCount > 0;
+                    
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={cn(
+                          'sidebar-link relative text-sm py-2',
+                          isActive && 'sidebar-link-active'
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                        {showBadge && (
+                          <Badge 
+                            variant="destructive" 
+                            className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+                          >
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </Badge>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </CollapsibleContent>
+              </Collapsible>
             );
           })}
           
           {isAdmin && (
             <>
-              <div className="py-3">
+              <div className="py-2">
                 <Separator className="bg-sidebar-border" />
                 <p className="mt-3 mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
                   Administração
