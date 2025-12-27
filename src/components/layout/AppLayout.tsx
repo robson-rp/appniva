@@ -26,6 +26,9 @@ import {
   ShoppingBag,
   RefreshCw,
   Repeat,
+  Umbrella,
+  Shield,
+  Smartphone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -56,8 +59,11 @@ const userNavItems = [
   { path: '/cost-centers', label: 'Centros de Custo', icon: Building2 },
   { path: '/insights', label: 'Insights', icon: Lightbulb },
   { path: '/simulator', label: 'Simulador', icon: Calculator },
+  { path: '/retirement', label: 'Reforma', icon: Umbrella },
+  { path: '/emergency-fund', label: 'Fundo Emergência', icon: Shield },
   { path: '/reconciliation', label: 'Reconciliação', icon: Scale },
   { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
+  { path: '/install', label: 'Instalar App', icon: Smartphone },
 ];
 
 const adminNavItems = [
