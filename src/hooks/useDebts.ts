@@ -56,6 +56,7 @@ export interface CreatePaymentInput {
   payment_date?: string;
   transaction_id?: string | null;
   notes?: string | null;
+  account_id?: string | null; // Optional: account to record the expense transaction
 }
 
 export function useDebts() {
@@ -209,21 +210,57 @@ export function useDeleteDebt() {
 
 export function useCreatePayment() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: CreatePaymentInput) => {
+      // Get debt info for transaction description
+      const { data: debt, error: debtError } = await supabase
+        .from('debts')
+        .select('name, currency')
+        .eq('id', input.debt_id)
+        .single();
+      
+      if (debtError) throw debtError;
+      
       const { data, error } = await supabase
         .from('debt_payments')
-        .insert(input)
+        .insert({
+          debt_id: input.debt_id,
+          amount: input.amount,
+          payment_date: input.payment_date,
+          notes: input.notes,
+        })
         .select()
         .single();
 
       if (error) throw error;
+      
+      // Create expense transaction if account is provided
+      if (input.account_id && user) {
+        const { error: transactionError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user.id,
+            account_id: input.account_id,
+            type: 'expense',
+            amount: input.amount,
+            currency: debt.currency,
+            date: input.payment_date || new Date().toISOString().split('T')[0],
+            description: `Pagamento de dívida: ${debt.name}`,
+          });
+        
+        if (transactionError) {
+          console.error('Failed to create transaction:', transactionError);
+        }
+      }
+      
       return data as DebtPayment;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['debts'] });
       queryClient.invalidateQueries({ queryKey: ['debt-payments', variables.debt_id] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast.success('Pagamento registado com sucesso');
     },
     onError: (error) => {

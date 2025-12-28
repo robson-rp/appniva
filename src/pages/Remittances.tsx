@@ -27,10 +27,12 @@ import {
   REMITTANCE_PROVIDERS,
   COMMON_COUNTRIES,
 } from '@/hooks/useRemittances';
+import { useAccounts } from '@/hooks/useAccounts';
 import { formatCurrency, formatDate, CURRENCIES } from '@/lib/constants';
 
 export default function Remittances() {
   const { data: remittances = [], isLoading } = useRemittances();
+  const { data: accounts = [] } = useAccounts();
   const stats = useRemittanceStats();
   const createRemittance = useCreateRemittance();
   const deleteRemittance = useDeleteRemittance();
@@ -53,6 +55,7 @@ export default function Remittances() {
     transfer_date: new Date().toISOString().split('T')[0],
     status: 'completed' as const,
     notes: '',
+    account_id: '',
   });
 
   // Auto-calculate amount received when amount sent and rate change
@@ -68,20 +71,23 @@ export default function Remittances() {
 
   const handleCreate = async () => {
     await createRemittance.mutateAsync({
-      sender_name: formData.sender_name,
-      sender_country: formData.sender_country,
-      recipient_name: formData.recipient_name,
-      recipient_phone: formData.recipient_phone || null,
-      amount_sent: parseFloat(formData.amount_sent),
-      currency_from: formData.currency_from,
-      amount_received: parseFloat(formData.amount_received),
-      currency_to: formData.currency_to,
-      exchange_rate: parseFloat(formData.exchange_rate),
-      service_provider: formData.service_provider,
-      fee: parseFloat(formData.fee) || 0,
-      transfer_date: formData.transfer_date,
-      status: formData.status,
-      notes: formData.notes || null,
+      remittance: {
+        sender_name: formData.sender_name,
+        sender_country: formData.sender_country,
+        recipient_name: formData.recipient_name,
+        recipient_phone: formData.recipient_phone || null,
+        amount_sent: parseFloat(formData.amount_sent),
+        currency_from: formData.currency_from,
+        amount_received: parseFloat(formData.amount_received),
+        currency_to: formData.currency_to,
+        exchange_rate: parseFloat(formData.exchange_rate),
+        service_provider: formData.service_provider,
+        fee: parseFloat(formData.fee) || 0,
+        transfer_date: formData.transfer_date,
+        status: formData.status,
+        notes: formData.notes || null,
+      },
+      accountId: formData.account_id || undefined,
     });
     setCreateOpen(false);
     setFormData({
@@ -99,6 +105,7 @@ export default function Remittances() {
       transfer_date: new Date().toISOString().split('T')[0],
       status: 'completed',
       notes: '',
+      account_id: '',
     });
   };
 
@@ -253,6 +260,23 @@ export default function Remittances() {
                   value={formData.notes}
                   onChange={(e) => setFormData(p => ({ ...p, notes: e.target.value }))}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Conta de Destino (opcional)</Label>
+                <Select value={formData.account_id} onValueChange={(v) => setFormData(p => ({ ...p, account_id: v }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a conta de destino" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts.filter(a => a.is_active).map(a => (
+                      <SelectItem key={a.id} value={a.id}>{a.name} ({a.currency})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Se seleccionar uma conta, será criada uma transação de receita automaticamente.
+                </p>
               </div>
 
               <Button 

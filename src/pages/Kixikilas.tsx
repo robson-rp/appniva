@@ -73,11 +73,13 @@ function KixikilaDetails({ kixikilaId, onClose }: { kixikilaId: string; onClose:
 
   const handleMarkPaid = async (memberId: string) => {
     await addContribution.mutateAsync({
-      kixikila_id: kixikilaId,
-      member_id: memberId,
-      round_number: kixikila.current_round,
-      amount: kixikila.contribution_amount,
-      notes: null,
+      contribution: {
+        kixikila_id: kixikilaId,
+        member_id: memberId,
+        round_number: kixikila.current_round,
+        amount: kixikila.contribution_amount,
+        notes: null,
+      },
     });
   };
 

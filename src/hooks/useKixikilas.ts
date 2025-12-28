@@ -138,22 +138,57 @@ export function useCreateKixikila() {
 }
 
 export function useAddKixikilaContribution() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: async (contribution: Omit<KixikilaContribution, 'id' | 'created_at' | 'paid_at'>) => {
-      const { data, error } = await supabase
+    mutationFn: async (data: { 
+      contribution: Omit<KixikilaContribution, 'id' | 'created_at' | 'paid_at'>;
+      accountId?: string;
+      transactionType?: 'expense' | 'income';
+    }) => {
+      // Get kixikila info for transaction description
+      const { data: kixikila, error: kixikilaError } = await supabase
+        .from('kixikilas')
+        .select('name, currency')
+        .eq('id', data.contribution.kixikila_id)
+        .single();
+      
+      if (kixikilaError) throw kixikilaError;
+      
+      const { data: contribution, error } = await supabase
         .from('kixikila_contributions')
-        .insert(contribution)
+        .insert(data.contribution)
         .select()
         .single();
       
       if (error) throw error;
-      return data;
+      
+      // Create transaction if account is provided
+      if (data.accountId && user) {
+        const { error: transactionError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user.id,
+            account_id: data.accountId,
+            type: data.transactionType || 'expense',
+            amount: data.contribution.amount,
+            currency: kixikila.currency,
+            date: new Date().toISOString().split('T')[0],
+            description: `Kixikila: ${kixikila.name} - Rodada ${data.contribution.round_number}`,
+          });
+        
+        if (transactionError) {
+          console.error('Failed to create transaction:', transactionError);
+        }
+      }
+      
+      return contribution;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['kixikila-contributions', variables.kixikila_id] });
+      queryClient.invalidateQueries({ queryKey: ['kixikila-contributions', variables.contribution.kixikila_id] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast({ title: 'Contribuição registada', description: 'A contribuição foi registada com sucesso.' });
     },
     onError: () => {
