@@ -178,13 +178,137 @@
     "yesterday": "Hier",
     "thisWeek": "Cette semaine",
     "thisMonth": "Ce mois",
-    "lastMonth": "Mois dernier"
+    "lastMonth": "Mois dernier",
+    "days": "jours"
   },
   "validation": {
     "required": "Ce champ est obligatoire",
     "invalidEmail": "Email invalide",
     "minLength": "Minimum {{min}} caractères",
     "maxLength": "Maximum {{max}} caractères",
-    "positiveNumber": "Doit être un nombre positif"
+    "positiveNumber": "Doit être un nombre positif",
+    "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
+    "nameMinLength": "Le nom doit contenir au moins 2 caractères",
+    "passwordsDontMatch": "Les mots de passe ne correspondent pas"
+  },
+  "simulator": {
+    "title": "Simulateur",
+    "subtitle": "Simuler des scénarios financiers"
+  },
+  "reconciliation": {
+    "title": "Réconciliation",
+    "subtitle": "Comparer les transactions avec les relevés bancaires"
+  },
+  "schoolFees": {
+    "title": "Frais scolaires",
+    "subtitle": "Gérer les paiements d'éducation"
+  },
+  "kixikilas": {
+    "title": "Kixikilas",
+    "subtitle": "Gestion de l'épargne collective"
+  },
+  "remittances": {
+    "title": "Transferts",
+    "subtitle": "Enregistrer les transferts internationaux"
+  },
+  "splitExpenses": {
+    "title": "Partager dépenses",
+    "subtitle": "Partager les dépenses avec amis et famille"
+  },
+  "costCenters": {
+    "title": "Centres de coûts",
+    "subtitle": "Organiser les dépenses par projet ou domaine"
+  },
+  "tags": {
+    "title": "Étiquettes",
+    "subtitle": "Organiser les transactions avec des étiquettes"
+  },
+  "products": {
+    "title": "Produits financiers",
+    "subtitle": "Comparer et demander des produits financiers"
+  },
+  "exchangeRates": {
+    "title": "Taux de change",
+    "subtitle": "Suivre les taux de change"
+  },
+  "inflationAlerts": {
+    "title": "Alertes inflation",
+    "subtitle": "Surveiller l'impact de l'inflation"
+  },
+  "assistant": {
+    "title": "Assistant IA",
+    "subtitle": "Votre conseiller financier personnel"
+  },
+  "retirement": {
+    "title": "Calculateur retraite",
+    "subtitle": "Planifier votre retraite"
+  },
+  "emergencyFund": {
+    "title": "Fonds d'urgence",
+    "subtitle": "Calculer votre fonds d'urgence idéal"
+  },
+  "recurring": {
+    "title": "Transactions récurrentes",
+    "subtitle": "Gérer les paiements automatiques"
+  },
+  "admin": {
+    "title": "Panneau admin",
+    "subtitle": "Gestion du système"
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Gérer vos informations personnelles et préférences",
+    "personalData": "Données personnelles",
+    "security": "Sécurité",
+    "dangerZone": "Zone de danger",
+    "memberSince": "Membre depuis",
+    "currency": "Devise",
+    "monthlyIncome": "Revenu mensuel",
+    "saveChanges": "Enregistrer les modifications",
+    "changePassword": "Changer le mot de passe",
+    "endSession": "Terminer la session"
+  },
+  "auth": {
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "logout": "Déconnexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "sendResetLink": "Envoyer le lien de réinitialisation",
+    "welcomeBack": "Bienvenue !",
+    "accountCreated": "Compte créé avec succès !",
+    "invalidCredentials": "Email ou mot de passe incorrect",
+    "loggingIn": "Connexion en cours...",
+    "creatingAccount": "Création du compte...",
+    "yourName": "Votre nom",
+    "personalFinanceManager": "Votre gestionnaire de finances personnelles"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "financeSummary": "Voici le résumé de vos finances",
+    "monthlyIncome": "Revenus du mois",
+    "monthlyExpense": "Dépenses du mois",
+    "investments": "Investissements",
+    "monthlyTrends": "Tendances mensuelles (6 derniers mois)",
+    "incomeVsExpense": "Comparaison revenus vs dépenses",
+    "expensesByCategory": "Dépenses par catégorie",
+    "goalsInProgress": "Objectifs en cours",
+    "recentTransactions": "Transactions récentes",
+    "noEnoughData": "Données insuffisantes",
+    "noExpensesThisMonth": "Aucune dépense ce mois",
+    "createFirstGoal": "Créer le premier objectif",
+    "addFirstTransaction": "Ajouter la première transaction",
+    "income": "Revenus",
+    "expense": "Dépenses",
+    "of": "de"
+  },
+  "mobileHome": {
+    "customizeMenu": "Personnaliser le menu",
+    "selectFeatures": "Sélectionnez les fonctionnalités",
+    "dragToReorder": "Faites glisser pour réorganiser",
+    "maxFeatures": "Maximum {{max}} fonctionnalités",
+    "savePreferences": "Enregistrer les préférences"
   }
 }

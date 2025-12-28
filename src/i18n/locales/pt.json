@@ -286,13 +286,88 @@
     "yesterday": "Ontem",
     "thisWeek": "Esta semana",
     "thisMonth": "Este mês",
-    "lastMonth": "Mês passado"
+    "lastMonth": "Mês passado",
+    "days": "dias"
   },
   "validation": {
     "required": "Este campo é obrigatório",
     "invalidEmail": "Email inválido",
     "minLength": "Mínimo {{min}} caracteres",
     "maxLength": "Máximo {{max}} caracteres",
-    "positiveNumber": "Deve ser um número positivo"
+    "positiveNumber": "Deve ser um número positivo",
+    "passwordMinLength": "A password deve ter pelo menos 6 caracteres",
+    "nameMinLength": "O nome deve ter pelo menos 2 caracteres",
+    "passwordsDontMatch": "As passwords não coincidem"
+  },
+  "simulator": {
+    "title": "Simulador",
+    "subtitle": "Simular cenários financeiros"
+  },
+  "reconciliation": {
+    "title": "Reconciliação",
+    "subtitle": "Comparar transacções com extractos bancários"
+  },
+  "schoolFees": {
+    "title": "Propinas",
+    "subtitle": "Gerir pagamentos de educação"
+  },
+  "kixikilas": {
+    "title": "Kixikilas",
+    "subtitle": "Gestão de poupança colectiva"
+  },
+  "remittances": {
+    "title": "Remessas",
+    "subtitle": "Registar transferências internacionais"
+  },
+  "splitExpenses": {
+    "title": "Dividir Despesas",
+    "subtitle": "Dividir despesas com amigos e família"
+  },
+  "costCenters": {
+    "title": "Centros de Custo",
+    "subtitle": "Organizar despesas por projecto ou área"
+  },
+  "tags": {
+    "title": "Tags",
+    "subtitle": "Organizar transacções com etiquetas"
+  },
+  "products": {
+    "title": "Produtos Financeiros",
+    "subtitle": "Comparar e solicitar produtos financeiros"
+  },
+  "exchangeRates": {
+    "title": "Taxas de Câmbio",
+    "subtitle": "Acompanhar taxas de câmbio"
+  },
+  "inflationAlerts": {
+    "title": "Alertas de Inflação",
+    "subtitle": "Monitorizar impacto da inflação"
+  },
+  "assistant": {
+    "title": "Assistente IA",
+    "subtitle": "O seu consultor financeiro pessoal"
+  },
+  "retirement": {
+    "title": "Calculadora de Reforma",
+    "subtitle": "Planear a sua reforma"
+  },
+  "emergencyFund": {
+    "title": "Fundo de Emergência",
+    "subtitle": "Calcular o seu fundo de emergência ideal"
+  },
+  "recurring": {
+    "title": "Transacções Recorrentes",
+    "subtitle": "Gerir pagamentos automáticos"
+  },
+  "admin": {
+    "title": "Painel Admin",
+    "subtitle": "Gestão do sistema"
+  },
+  "mobileHome": {
+    "customizeMenu": "Personalizar menu",
+    "selectFeatures": "Seleccionar funcionalidades",
+    "dragToReorder": "Arraste para reordenar",
+    "maxFeatures": "Máximo {{max}} funcionalidades",
+    "savePreferences": "Guardar preferências"
   }
 }
