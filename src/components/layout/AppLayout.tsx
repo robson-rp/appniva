@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadInsightsCount } from '@/hooks/useInsights';
+import { useMenuPreferences } from '@/hooks/useMenuPreferences';
 import {
   LayoutDashboard,
   Wallet,
@@ -51,9 +52,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { MenuCustomizer } from './MenuCustomizer';
 
-// Items always visible at top
-const mainNavItems = [
+// All available items for pinning
+const allNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
   { path: '/accounts', label: 'Contas', icon: Wallet },
@@ -105,6 +107,7 @@ const adminNavItems = [
 export default function AppLayout() {
   const { user, profile, isAdmin, loading, signOut } = useAuth();
   const { data: unreadCount = 0 } = useUnreadInsightsCount();
+  const { pinnedItems, togglePin, isPinned, resetToDefault } = useMenuPreferences();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>(() => {
@@ -120,6 +123,13 @@ export default function AppLayout() {
         : [...prev, label]
     );
   };
+
+  // Get all items from groups for customizer
+  const allGroupItems = navGroups.flatMap(g => g.items);
+  const allItems = [...allNavItems, ...allGroupItems];
+
+  // Get pinned items with their full data
+  const pinnedNavItems = allItems.filter(item => pinnedItems.includes(item.path));
 
   if (loading) {
     return (
@@ -190,9 +200,24 @@ export default function AppLayout() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {/* Main items always visible */}
-          {mainNavItems.map((item) => {
+          {/* Header with customizer */}
+          <div className="flex items-center justify-between px-3 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+              Menu Principal
+            </span>
+            <MenuCustomizer
+              allItems={allNavItems}
+              navGroups={navGroups}
+              pinnedItems={pinnedItems}
+              onTogglePin={togglePin}
+              onReset={resetToDefault}
+            />
+          </div>
+
+          {/* Pinned items always visible */}
+          {pinnedNavItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const hasBadge = 'hasBadge' in item && item.hasBadge && unreadCount > 0;
             return (
               <Link
                 key={item.path}
@@ -202,6 +227,14 @@ export default function AppLayout() {
               >
                 <item.icon className="h-5 w-5" />
                 <span>{item.label}</span>
+                {hasBadge && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
               </Link>
             );
           })}
