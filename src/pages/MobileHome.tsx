@@ -31,7 +31,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TransactionFormWrapper } from '@/components/transactions/TransactionFormWrapper';
 
@@ -71,6 +71,13 @@ export default function MobileHome() {
   const upcomingRenewals = useUpcomingRenewals(7);
 
   const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Trigger animations after mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   const currency = profile?.primary_currency || 'AOA';
   const totalBalance = accounts?.reduce((sum, acc) => sum + Number(acc.current_balance), 0) || 0;
@@ -178,7 +185,12 @@ export default function MobileHome() {
       {/* Main Content */}
       <main className="p-4 space-y-6">
         {/* BLOCO 2 - Financial Status Card */}
-        <div className="bg-card rounded-2xl p-5 shadow-lg border border-border">
+        <div className={cn(
+          "bg-card rounded-2xl p-5 shadow-lg border border-border transition-all duration-500 ease-out",
+          isVisible 
+            ? "opacity-100 translate-y-0 scale-100" 
+            : "opacity-0 translate-y-6 scale-95"
+        )}>
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-sm text-muted-foreground mb-1">Património Líquido</p>
@@ -227,19 +239,31 @@ export default function MobileHome() {
         </div>
 
         {/* BLOCO 3 - Feature Grid */}
-        <div>
+        <div className={cn(
+          "transition-all duration-500 ease-out delay-100",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
             Funcionalidades
           </h2>
           <div className="grid grid-cols-4 gap-3">
-            {visibleFeatures.slice(0, 8).map((item) => (
+            {visibleFeatures.slice(0, 8).map((item, index) => (
               <Link
                 key={item.route}
                 to={item.route}
-                className="flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95"
+                className={cn(
+                  "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95",
+                  "transform duration-500 ease-out",
+                  isVisible 
+                    ? "opacity-100 translate-y-0 scale-100" 
+                    : "opacity-0 translate-y-4 scale-90"
+                )}
+                style={{ 
+                  transitionDelay: isVisible ? `${150 + index * 50}ms` : '0ms'
+                }}
               >
                 <div className={cn(
-                  'h-12 w-12 rounded-xl flex items-center justify-center mb-2',
+                  'h-12 w-12 rounded-xl flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110',
                   item.color
                 )}>
                   <item.icon className="h-6 w-6 text-white" />
@@ -253,11 +277,20 @@ export default function MobileHome() {
           
           {visibleFeatures.length > 8 && (
             <div className="mt-3 grid grid-cols-4 gap-3">
-              {visibleFeatures.slice(8).map((item) => (
+              {visibleFeatures.slice(8).map((item, index) => (
                 <Link
                   key={item.route}
                   to={item.route}
-                  className="flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95"
+                  className={cn(
+                    "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95",
+                    "transform duration-500 ease-out",
+                    isVisible 
+                      ? "opacity-100 translate-y-0 scale-100" 
+                      : "opacity-0 translate-y-4 scale-90"
+                  )}
+                  style={{ 
+                    transitionDelay: isVisible ? `${550 + index * 50}ms` : '0ms'
+                  }}
                 >
                   <div className={cn(
                     'h-12 w-12 rounded-xl flex items-center justify-center mb-2',
@@ -275,7 +308,10 @@ export default function MobileHome() {
         </div>
 
         {/* BLOCO 4 - Quick Actions */}
-        <div>
+        <div className={cn(
+          "transition-all duration-500 ease-out delay-300",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
             Acções Rápidas
           </h2>
@@ -284,7 +320,16 @@ export default function MobileHome() {
               <button
                 key={index}
                 onClick={() => handleQuickAction(action.action, action.route)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground whitespace-nowrap transition-all hover:opacity-90 active:scale-95"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-accent-foreground whitespace-nowrap transition-all hover:opacity-90 active:scale-95",
+                  "transform duration-400 ease-out",
+                  isVisible 
+                    ? "opacity-100 translate-x-0 scale-100" 
+                    : "opacity-0 -translate-x-4 scale-90"
+                )}
+                style={{ 
+                  transitionDelay: isVisible ? `${650 + index * 75}ms` : '0ms'
+                }}
               >
                 <action.icon className="h-4 w-4" />
                 <span className="text-sm font-medium">{action.label}</span>
@@ -294,7 +339,10 @@ export default function MobileHome() {
         </div>
 
         {/* BLOCO 5 - Summary Mini Cards */}
-        <div className="space-y-3">
+        <div className={cn(
+          "space-y-3 transition-all duration-500 ease-out delay-500",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
             Resumo Rápido
           </h2>
@@ -303,7 +351,12 @@ export default function MobileHome() {
           {upcomingRenewals && upcomingRenewals.length > 0 && (
             <Link
               to="/subscriptions"
-              className="block p-4 rounded-xl bg-card border border-border transition-all hover:shadow-md active:scale-[0.99]"
+              className={cn(
+                "block p-4 rounded-xl bg-card border border-border transition-all hover:shadow-md active:scale-[0.99]",
+                "transform duration-500 ease-out",
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"
+              )}
+              style={{ transitionDelay: isVisible ? '700ms' : '0ms' }}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -322,7 +375,12 @@ export default function MobileHome() {
           {goals && goals.length > 0 && (
             <Link
               to="/goals"
-              className="block p-4 rounded-xl bg-card border border-border transition-all hover:shadow-md active:scale-[0.99]"
+              className={cn(
+                "block p-4 rounded-xl bg-card border border-border transition-all hover:shadow-md active:scale-[0.99]",
+                "transform duration-500 ease-out",
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"
+              )}
+              style={{ transitionDelay: isVisible ? '800ms' : '0ms' }}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -341,7 +399,12 @@ export default function MobileHome() {
           {debts && debts.filter(d => d.status === 'active').length > 0 && (
             <Link
               to="/debts"
-              className="block p-4 rounded-xl bg-card border border-border transition-all hover:shadow-md active:scale-[0.99]"
+              className={cn(
+                "block p-4 rounded-xl bg-card border border-border transition-all hover:shadow-md active:scale-[0.99]",
+                "transform duration-500 ease-out",
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"
+              )}
+              style={{ transitionDelay: isVisible ? '900ms' : '0ms' }}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -360,7 +423,12 @@ export default function MobileHome() {
           {insights && insights.length > 0 && (
             <Link
               to="/insights"
-              className="block p-4 rounded-xl bg-accent/10 border border-accent/20 transition-all hover:shadow-md active:scale-[0.99]"
+              className={cn(
+                "block p-4 rounded-xl bg-accent/10 border border-accent/20 transition-all hover:shadow-md active:scale-[0.99]",
+                "transform duration-500 ease-out",
+                isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"
+              )}
+              style={{ transitionDelay: isVisible ? '1000ms' : '0ms' }}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
