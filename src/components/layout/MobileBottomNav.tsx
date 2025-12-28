@@ -1,12 +1,14 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BarChart3, User, Plus, MoreHorizontal, Wallet, ArrowLeftRight, PiggyBank, Target, CreditCard, TrendingUp, Repeat, RefreshCw, GraduationCap, MessageCircle, Lightbulb, Calculator, Umbrella, Shield, Scale, TrendingDown, DollarSign, Users, Send, Receipt, Building2, Tags, ShoppingBag, ScanText, Smartphone, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TransactionFormWrapper } from '@/components/transactions/TransactionFormWrapper';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { useUnreadInsightsCount } from '@/hooks/useInsights';
+import { useBudgetsAtRiskCount } from '@/hooks/useBudgets';
 
 const NAV_ITEMS = [
   { icon: Home, label: 'Home', route: '/home' },
@@ -22,7 +24,7 @@ const MENU_GROUPS = [
     items: [
       { path: '/accounts', label: 'Contas', icon: Wallet },
       { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
-      { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
+      { path: '/budgets', label: 'Orçamentos', icon: PiggyBank, badgeKey: 'budgets' },
       { path: '/goals', label: 'Metas', icon: Target },
       { path: '/debts', label: 'Dívidas', icon: CreditCard },
       { path: '/investments', label: 'Investimentos', icon: TrendingUp },
@@ -35,7 +37,7 @@ const MENU_GROUPS = [
     label: 'Análise',
     items: [
       { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
-      { path: '/insights', label: 'Insights', icon: Lightbulb },
+      { path: '/insights', label: 'Insights', icon: Lightbulb, badgeKey: 'insights' },
       { path: '/simulator', label: 'Simulador', icon: Calculator },
       { path: '/retirement', label: 'Reforma', icon: Umbrella },
       { path: '/emergency-fund', label: 'Fundo Emergência', icon: Shield },
@@ -69,12 +71,23 @@ const SCROLL_THRESHOLD = 10;
 export function MobileBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { data: unreadInsights = 0 } = useUnreadInsightsCount();
+  const budgetsAtRisk = useBudgetsAtRiskCount();
+  
   const [showQuickAction, setShowQuickAction] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
+
+  // Badge counts map
+  const badgeCounts = useMemo(() => ({
+    insights: unreadInsights,
+    budgets: budgetsAtRisk,
+  }), [unreadInsights, budgetsAtRisk]);
+
+  // Total notifications for "More" button badge
+  const totalNotifications = unreadInsights + budgetsAtRisk;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -147,11 +160,18 @@ export function MobileBottomNav() {
                   key={index}
                   onClick={() => setShowMoreMenu(true)}
                   className={cn(
-                    'flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-2 transition-colors',
+                    'flex flex-col items-center justify-center gap-0.5 min-w-[64px] py-2 transition-colors relative',
                     showMoreMenu ? 'text-accent' : 'text-muted-foreground'
                   )}
                 >
-                  <MoreHorizontal className={cn('h-6 w-6', showMoreMenu && 'stroke-[2.5]')} />
+                  <div className="relative">
+                    <MoreHorizontal className={cn('h-6 w-6', showMoreMenu && 'stroke-[2.5]')} />
+                    {totalNotifications > 0 && (
+                      <span className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-destructive text-[9px] font-bold flex items-center justify-center text-destructive-foreground">
+                        {totalNotifications > 9 ? '9+' : totalNotifications}
+                      </span>
+                    )}
+                  </div>
                   <span className={cn('text-[10px] font-medium', showMoreMenu && 'font-semibold')}>
                     {item.label}
                   </span>
@@ -217,18 +237,29 @@ export function MobileBottomNav() {
                   <div className="grid grid-cols-4 gap-2">
                     {group.items.map((item) => {
                       const isActive = location.pathname === item.path;
+                      const badgeCount = 'badgeKey' in item ? badgeCounts[item.badgeKey as keyof typeof badgeCounts] : 0;
                       return (
                         <button
                           key={item.path}
                           onClick={() => handleMenuItemClick(item.path)}
                           className={cn(
-                            "flex flex-col items-center gap-2 p-3 rounded-xl transition-all",
+                            "flex flex-col items-center gap-2 p-3 rounded-xl transition-all relative",
                             isActive 
                               ? "bg-accent text-accent-foreground" 
                               : "bg-muted/50 hover:bg-muted text-foreground"
                           )}
                         >
-                          <item.icon className="h-6 w-6" />
+                          <div className="relative">
+                            <item.icon className="h-6 w-6" />
+                            {badgeCount > 0 && (
+                              <Badge 
+                                variant="destructive" 
+                                className="absolute -top-2 -right-2 h-4 min-w-4 flex items-center justify-center p-0 text-[9px]"
+                              >
+                                {badgeCount > 9 ? '9+' : badgeCount}
+                              </Badge>
+                            )}
+                          </div>
                           <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">
                             {item.label}
                           </span>
