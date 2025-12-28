@@ -31,6 +31,12 @@ import Subscriptions from "@/pages/Subscriptions";
 import RetirementCalculator from "@/pages/RetirementCalculator";
 import EmergencyFundCalculator from "@/pages/EmergencyFundCalculator";
 import Install from "@/pages/Install";
+import ExchangeRates from "@/pages/ExchangeRates";
+import Kixikilas from "@/pages/Kixikilas";
+import Remittances from "@/pages/Remittances";
+import SchoolFees from "@/pages/SchoolFees";
+import SplitExpenses from "@/pages/SplitExpenses";
+import InflationAlerts from "@/pages/InflationAlerts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +77,12 @@ const App = () => (
               <Route path="/retirement" element={<RetirementCalculator />} />
               <Route path="/emergency-fund" element={<EmergencyFundCalculator />} />
               <Route path="/install" element={<Install />} />
+              <Route path="/exchange-rates" element={<ExchangeRates />} />
+              <Route path="/kixikilas" element={<Kixikilas />} />
+              <Route path="/remittances" element={<Remittances />} />
+              <Route path="/school-fees" element={<SchoolFees />} />
+              <Route path="/split-expenses" element={<SplitExpenses />} />
+              <Route path="/inflation-alerts" element={<InflationAlerts />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
