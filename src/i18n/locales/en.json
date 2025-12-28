@@ -20,7 +20,28 @@
     "none": "None",
     "available": "available",
     "seeDetails": "See details",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "create": "Create",
+    "update": "Update",
+    "view": "View",
+    "actions": "Actions",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "name": "Name",
+    "description": "Description",
+    "amount": "Amount",
+    "date": "Date",
+    "type": "Type",
+    "category": "Category",
+    "notes": "Notes",
+    "total": "Total",
+    "balance": "Balance",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "noData": "No data",
+    "seeAll": "See all",
+    "createFirst": "Create first"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -60,6 +81,28 @@
     "administration": "Administration",
     "adminPanel": "Admin Panel"
   },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset Password",
+    "sendResetLink": "Send Reset Link",
+    "welcomeBack": "Welcome back!",
+    "accountCreated": "Account created successfully!",
+    "invalidCredentials": "Invalid email or password",
+    "emailAlreadyRegistered": "This email is already registered",
+    "resetEmailSent": "Reset email sent! Check your inbox.",
+    "loggingIn": "Logging in...",
+    "creatingAccount": "Creating account...",
+    "sending": "Sending...",
+    "enterEmailForReset": "Enter your email to receive a reset link",
+    "yourName": "Your name",
+    "personalFinanceManager": "Your personal finance manager"
+  },
   "home": {
     "greeting": "Hello, {{name}}",
     "netWorth": "Net Worth",
@@ -77,6 +120,25 @@
     "insightOfDay": "Insight of the Day",
     "refreshing": "Refreshing..."
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "financeSummary": "Here's your finance summary",
+    "monthlyIncome": "Monthly Income",
+    "monthlyExpense": "Monthly Expenses",
+    "investments": "Investments",
+    "monthlyTrends": "Monthly Trends (Last 6 Months)",
+    "incomeVsExpense": "Income vs Expense Comparison",
+    "expensesByCategory": "Expenses by Category",
+    "goalsInProgress": "Goals in Progress",
+    "recentTransactions": "Recent Transactions",
+    "noEnoughData": "Not enough data",
+    "noExpensesThisMonth": "No expenses this month",
+    "createFirstGoal": "Create first goal",
+    "addFirstTransaction": "Add first transaction",
+    "income": "Income",
+    "expense": "Expenses",
+    "of": "of"
+  },
   "health": {
     "healthy": "Healthy",
     "attention": "Attention",
@@ -84,6 +146,7 @@
   },
   "transactions": {
     "title": "Transactions",
+    "subtitle": "Record and view financial movements",
     "income": "Income",
     "expense": "Expense",
     "transfer": "Transfer",
@@ -93,73 +156,206 @@
     "category": "Category",
     "account": "Account",
     "newTransaction": "New Transaction",
-    "noTransactions": "No transactions"
+    "noTransactions": "No transactions",
+    "monthlyIncome": "Monthly Income",
+    "monthlyExpense": "Monthly Expenses",
+    "monthlyBalance": "Monthly Balance",
+    "list": "List",
+    "byTags": "By Tags",
+    "showFilters": "Show Filters",
+    "hideFilters": "Hide Filters"
   },
   "accounts": {
     "title": "Accounts",
+    "subtitle": "Manage your financial accounts",
     "balance": "Balance",
     "bank": "Bank",
     "wallet": "Wallet",
     "cash": "Cash",
     "other": "Other",
     "newAccount": "New Account",
-    "noAccounts": "No accounts"
+    "noAccounts": "No accounts",
+    "totalBalance": "Total Balance (active accounts)",
+    "activeAccounts": "Active Accounts",
+    "inactiveAccounts": "Inactive Accounts",
+    "noActiveAccounts": "No active accounts",
+    "createFirstAccount": "Create first account",
+    "editAccount": "Edit Account",
+    "createAccount": "Create Account",
+    "accountCount": "{{count}} active account(s)"
   },
   "budgets": {
     "title": "Budgets",
+    "subtitle": "Set monthly limits by category",
     "limit": "Limit",
     "spent": "Spent",
     "remaining": "Remaining",
     "exceeded": "Exceeded",
-    "newBudget": "New Budget"
+    "newBudget": "New Budget",
+    "totalBudgeted": "Total Budgeted",
+    "totalSpent": "Total Spent",
+    "usage": "Usage",
+    "noBudgetsThisMonth": "No budgets set for this month",
+    "createFirstBudget": "Create first budget",
+    "editBudget": "Edit Budget",
+    "deleteBudget": "Delete budget?",
+    "deleteBudgetDescription": "This action cannot be undone. The budget will be permanently deleted."
   },
   "goals": {
-    "title": "Goals",
+    "title": "Financial Goals",
+    "subtitle": "Set and track your savings objectives",
     "target": "Target",
     "saved": "Saved",
     "progress": "Progress",
     "deadline": "Deadline",
     "newGoal": "New Goal",
     "contribute": "Contribute",
-    "inProgress": "In Progress",
+    "inProgress": "Active",
     "completed": "Completed",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "activeGoals": "Active Goals",
+    "totalSaved": "Total Saved",
+    "targetAmount": "of {{amount}} target",
+    "overallProgress": "{{percent}}% overall progress",
+    "goalsCompleted": "Goals Completed",
+    "objectivesAchieved": "objectives achieved",
+    "noActiveGoals": "No active goals",
+    "noCompletedGoals": "No goals completed yet",
+    "noCancelledGoals": "No cancelled goals",
+    "noGoalsDefined": "No goals defined",
+    "startCreatingGoals": "Start creating goals to track your savings progress.",
+    "createGoal": "Create Goal",
+    "editGoal": "Edit Goal",
+    "deleteGoal": "Delete goal?",
+    "deleteGoalDescription": "This action cannot be undone. The goal and all associated contributions will be deleted.",
+    "addContribution": "Add Contribution"
   },
   "debts": {
-    "title": "Debts",
+    "title": "Debts & Credits",
+    "subtitle": "Manage your debts and track payments",
     "principal": "Principal",
     "currentBalance": "Current Balance",
     "interestRate": "Interest Rate",
     "installment": "Installment",
     "nextPayment": "Next Payment",
     "newDebt": "New Debt",
-    "makePayment": "Make Payment",
+    "makePayment": "Record Payment",
     "active": "Active",
-    "closed": "Closed"
+    "closed": "Paid",
+    "totalDebt": "Total Debt",
+    "monthlyInstallments": "Monthly Installments",
+    "totalMonthlyEstimate": "Total monthly estimate",
+    "nextPaymentIn": "{{days}} days",
+    "overduePayments": "Overdue Payments",
+    "activeDebts": "{{count}} active debts",
+    "noActiveDebts": "No active debts",
+    "noActiveDebtsDescription": "You have no registered debts. Add one to start tracking your payments.",
+    "addDebt": "Add Debt",
+    "noPaidDebts": "No debts paid yet",
+    "editDebt": "Edit Debt",
+    "deleteDebt": "Delete Debt",
+    "deleteDebtDescription": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone and all associated payments will be deleted.",
+    "paymentHistory": "Payment History"
   },
   "investments": {
     "title": "Investments",
+    "subtitle": "Manage term deposits and treasury bonds",
     "totalInvested": "Total Invested",
     "returns": "Returns",
     "type": "Type",
     "startDate": "Start Date",
     "maturityDate": "Maturity Date",
-    "newInvestment": "New Investment"
+    "newInvestment": "New Investment",
+    "termDeposits": "Term Deposits",
+    "deposits": "Deposits",
+    "otnrBonds": "OTNR Bonds",
+    "depositCount": "{{count}} deposit(s)",
+    "bondCount": "{{count}} bond(s)",
+    "noInvestments": "No investments",
+    "startRecordingInvestments": "Start recording your investments to track returns.",
+    "addInvestment": "Add Investment",
+    "deleteInvestment": "Delete investment?",
+    "deleteInvestmentDescription": "This action cannot be undone. The investment will be permanently deleted."
   },
   "subscriptions": {
     "title": "Subscriptions",
+    "subtitle": "Manage your services and subscriptions",
     "renewalDate": "Renewal Date",
     "billingCycle": "Billing Cycle",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "active": "Active",
+    "paused": "Paused",
     "newSubscription": "New Subscription",
-    "renewingSoon": "renewing in {{days}} days"
+    "renewingSoon": "renewing in {{days}} days",
+    "upcomingRenewals": "Upcoming Renewals",
+    "renewalsIn7Days": "You have {{count}} subscription(s) renewing in the next 7 days",
+    "activeSubscriptions": "Active Subscriptions",
+    "subscribedServices": "subscribed services",
+    "monthlyCost": "Monthly Cost",
+    "monthlyEstimate": "monthly estimate",
+    "yearlyCost": "Yearly Cost",
+    "yearlyProjection": "yearly projection",
+    "noSubscriptions": "No subscriptions",
+    "addSubscriptionsDescription": "Add your subscriptions to track monthly costs and receive renewal alerts.",
+    "addFirst": "Add First",
+    "noPausedSubscriptions": "No paused subscriptions",
+    "pausedWillAppear": "Paused subscriptions will appear here."
   },
-  "insights": {
-    "title": "Insights",
-    "unread": "Unread",
-    "markAsRead": "Mark as read"
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your personal information and preferences",
+    "personalData": "Personal Data",
+    "updatePersonalInfo": "Update your personal information",
+    "security": "Security",
+    "changePassword": "Change your access password",
+    "dangerZone": "Danger Zone",
+    "irreversibleActions": "Irreversible actions for your account",
+    "endSession": "End Session",
+    "endSessionDescription": "Log out of the app on this device",
+    "memberSince": "Member since",
+    "currency": "Currency",
+    "monthlyIncome": "Monthly Income",
+    "onboarding": "Onboarding",
+    "completed": "Completed",
+    "pending": "Pending",
+    "notDefined": "Not defined",
+    "unknown": "Unknown",
+    "preferredCurrency": "Preferred Currency",
+    "usedForDisplaying": "Used to display values and reports",
+    "usedForSavingsRate": "Used to calculate savings rate",
+    "saveChanges": "Save Changes",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm Password",
+    "changingPassword": "Changing...",
+    "changePasswordBtn": "Change Password",
+    "profileUpdated": "Profile updated successfully",
+    "errorUpdatingProfile": "Error updating profile",
+    "passwordChanged": "Password changed successfully",
+    "errorChangingPassword": "Error changing password",
+    "endSessionConfirm": "End session?",
+    "endSessionConfirmDescription": "You will need to log in again to access the app.",
+    "admin": "Admin",
+    "verified": "Verified"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "days": "days"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email",
+    "minLength": "Minimum {{min}} characters",
+    "maxLength": "Maximum {{max}} characters",
+    "positiveNumber": "Must be a positive number",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "nameMinLength": "Name must be at least 2 characters",
+    "passwordsDontMatch": "Passwords don't match"
   },
   "theme": {
     "title": "Theme",
@@ -173,18 +369,73 @@
     "en": "English",
     "fr": "Français"
   },
-  "time": {
-    "today": "Today",
-    "yesterday": "Yesterday",
-    "thisWeek": "This week",
-    "thisMonth": "This month",
-    "lastMonth": "Last month"
+  "insights": {
+    "title": "Insights",
+    "unread": "Unread",
+    "markAsRead": "Mark as read"
   },
-  "validation": {
-    "required": "This field is required",
-    "invalidEmail": "Invalid email",
-    "minLength": "Minimum {{min}} characters",
-    "maxLength": "Maximum {{max}} characters",
-    "positiveNumber": "Must be a positive number"
+  "simulator": {
+    "title": "Simulator",
+    "subtitle": "Simulate financial scenarios"
+  },
+  "reconciliation": {
+    "title": "Reconciliation",
+    "subtitle": "Compare transactions with bank statements"
+  },
+  "schoolFees": {
+    "title": "School Fees",
+    "subtitle": "Manage education payments"
+  },
+  "kixikilas": {
+    "title": "Kixikilas",
+    "subtitle": "Collective savings management"
+  },
+  "remittances": {
+    "title": "Remittances",
+    "subtitle": "Record international transfers"
+  },
+  "splitExpenses": {
+    "title": "Split Expenses",
+    "subtitle": "Split expenses with friends and family"
+  },
+  "costCenters": {
+    "title": "Cost Centers",
+    "subtitle": "Organize expenses by project or area"
+  },
+  "tags": {
+    "title": "Tags",
+    "subtitle": "Organize transactions with labels"
+  },
+  "products": {
+    "title": "Financial Products",
+    "subtitle": "Compare and request financial products"
+  },
+  "exchangeRates": {
+    "title": "Exchange Rates",
+    "subtitle": "Track exchange rates"
+  },
+  "inflationAlerts": {
+    "title": "Inflation Alerts",
+    "subtitle": "Monitor inflation impact"
+  },
+  "assistant": {
+    "title": "AI Assistant",
+    "subtitle": "Your personal financial advisor"
+  },
+  "retirement": {
+    "title": "Retirement Calculator",
+    "subtitle": "Plan your retirement"
+  },
+  "emergencyFund": {
+    "title": "Emergency Fund",
+    "subtitle": "Calculate your ideal emergency fund"
+  },
+  "recurring": {
+    "title": "Recurring Transactions",
+    "subtitle": "Manage automatic payments"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "System management"
   }
 }
