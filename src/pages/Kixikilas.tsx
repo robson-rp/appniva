@@ -37,6 +37,7 @@ import {
   useUpdateMemberOrder,
 } from '@/hooks/useKixikilas';
 import { formatCurrency, CURRENCIES } from '@/lib/constants';
+import { useAccounts } from '@/hooks/useAccounts';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { KixikilaProgressChart } from '@/components/kixikila/KixikilaProgressChart';
 import { KixikilaStats } from '@/components/kixikila/KixikilaStats';
@@ -57,11 +58,15 @@ function KixikilaDetails({ kixikilaId, onClose }: { kixikilaId: string; onClose:
   const updateRound = useUpdateKixikilaRound();
   const updateKixikila = useUpdateKixikila();
   const updateMemberOrder = useUpdateMemberOrder();
+  const { data: accounts = [] } = useAccounts();
   
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editAmount, setEditAmount] = useState('');
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [paymentAccountId, setPaymentAccountId] = useState<string>('');
   
   const kixikila = kixikilas.find(k => k.id === kixikilaId);
   if (!kixikila) return null;
@@ -71,16 +76,30 @@ function KixikilaDetails({ kixikilaId, onClose }: { kixikilaId: string; onClose:
   const currentRecipient = members.find(m => m.order_number === kixikila.current_round);
   const allPaid = members.every(m => paidMemberIds.has(m.id));
 
-  const handleMarkPaid = async (memberId: string) => {
+  const openPaymentDialog = (memberId: string) => {
+    setSelectedMemberId(memberId);
+    setPaymentAccountId('');
+    setPaymentDialogOpen(true);
+  };
+
+  const handleMarkPaid = async () => {
+    if (!selectedMemberId) return;
+    
     await addContribution.mutateAsync({
       contribution: {
         kixikila_id: kixikilaId,
-        member_id: memberId,
+        member_id: selectedMemberId,
         round_number: kixikila.current_round,
         amount: kixikila.contribution_amount,
         notes: null,
       },
+      accountId: paymentAccountId || undefined,
+      transactionType: 'expense',
     });
+    
+    setPaymentDialogOpen(false);
+    setSelectedMemberId(null);
+    setPaymentAccountId('');
   };
 
   const handleAdvanceRound = async () => {
@@ -303,7 +322,7 @@ function KixikilaDetails({ kixikilaId, onClose }: { kixikilaId: string; onClose:
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleMarkPaid(member.id)}
+                          onClick={() => openPaymentDialog(member.id)}
                           disabled={addContribution.isPending}
                         >
                           Marcar Pago
@@ -336,6 +355,57 @@ function KixikilaDetails({ kixikilaId, onClose }: { kixikilaId: string; onClose:
           <KixikilaHistory kixikila={kixikila} members={members} contributions={contributions} />
         </TabsContent>
       </Tabs>
+
+      {/* Payment Account Dialog */}
+      <Dialog open={paymentDialogOpen} onOpenChange={(open) => {
+        setPaymentDialogOpen(open);
+        if (!open) {
+          setSelectedMemberId(null);
+          setPaymentAccountId('');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Registar Pagamento</DialogTitle>
+            <DialogDescription>
+              Seleccione a conta para registar esta contribuição.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="p-3 rounded-lg border bg-muted/30">
+              <p className="font-medium">{members.find(m => m.id === selectedMemberId)?.name}</p>
+              <p className="text-lg font-bold text-primary mt-1">
+                {formatCurrency(kixikila.contribution_amount, kixikila.currency)}
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Conta de Pagamento</Label>
+              <Select value={paymentAccountId} onValueChange={setPaymentAccountId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione uma conta" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name} ({account.currency})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">A transação será registada nesta conta</p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setPaymentDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleMarkPaid} disabled={addContribution.isPending}>
+              {addContribution.isPending ? 'A processar...' : 'Confirmar Pagamento'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

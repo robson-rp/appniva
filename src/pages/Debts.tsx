@@ -125,7 +125,7 @@ export default function Debts() {
     }
   };
 
-  const handlePaymentSubmit = (data: { amount: number; payment_date: string; notes?: string }) => {
+  const handlePaymentSubmit = (data: { amount: number; payment_date: string; notes?: string; account_id?: string }) => {
     if (selectedDebt) {
       createPayment.mutate(
         { debt_id: selectedDebt.id, ...data },
