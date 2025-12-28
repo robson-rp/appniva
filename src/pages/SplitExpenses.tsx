@@ -45,7 +45,7 @@ import {
   SPLIT_EXPENSE_CATEGORIES,
 } from '@/hooks/useSplitExpenses';
 import { useParticipantGroups, useCreateParticipantGroup, useDeleteParticipantGroup } from '@/hooks/useParticipantGroups';
-import { usePaymentHistory } from '@/hooks/usePaymentHistory';
+import { usePaymentHistory, useReversePayment } from '@/hooks/usePaymentHistory';
 import { formatCurrency, formatDate, CURRENCIES } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -53,6 +53,11 @@ import autoTable from 'jspdf-autotable';
 
 function PaymentHistoryDialog({ participantId, participantName, currency }: { participantId: string; participantName: string; currency: string }) {
   const { data: history = [], isLoading } = usePaymentHistory(participantId);
+  const reversePayment = useReversePayment();
+  
+  const handleReverse = async (paymentId: string, amount: number) => {
+    await reversePayment.mutateAsync({ paymentId, participantId, amount });
+  };
   
   return (
     <Dialog>
@@ -80,8 +85,17 @@ function PaymentHistoryDialog({ participantId, participantName, currency }: { pa
                 <div>
                   <p className="font-medium">{formatCurrency(entry.amount, currency)}</p>
                   <p className="text-sm text-muted-foreground">{formatDate(entry.payment_date)}</p>
+                  {entry.notes && <p className="text-sm text-muted-foreground">{entry.notes}</p>}
                 </div>
-                {entry.notes && <p className="text-sm text-muted-foreground">{entry.notes}</p>}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => handleReverse(entry.id, entry.amount)}
+                  disabled={reversePayment.isPending}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             ))}
           </div>

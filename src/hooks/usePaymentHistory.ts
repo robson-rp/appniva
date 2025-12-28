@@ -28,6 +28,59 @@ export function usePaymentHistory(participantId: string | null) {
   });
 }
 
+export function useReversePayment() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  return useMutation({
+    mutationFn: async ({ 
+      paymentId, 
+      participantId, 
+      amount 
+    }: { 
+      paymentId: string; 
+      participantId: string;
+      amount: number;
+    }) => {
+      // Get current amount paid
+      const { data: participant, error: getError } = await supabase
+        .from('split_expense_participants')
+        .select('amount_paid')
+        .eq('id', participantId)
+        .single();
+      
+      if (getError) throw getError;
+      
+      // Calculate new amount (ensure it doesn't go below 0)
+      const newAmount = Math.max(0, participant.amount_paid - amount);
+      
+      // Update participant's total amount paid
+      const { error: updateError } = await supabase
+        .from('split_expense_participants')
+        .update({ amount_paid: newAmount })
+        .eq('id', participantId);
+      
+      if (updateError) throw updateError;
+      
+      // Delete the payment history entry
+      const { error: deleteError } = await supabase
+        .from('split_expense_payment_history')
+        .delete()
+        .eq('id', paymentId);
+      
+      if (deleteError) throw deleteError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-history'] });
+      toast({ title: 'Pagamento anulado', description: 'O pagamento foi anulado com sucesso.' });
+    },
+    onError: () => {
+      toast({ title: 'Erro', description: 'Não foi possível anular o pagamento.', variant: 'destructive' });
+    },
+  });
+}
+
 export function useRecordPaymentWithHistory() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
