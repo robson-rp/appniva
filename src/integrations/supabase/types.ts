@@ -1240,6 +1240,51 @@ export type Database = {
         }
         Relationships: []
       }
+      school_fee_templates: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          education_level: string
+          fee_type: string
+          id: string
+          is_recurring: boolean
+          name: string
+          notes: string | null
+          school_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          education_level: string
+          fee_type: string
+          id?: string
+          is_recurring?: boolean
+          name: string
+          notes?: string | null
+          school_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          education_level?: string
+          fee_type?: string
+          id?: string
+          is_recurring?: boolean
+          name?: string
+          notes?: string | null
+          school_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       school_fees: {
         Row: {
           academic_year: string
