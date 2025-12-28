@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadInsightsCount } from '@/hooks/useInsights';
 import { useBudgetsAtRiskCount } from '@/hooks/useBudgets';
 import { useMenuPreferences } from '@/hooks/useMenuPreferences';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
