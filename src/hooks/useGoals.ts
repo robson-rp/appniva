@@ -111,8 +111,17 @@ export function useAddContribution() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ goalId, amount }: { goalId: string; amount: number }) => {
+    mutationFn: async ({ goalId, amount, accountId }: { goalId: string; amount: number; accountId?: string }) => {
       if (!user) throw new Error('Não autenticado');
+
+      // Get goal details for the description
+      const { data: goal, error: goalError } = await supabase
+        .from('goals')
+        .select('name, currency')
+        .eq('id', goalId)
+        .single();
+
+      if (goalError) throw goalError;
 
       const { data, error } = await supabase
         .from('goal_contributions')
@@ -124,10 +133,30 @@ export function useAddContribution() {
         .single();
 
       if (error) throw error;
+
+      // Create transaction if account is provided
+      if (accountId) {
+        const { error: txError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user.id,
+            account_id: accountId,
+            amount,
+            type: 'expense',
+            description: `Contribuição para meta: ${goal.name}`,
+            date: new Date().toISOString().split('T')[0],
+            currency: goal.currency,
+          });
+
+        if (txError) throw txError;
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast.success('Contribuição adicionada');
     },
     onError: () => {
