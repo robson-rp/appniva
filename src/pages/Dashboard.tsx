@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useMonthlyStats, useExpensesByCategory, useRecentTransactions, useMonthlyTrends } from '@/hooks/useTransactions';
 import { useInvestmentStats } from '@/hooks/useInvestments';
@@ -15,6 +16,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { FinancialScoreCard } from '@/components/dashboard/FinancialScoreCard';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: accounts, isLoading: loadingAccounts } = useAccounts();
   const { data: monthlyStats, isLoading: loadingStats } = useMonthlyStats();
@@ -34,15 +36,15 @@ export default function Dashboard() {
 
   const chartConfig = {
     income: {
-      label: "Receitas",
+      label: t('dashboard.income'),
       color: "hsl(var(--income))",
     },
     expense: {
-      label: "Despesas", 
+      label: t('dashboard.expense'), 
       color: "hsl(var(--expense))",
     },
     balance: {
-      label: "Balanço",
+      label: t('home.monthlyBalance'),
       color: "hsl(var(--accent))",
     },
   };
@@ -67,8 +69,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Olá, {profile?.name?.split(' ')[0]}!</h1>
-        <p className="text-muted-foreground">Aqui está o resumo das tuas finanças</p>
+        <h1 className="text-2xl font-bold text-foreground">{t('home.greeting', { name: profile?.name?.split(' ')[0] })}</h1>
+        <p className="text-muted-foreground">{t('dashboard.financeSummary')}</p>
       </div>
 
           {/* Main Stats */}
@@ -77,7 +79,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Património Líquido</p>
+                <p className="text-sm text-muted-foreground">{t('home.netWorth')}</p>
                 <p className="text-2xl font-bold">{formatCurrency(netWorth, currency)}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
@@ -91,7 +93,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Receitas do Mês</p>
+                <p className="text-sm text-muted-foreground">{t('dashboard.monthlyIncome')}</p>
                 <p className="text-2xl font-bold text-income">{formatCurrency(monthlyStats?.income || 0, currency)}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-income/10 flex items-center justify-center">
@@ -105,7 +107,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Despesas do Mês</p>
+                <p className="text-sm text-muted-foreground">{t('dashboard.monthlyExpense')}</p>
                 <p className="text-2xl font-bold text-expense">{formatCurrency(monthlyStats?.expense || 0, currency)}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-expense/10 flex items-center justify-center">
@@ -119,7 +121,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Investimentos</p>
+                <p className="text-sm text-muted-foreground">{t('dashboard.investments')}</p>
                 <p className="text-2xl font-bold">{formatCurrency(totalInvested, currency)}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-chart-2/10 flex items-center justify-center">
@@ -133,7 +135,7 @@ export default function Dashboard() {
       {/* Monthly Trends Chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Tendências Mensais (Últimos 6 Meses)</CardTitle>
+          <CardTitle className="text-lg">{t('dashboard.monthlyTrends')}</CardTitle>
         </CardHeader>
         <CardContent>
           {monthlyTrends && monthlyTrends.length > 0 ? (
@@ -161,8 +163,8 @@ export default function Dashboard() {
                 />
                 <ChartTooltip 
                   content={<ChartTooltipContent 
-                    formatter={(value, name) => [formatCurrency(Number(value), currency), name === 'income' ? 'Receitas' : 'Despesas']}
-                  />} 
+                    formatter={(value, name) => [formatCurrency(Number(value), currency), name === 'income' ? t('dashboard.income') : t('dashboard.expense')]}
+                  />}
                 />
                 <Area 
                   type="monotone" 
@@ -186,7 +188,7 @@ export default function Dashboard() {
             </ChartContainer>
           ) : (
             <div className="h-80 flex items-center justify-center text-muted-foreground">
-              Sem dados suficientes
+              {t('dashboard.noEnoughData')}
             </div>
           )}
         </CardContent>
@@ -195,7 +197,7 @@ export default function Dashboard() {
       {/* Income vs Expense Comparison */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Comparação Receitas vs Despesas</CardTitle>
+          <CardTitle className="text-lg">{t('dashboard.incomeVsExpense')}</CardTitle>
         </CardHeader>
         <CardContent>
           {monthlyTrends && monthlyTrends.length > 0 ? (
@@ -213,8 +215,8 @@ export default function Dashboard() {
                 />
                 <ChartTooltip 
                   content={<ChartTooltipContent 
-                    formatter={(value, name) => [formatCurrency(Number(value), currency), name === 'income' ? 'Receitas' : 'Despesas']}
-                  />} 
+                    formatter={(value, name) => [formatCurrency(Number(value), currency), name === 'income' ? t('dashboard.income') : t('dashboard.expense')]}
+                  />}
                 />
                 <Bar dataKey="income" fill="hsl(var(--income))" radius={[4, 4, 0, 0]} name="income" />
                 <Bar dataKey="expense" fill="hsl(var(--expense))" radius={[4, 4, 0, 0]} name="expense" />
@@ -222,7 +224,7 @@ export default function Dashboard() {
             </ChartContainer>
           ) : (
             <div className="h-72 flex items-center justify-center text-muted-foreground">
-              Sem dados suficientes
+              {t('dashboard.noEnoughData')}
             </div>
           )}
         </CardContent>
@@ -235,7 +237,7 @@ export default function Dashboard() {
         {/* Expenses by Category */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Despesas por Categoria</CardTitle>
+            <CardTitle className="text-lg">{t('dashboard.expensesByCategory')}</CardTitle>
           </CardHeader>
           <CardContent>
             {expensesByCategory && expensesByCategory.length > 0 ? (
@@ -261,7 +263,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="h-64 flex items-center justify-center text-muted-foreground">
-                Sem despesas este mês
+                {t('dashboard.noExpensesThisMonth')}
               </div>
             )}
           </CardContent>
@@ -270,8 +272,8 @@ export default function Dashboard() {
         {/* Goals Progress */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Metas em Progresso</CardTitle>
-            <Link to="/goals" className="text-sm text-accent hover:underline">Ver todas</Link>
+            <CardTitle className="text-lg">{t('dashboard.goalsInProgress')}</CardTitle>
+            <Link to="/goals" className="text-sm text-accent hover:underline">{t('common.seeAll')}</Link>
           </CardHeader>
           <CardContent className="space-y-4">
             {goals && goals.length > 0 ? (
@@ -287,14 +289,14 @@ export default function Dashboard() {
                     </div>
                     <Progress value={progress} className="h-2" />
                     <p className="text-xs text-muted-foreground">
-                      {formatCurrency(Number(goal.current_saved_amount), goal.currency)} de {formatCurrency(Number(goal.target_amount), goal.currency)}
+                      {formatCurrency(Number(goal.current_saved_amount), goal.currency)} {t('dashboard.of')} {formatCurrency(Number(goal.target_amount), goal.currency)}
                     </p>
                   </div>
                 );
               })
             ) : (
               <div className="flex items-center justify-center h-32 text-muted-foreground">
-                <Link to="/goals" className="text-accent hover:underline">Criar primeira meta</Link>
+                <Link to="/goals" className="text-accent hover:underline">{t('dashboard.createFirstGoal')}</Link>
               </div>
             )}
           </CardContent>
@@ -304,8 +306,8 @@ export default function Dashboard() {
       {/* Recent Transactions */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Transacções Recentes</CardTitle>
-          <Link to="/transactions" className="text-sm text-accent hover:underline">Ver todas</Link>
+          <CardTitle className="text-lg">{t('dashboard.recentTransactions')}</CardTitle>
+          <Link to="/transactions" className="text-sm text-accent hover:underline">{t('common.seeAll')}</Link>
         </CardHeader>
         <CardContent>
           {recentTransactions && recentTransactions.length > 0 ? (
@@ -330,7 +332,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="flex items-center justify-center h-32 text-muted-foreground">
-              <Link to="/transactions" className="text-accent hover:underline">Adicionar primeira transacção</Link>
+              <Link to="/transactions" className="text-accent hover:underline">{t('dashboard.addFirstTransaction')}</Link>
             </div>
           )}
         </CardContent>

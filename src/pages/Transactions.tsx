@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,6 +16,7 @@ import { formatCurrency, getCurrentMonth } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 export default function Transactions() {
+  const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<{
@@ -56,31 +58,31 @@ export default function Transactions() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Transacções</h1>
-          <p className="text-muted-foreground">Registe e consulte movimentos financeiros</p>
+          <h1 className="text-2xl font-bold text-foreground">{t('transactions.title')}</h1>
+          <p className="text-muted-foreground">{t('transactions.subtitle')}</p>
         </div>
         <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Nova Transacção
+          {t('transactions.newTransaction')}
         </Button>
       </div>
 
       {/* Monthly Summary */}
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="bg-card border rounded-xl p-4">
-          <p className="text-sm text-muted-foreground">Receitas do Mês</p>
+          <p className="text-sm text-muted-foreground">{t('transactions.monthlyIncome')}</p>
           <p className="text-2xl font-bold text-income">
             +{formatCurrency(stats?.income || 0)}
           </p>
         </div>
         <div className="bg-card border rounded-xl p-4">
-          <p className="text-sm text-muted-foreground">Despesas do Mês</p>
+          <p className="text-sm text-muted-foreground">{t('transactions.monthlyExpense')}</p>
           <p className="text-2xl font-bold text-expense">
             -{formatCurrency(stats?.expense || 0)}
           </p>
         </div>
         <div className="bg-card border rounded-xl p-4">
-          <p className="text-sm text-muted-foreground">Saldo do Mês</p>
+          <p className="text-sm text-muted-foreground">{t('transactions.monthlyBalance')}</p>
           <p className={cn(
             'text-2xl font-bold',
             (stats?.balance || 0) >= 0 ? 'text-income' : 'text-expense'
@@ -93,8 +95,8 @@ export default function Transactions() {
       {/* Tabs for List and Tags */}
       <Tabs defaultValue="list" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="list">Lista</TabsTrigger>
-          <TabsTrigger value="tags">Por Tags</TabsTrigger>
+          <TabsTrigger value="list">{t('transactions.list')}</TabsTrigger>
+          <TabsTrigger value="tags">{t('transactions.byTags')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="space-y-4">
@@ -106,7 +108,7 @@ export default function Transactions() {
             <CollapsibleTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <Filter className="h-4 w-4" />
-                {showFilters ? 'Esconder Filtros' : 'Mostrar Filtros'}
+                {showFilters ? t('transactions.hideFilters') : t('transactions.showFilters')}
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-4">
@@ -139,7 +141,7 @@ export default function Transactions() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Nova Transacção</DialogTitle>
+            <DialogTitle>{t('transactions.newTransaction')}</DialogTitle>
           </DialogHeader>
           <TransactionForm
             onSubmit={handleCreate}
