@@ -54,12 +54,9 @@ import {
 } from '@/components/ui/collapsible';
 import { MenuCustomizer } from './MenuCustomizer';
 
-// All available items for pinning
+// All available items for pinning (only Dashboard stays at top level)
 const allNavItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
-  { path: '/accounts', label: 'Contas', icon: Wallet },
-  { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
 ];
 
 // Collapsible groups
@@ -68,6 +65,8 @@ const navGroups = [
     label: 'Planeamento',
     icon: Briefcase,
     items: [
+      { path: '/accounts', label: 'Contas', icon: Wallet },
+      { path: '/transactions', label: 'Transacções', icon: ArrowLeftRight },
       { path: '/budgets', label: 'Orçamentos', icon: PiggyBank },
       { path: '/goals', label: 'Metas', icon: Target },
       { path: '/debts', label: 'Dívidas', icon: CreditCard },
@@ -80,6 +79,7 @@ const navGroups = [
     label: 'Análise',
     icon: BarChart3,
     items: [
+      { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
       { path: '/insights', label: 'Insights', icon: Lightbulb, hasBadge: true },
       { path: '/simulator', label: 'Simulador', icon: Calculator },
       { path: '/retirement', label: 'Reforma', icon: Umbrella },
