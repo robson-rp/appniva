@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import AppLayout from "@/components/layout/AppLayout";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import Auth from "@/pages/Auth";
@@ -47,7 +47,7 @@ import { ResponsiveRouteWrapper } from "@/components/layout/ResponsiveRouteWrapp
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  <ThemeProvider>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
