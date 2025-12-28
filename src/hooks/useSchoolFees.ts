@@ -17,6 +17,7 @@ export interface SchoolFee {
   due_date: string;
   paid: boolean;
   paid_date: string | null;
+  payment_proof_url: string | null;
   account_id: string | null;
   notes: string | null;
   created_at: string;
@@ -155,14 +156,40 @@ export function useUpdateSchoolFee() {
 }
 
 export function useMarkSchoolFeePaid() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id, proofFile }: { id: string; proofFile?: File }) => {
+      let payment_proof_url: string | null = null;
+      
+      // Upload proof file if provided
+      if (proofFile && user) {
+        const fileExt = proofFile.name.split('.').pop();
+        const fileName = `${user.id}/${id}-${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('school-fee-receipts')
+          .upload(fileName, proofFile);
+        
+        if (uploadError) throw uploadError;
+        
+        // Get signed URL for private bucket
+        const { data: signedUrlData } = await supabase.storage
+          .from('school-fee-receipts')
+          .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year expiry
+        
+        payment_proof_url = signedUrlData?.signedUrl || null;
+      }
+      
       const { error } = await supabase
         .from('school_fees')
-        .update({ paid: true, paid_date: new Date().toISOString().split('T')[0] })
+        .update({ 
+          paid: true, 
+          paid_date: new Date().toISOString().split('T')[0],
+          ...(payment_proof_url && { payment_proof_url })
+        })
         .eq('id', id);
       
       if (error) throw error;
