@@ -219,18 +219,22 @@ export function MobileBottomNav() {
           <ScrollArea className="flex-1">
             <div className="px-4 py-4 space-y-6 pb-8">
               {filteredGroups.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-muted-foreground animate-fade-in">
                   <Search className="h-10 w-10 mx-auto mb-3 opacity-50" />
                   <p className="text-sm">Nenhum resultado encontrado</p>
                 </div>
               ) : (
-                filteredGroups.map((group) => (
-                  <div key={group.label}>
+                filteredGroups.map((group, groupIndex) => (
+                  <div 
+                    key={group.label} 
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${groupIndex * 50}ms` }}
+                  >
                     <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-1">
                       {group.label}
                     </h3>
                     <div className="grid grid-cols-4 gap-2">
-                      {group.items.map((item) => {
+                      {group.items.map((item, itemIndex) => {
                         const isActive = location.pathname === item.path;
                         const badgeCount = 'badgeKey' in item ? badgeCounts[item.badgeKey as keyof typeof badgeCounts] : 0;
                         return (
@@ -238,13 +242,17 @@ export function MobileBottomNav() {
                             key={item.path}
                             onClick={() => handleMenuItemClick(item.path)}
                             className={cn(
-                              "flex flex-col items-center gap-2 p-3 rounded-xl transition-all relative",
+                              "flex flex-col items-center gap-2 p-3 rounded-xl transition-all relative active:scale-95",
                               isActive 
                                 ? "bg-accent text-accent-foreground" 
-                                : "bg-muted/50 hover:bg-muted text-foreground"
+                                : "bg-muted/50 hover:bg-muted text-foreground hover:scale-105"
                             )}
+                            style={{ 
+                              animationDelay: `${(groupIndex * 4 + itemIndex) * 30}ms`,
+                              animationFillMode: 'both'
+                            }}
                           >
-                            <div className="relative">
+                            <div className="relative transition-transform duration-200">
                               <item.icon className="h-6 w-6" />
                               {badgeCount > 0 && (
                                 <Badge 
