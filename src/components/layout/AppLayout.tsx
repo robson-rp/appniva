@@ -35,6 +35,12 @@ import {
   Briefcase,
   BarChart3,
   Wrench,
+  DollarSign,
+  Users,
+  Send,
+  GraduationCap,
+  Receipt,
+  TrendingDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -74,6 +80,7 @@ const navGroups = [
       { path: '/investments', label: 'Investimentos', icon: TrendingUp },
       { path: '/subscriptions', label: 'Subscrições', icon: Repeat },
       { path: '/recurring', label: 'Recorrentes', icon: RefreshCw },
+      { path: '/school-fees', label: 'Propinas', icon: GraduationCap },
     ],
   },
   {
@@ -86,6 +93,17 @@ const navGroups = [
       { path: '/retirement', label: 'Reforma', icon: Umbrella },
       { path: '/emergency-fund', label: 'Fundo Emergência', icon: Shield },
       { path: '/reconciliation', label: 'Reconciliação', icon: Scale },
+      { path: '/inflation-alerts', label: 'Alertas Inflação', icon: TrendingDown },
+    ],
+  },
+  {
+    label: 'Angola',
+    icon: DollarSign,
+    items: [
+      { path: '/exchange-rates', label: 'Taxas de Câmbio', icon: DollarSign },
+      { path: '/kixikilas', label: 'Kixikilas', icon: Users },
+      { path: '/remittances', label: 'Remessas', icon: Send },
+      { path: '/split-expenses', label: 'Dividir Despesas', icon: Receipt },
     ],
   },
   {
