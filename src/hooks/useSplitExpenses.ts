@@ -216,18 +216,34 @@ export function useRecordPayment() {
   
   return useMutation({
     mutationFn: async ({ participantId, amount }: { participantId: string; amount: number }) => {
-      // Get current amount paid
+      // Get current participant data
       const { data: participant, error: getError } = await supabase
         .from('split_expense_participants')
-        .select('amount_paid')
+        .select('amount_paid, amount_owed, is_creator')
         .eq('id', participantId)
         .single();
       
       if (getError) throw getError;
       
+      // Don't allow payment for creators (they paid the bill)
+      if (participant.is_creator) {
+        throw new Error('O criador já pagou a conta.');
+      }
+      
+      // Calculate remaining amount
+      const remaining = participant.amount_owed - participant.amount_paid;
+      
+      // Don't allow if already fully paid
+      if (remaining <= 0) {
+        throw new Error('Este participante já pagou o valor total.');
+      }
+      
+      // Limit payment to remaining amount
+      const actualAmount = Math.min(amount, remaining);
+      
       const { error } = await supabase
         .from('split_expense_participants')
-        .update({ amount_paid: participant.amount_paid + amount })
+        .update({ amount_paid: participant.amount_paid + actualAmount })
         .eq('id', participantId);
       
       if (error) throw error;
@@ -237,16 +253,18 @@ export function useRecordPayment() {
         .from('split_expense_payment_history')
         .insert({
           participant_id: participantId,
-          amount,
+          amount: actualAmount,
         });
+      
+      return { actualAmount, remaining };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
       queryClient.invalidateQueries({ queryKey: ['payment-history'] });
-      toast({ title: 'Pagamento registado', description: 'O pagamento foi registado com sucesso.' });
+      toast({ title: 'Pagamento registado', description: `Foi registado ${data?.actualAmount ? `o valor de ${data.actualAmount}` : 'o pagamento'} com sucesso.` });
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível registar o pagamento.', variant: 'destructive' });
+    onError: (error: Error) => {
+      toast({ title: 'Erro', description: error.message || 'Não foi possível registar o pagamento.', variant: 'destructive' });
     },
   });
 }
