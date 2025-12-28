@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { CURRENCIES, INVESTMENT_TYPES, INTEREST_FREQUENCIES, COUPON_FREQUENCIES } from '@/lib/constants';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { useAccounts } from '@/hooks/useAccounts';
 
 const baseSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -47,12 +48,19 @@ interface InvestmentFormProps {
     investment: BaseFormData;
     termDeposit?: TermDepositData;
     bondOTNR?: BondData;
+    accountId?: string;
   }) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
 
+const accountSchema = z.object({
+  account_id: z.string().optional(),
+});
+
 export function InvestmentForm({ onSubmit, onCancel, isLoading }: InvestmentFormProps) {
+  const { data: accounts = [] } = useAccounts();
+  
   const baseForm = useForm<BaseFormData>({
     resolver: zodResolver(baseSchema),
     defaultValues: {
@@ -63,6 +71,13 @@ export function InvestmentForm({ onSubmit, onCancel, isLoading }: InvestmentForm
       currency: 'AOA',
       institution_name: '',
       notes: '',
+    },
+  });
+
+  const accountForm = useForm<z.infer<typeof accountSchema>>({
+    resolver: zodResolver(accountSchema),
+    defaultValues: {
+      account_id: '',
     },
   });
 
@@ -96,6 +111,7 @@ export function InvestmentForm({ onSubmit, onCancel, isLoading }: InvestmentForm
     if (!baseValid) return;
 
     const baseData = baseForm.getValues();
+    const accountData = accountForm.getValues();
 
     if (investmentType === 'term_deposit') {
       const tdValid = await termDepositForm.trigger();
@@ -103,6 +119,7 @@ export function InvestmentForm({ onSubmit, onCancel, isLoading }: InvestmentForm
       onSubmit({
         investment: baseData,
         termDeposit: termDepositForm.getValues(),
+        accountId: accountData.account_id || undefined,
       });
     } else {
       const bondValid = await bondForm.trigger();
@@ -110,6 +127,7 @@ export function InvestmentForm({ onSubmit, onCancel, isLoading }: InvestmentForm
       onSubmit({
         investment: baseData,
         bondOTNR: bondForm.getValues(),
+        accountId: accountData.account_id || undefined,
       });
     }
   };
@@ -256,6 +274,36 @@ export function InvestmentForm({ onSubmit, onCancel, isLoading }: InvestmentForm
               </FormItem>
             )}
           />
+
+          <Form {...accountForm}>
+            <FormField
+              control={accountForm.control}
+              name="account_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conta de Origem</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione uma conta" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {accounts.map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name} ({account.currency})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    A transação será registada nesta conta
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Form>
         </div>
       </Form>
 

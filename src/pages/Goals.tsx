@@ -47,10 +47,10 @@ export default function Goals() {
     }
   };
 
-  const handleContribute = (amount: number) => {
+  const handleContribute = (data: { amount: number; accountId?: string }) => {
     if (contributingGoal) {
       addContribution.mutate(
-        { goalId: contributingGoal.id, amount },
+        { goalId: contributingGoal.id, amount: data.amount, accountId: data.accountId },
         { onSuccess: () => setContributingGoal(null) }
       );
     }

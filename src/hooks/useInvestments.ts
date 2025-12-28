@@ -76,10 +76,12 @@ export function useCreateInvestment() {
       investment,
       termDeposit,
       bondOTNR,
+      accountId,
     }: {
       investment: Omit<InvestmentInsert, 'user_id'>;
       termDeposit?: Omit<TermDepositInsert, 'investment_id'>;
       bondOTNR?: Omit<BondOTNRInsert, 'investment_id'>;
+      accountId?: string;
     }) => {
       if (!user) throw new Error('Não autenticado');
 
@@ -118,10 +120,29 @@ export function useCreateInvestment() {
         if (bondError) throw bondError;
       }
 
+      // Create transaction if account is provided
+      if (accountId) {
+        const { error: txError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user.id,
+            account_id: accountId,
+            amount: investment.principal_amount,
+            type: 'expense',
+            description: `Investimento: ${investment.name}`,
+            date: investment.start_date,
+            currency: investment.currency || 'AOA',
+          });
+
+        if (txError) throw txError;
+      }
+
       return inv;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['investments'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast.success('Investimento criado');
     },
     onError: () => {
