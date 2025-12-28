@@ -185,6 +185,61 @@ export function useUpdateKixikilaRound() {
   });
 }
 
+export function useUpdateKixikila() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...data }: { 
+      id: string; 
+      name?: string;
+      description?: string | null;
+      contribution_amount?: number;
+      frequency?: 'weekly' | 'biweekly' | 'monthly';
+      status?: 'active' | 'completed' | 'paused';
+    }) => {
+      const { error } = await supabase
+        .from('kixikilas')
+        .update(data)
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kixikilas'] });
+      toast({ title: 'Kixikila atualizada', description: 'As alterações foram guardadas.' });
+    },
+    onError: () => {
+      toast({ title: 'Erro', description: 'Não foi possível atualizar a kixikila.', variant: 'destructive' });
+    },
+  });
+}
+
+export function useUpdateMemberOrder() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  return useMutation({
+    mutationFn: async ({ members }: { members: Array<{ id: string; order_number: number }> }) => {
+      for (const member of members) {
+        const { error } = await supabase
+          .from('kixikila_members')
+          .update({ order_number: member.order_number })
+          .eq('id', member.id);
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['kixikila-members'] });
+      toast({ title: 'Ordem atualizada', description: 'A ordem dos membros foi alterada.' });
+    },
+    onError: () => {
+      toast({ title: 'Erro', description: 'Não foi possível reordenar os membros.', variant: 'destructive' });
+    },
+  });
+}
+
 export function useDeleteKixikila() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
