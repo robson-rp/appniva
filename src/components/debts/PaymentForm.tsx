@@ -14,30 +14,42 @@ import {
   FormMessage,
   FormDescription,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Debt } from '@/hooks/useDebts';
+import { useAccounts } from '@/hooks/useAccounts';
 
 const formSchema = z.object({
   amount: z.number().positive('Valor deve ser positivo'),
   payment_date: z.string().min(1, 'Data é obrigatória'),
   notes: z.string().optional(),
+  account_id: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 interface PaymentFormProps {
   debt: Debt;
-  onSubmit: (data: { amount: number; payment_date: string; notes?: string }) => void;
+  onSubmit: (data: { amount: number; payment_date: string; notes?: string; account_id?: string }) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
 
 export function PaymentForm({ debt, onSubmit, onCancel, isLoading }: PaymentFormProps) {
+  const { data: accounts = [] } = useAccounts();
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: debt.installment_amount,
       payment_date: format(new Date(), 'yyyy-MM-dd'),
       notes: '',
+      account_id: '',
     },
   });
 
@@ -55,6 +67,7 @@ export function PaymentForm({ debt, onSubmit, onCancel, isLoading }: PaymentForm
       amount: data.amount,
       payment_date: data.payment_date,
       notes: data.notes || undefined,
+      account_id: data.account_id || undefined,
     });
   };
 
@@ -101,6 +114,34 @@ export function PaymentForm({ debt, onSubmit, onCancel, isLoading }: PaymentForm
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="account_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Conta de Pagamento</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione uma conta" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name} ({account.currency})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                A transação será registada nesta conta
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

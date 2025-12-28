@@ -53,6 +53,7 @@ import {
   SchoolFeeTemplate,
 } from '@/hooks/useSchoolFeeTemplates';
 import { formatCurrency, formatDate, CURRENCIES } from '@/lib/constants';
+import { useAccounts } from '@/hooks/useAccounts';
 import { SchoolFeeEvolutionChart } from '@/components/school-fees/SchoolFeeEvolutionChart';
 import { SchoolFeeCalendar } from '@/components/school-fees/SchoolFeeCalendar';
 import { SchoolFeeTimeline } from '@/components/school-fees/SchoolFeeTimeline';
@@ -82,6 +83,9 @@ export default function SchoolFees() {
   const [markPaidDialogOpen, setMarkPaidDialogOpen] = useState(false);
   const [feeToMarkPaid, setFeeToMarkPaid] = useState<SchoolFee | null>(null);
   const [proofFile, setProofFile] = useState<File | null>(null);
+  const [paymentAccountId, setPaymentAccountId] = useState<string>('');
+  
+  const { data: accounts = [] } = useAccounts();
   
   const currentYear = new Date().getFullYear();
   const academicYears = [`${currentYear}/${currentYear + 1}`, `${currentYear - 1}/${currentYear}`, `${currentYear + 1}/${currentYear + 2}`];
@@ -881,7 +885,7 @@ export default function SchoolFees() {
       {/* Mark as Paid Dialog with Proof Upload */}
       <Dialog open={markPaidDialogOpen} onOpenChange={(open) => { 
         setMarkPaidDialogOpen(open); 
-        if (!open) { setFeeToMarkPaid(null); setProofFile(null); }
+        if (!open) { setFeeToMarkPaid(null); setProofFile(null); setPaymentAccountId(''); }
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -898,6 +902,23 @@ export default function SchoolFees() {
                 <p className="text-lg font-bold text-primary mt-2">
                   {formatCurrency(feeToMarkPaid.amount, feeToMarkPaid.currency)}
                 </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Conta de Pagamento</Label>
+                <Select value={paymentAccountId} onValueChange={setPaymentAccountId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione uma conta" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name} ({account.currency})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">A transação será registada nesta conta</p>
               </div>
               
               <div className="space-y-2">
@@ -925,10 +946,15 @@ export default function SchoolFees() {
             <Button 
               onClick={async () => {
                 if (feeToMarkPaid) {
-                  await markPaid.mutateAsync({ id: feeToMarkPaid.id, proofFile: proofFile || undefined });
+                  await markPaid.mutateAsync({ 
+                    id: feeToMarkPaid.id, 
+                    proofFile: proofFile || undefined,
+                    accountId: paymentAccountId || undefined,
+                  });
                   setMarkPaidDialogOpen(false);
                   setFeeToMarkPaid(null);
                   setProofFile(null);
+                  setPaymentAccountId('');
                 }
               }}
               disabled={markPaid.isPending}
