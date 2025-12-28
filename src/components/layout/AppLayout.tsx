@@ -6,6 +6,7 @@ import { useBudgetsAtRiskCount } from '@/hooks/useBudgets';
 import { useMenuPreferences } from '@/hooks/useMenuPreferences';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   LayoutDashboard,
   Wallet,
@@ -53,6 +54,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { MobileBottomNav } from './MobileBottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -151,6 +153,7 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const { t, i18n } = useTranslation();
+  const isMobile = useIsMobile();
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -551,10 +554,16 @@ export default function AppLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main className={cn(
+          "flex-1 overflow-y-auto p-4 lg:p-6",
+          isMobile && "pb-24"
+        )}>
           <Outlet />
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && <MobileBottomNav />}
 
       {/* Command Dialog for Search */}
       <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
