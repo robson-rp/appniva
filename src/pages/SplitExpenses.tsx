@@ -113,8 +113,8 @@ function BalanceCard() {
                 <span className="font-medium">{b.name}</span>
                 {b.phone && <Phone className="h-3 w-3 text-muted-foreground" />}
               </div>
-              <span className={b.balance > 0 ? 'text-orange-500 font-medium' : 'text-green-500 font-medium'}>
-                {b.balance > 0 ? `Deve-te ${formatCurrency(b.balance, 'AOA')}` : `Tu deves ${formatCurrency(Math.abs(b.balance), 'AOA')}`}
+              <span className={b.balance > 0 ? 'text-green-500 font-medium' : 'text-orange-500 font-medium'}>
+                {b.balance > 0 ? `Deve-te ${formatCurrency(b.balance, 'AOA')}` : `Pagou a mais ${formatCurrency(Math.abs(b.balance), 'AOA')}`}
               </span>
             </div>
           ))}
