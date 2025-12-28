@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadInsightsCount } from '@/hooks/useInsights';
+import { useBudgetsAtRiskCount } from '@/hooks/useBudgets';
 import { useMenuPreferences } from '@/hooks/useMenuPreferences';
 import {
   LayoutDashboard,
@@ -107,6 +108,7 @@ const adminNavItems = [
 export default function AppLayout() {
   const { user, profile, isAdmin, loading, signOut } = useAuth();
   const { data: unreadCount = 0 } = useUnreadInsightsCount();
+  const budgetsAtRisk = useBudgetsAtRiskCount();
   const { pinnedItems, togglePin, isPinned, resetToDefault } = useMenuPreferences();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -130,6 +132,13 @@ export default function AppLayout() {
 
   // Get pinned items with their full data
   const pinnedNavItems = allItems.filter(item => pinnedItems.includes(item.path));
+
+  // Calculate alerts per group
+  const groupAlerts: Record<string, number> = {
+    'Planeamento': budgetsAtRisk,
+    'Análise': unreadCount,
+    'Ferramentas': 0,
+  };
 
   if (loading) {
     return (
@@ -247,6 +256,7 @@ export default function AppLayout() {
           {navGroups.map((group) => {
             const isOpen = openGroups.includes(group.label);
             const hasActiveItem = group.items.some(i => location.pathname === i.path);
+            const alertCount = groupAlerts[group.label] || 0;
             
             return (
               <Collapsible
@@ -264,6 +274,14 @@ export default function AppLayout() {
                     <div className="flex items-center gap-3">
                       <group.icon className="h-5 w-5" />
                       <span>{group.label}</span>
+                      {alertCount > 0 && !isOpen && (
+                        <Badge 
+                          variant="destructive" 
+                          className="h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+                        >
+                          {alertCount > 9 ? '9+' : alertCount}
+                        </Badge>
+                      )}
                     </div>
                     <ChevronRight className={cn(
                       'h-4 w-4 transition-transform duration-200',
