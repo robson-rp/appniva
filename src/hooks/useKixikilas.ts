@@ -177,6 +177,7 @@ export function useAddKixikilaContribution() {
             currency: kixikila.currency,
             date: new Date().toISOString().split('T')[0],
             description: `Kixikila: ${kixikila.name} - Rodada ${data.contribution.round_number}`,
+            source: 'kixikila',
           });
         
         if (transactionError) {

@@ -215,6 +215,7 @@ export function useMarkSchoolFeePaid() {
             currency: fee.currency,
             date: new Date().toISOString().split('T')[0],
             description: `Propina: ${fee.student_name} - ${fee.school_name} (${fee.fee_type})`,
+            source: 'school_fee',
           });
         
         if (transactionError) {

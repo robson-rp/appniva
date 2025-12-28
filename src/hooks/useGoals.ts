@@ -146,6 +146,7 @@ export function useAddContribution() {
             description: `Contribuição para meta: ${goal.name}`,
             date: new Date().toISOString().split('T')[0],
             currency: goal.currency,
+            source: 'goal_contribution',
           });
 
         if (txError) throw txError;

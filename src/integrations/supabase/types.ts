@@ -1727,6 +1727,7 @@ export type Database = {
           description: string | null
           id: string
           related_account_id: string | null
+          source: string | null
           type: Database["public"]["Enums"]["transaction_type"]
           updated_at: string | null
           user_id: string
@@ -1742,6 +1743,7 @@ export type Database = {
           description?: string | null
           id?: string
           related_account_id?: string | null
+          source?: string | null
           type: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
           user_id: string
@@ -1757,6 +1759,7 @@ export type Database = {
           description?: string | null
           id?: string
           related_account_id?: string | null
+          source?: string | null
           type?: Database["public"]["Enums"]["transaction_type"]
           updated_at?: string | null
           user_id?: string
