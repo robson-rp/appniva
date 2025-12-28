@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BarChart3, User, Plus, MoreHorizontal, Wallet, ArrowLeftRight, PiggyBank, Target, CreditCard, TrendingUp, Repeat, RefreshCw, GraduationCap, MessageCircle, Lightbulb, Calculator, Umbrella, Shield, Scale, TrendingDown, DollarSign, Users, Send, Receipt, Building2, Tags, ShoppingBag, ScanText, Smartphone, X, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TransactionFormWrapper } from '@/components/transactions/TransactionFormWrapper';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer';
@@ -67,8 +67,6 @@ const MENU_GROUPS = [
   },
 ];
 
-const SCROLL_THRESHOLD = 10;
-
 export function MobileBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -78,9 +76,6 @@ export function MobileBottomNav() {
   const [showQuickAction, setShowQuickAction] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isVisible, setIsVisible] = useState(true);
-  const lastScrollY = useRef(0);
-  const ticking = useRef(false);
 
   // Badge counts map
   const badgeCounts = useMemo(() => ({
@@ -104,41 +99,6 @@ export function MobileBottomNav() {
     })).filter(group => group.items.length > 0);
   }, [searchQuery]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!ticking.current) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const scrollDifference = currentScrollY - lastScrollY.current;
-          
-          if (Math.abs(scrollDifference) > SCROLL_THRESHOLD) {
-            if (scrollDifference > 0 && currentScrollY > 100) {
-              setIsVisible(false);
-            } else if (scrollDifference < 0) {
-              setIsVisible(true);
-            }
-            lastScrollY.current = currentScrollY;
-          }
-          
-          if (currentScrollY < 50) {
-            setIsVisible(true);
-          }
-          
-          ticking.current = false;
-        });
-        ticking.current = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setIsVisible(true);
-    lastScrollY.current = 0;
-  }, [location.pathname]);
-
   const handleMenuItemClick = (path: string) => {
     setShowMoreMenu(false);
     setSearchQuery('');
@@ -155,10 +115,7 @@ export function MobileBottomNav() {
   return (
     <>
       <nav 
-        className={cn(
-          "fixed bottom-0 left-0 right-0 z-[100] bg-card/98 backdrop-blur-lg border-t border-border shadow-lg transition-transform duration-300 ease-out",
-          isVisible ? "translate-y-0" : "translate-y-full"
-        )}
+        className="fixed bottom-0 left-0 right-0 z-[100] bg-card/98 backdrop-blur-lg border-t border-border shadow-lg"
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}
       >
         <div className="flex items-center justify-around h-16 px-2">
@@ -239,7 +196,7 @@ export function MobileBottomNav() {
 
       {/* More Menu Drawer */}
       <Drawer open={showMoreMenu} onOpenChange={setShowMoreMenu}>
-        <DrawerContent className="max-h-[85vh] flex flex-col">
+        <DrawerContent className="h-[85vh] flex flex-col">
           <DrawerHeader className="border-b border-border pb-4 flex-shrink-0 space-y-3">
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-lg font-semibold">Menu</DrawerTitle>
@@ -259,8 +216,8 @@ export function MobileBottomNav() {
               />
             </div>
           </DrawerHeader>
-          <div className="flex-1 overflow-y-auto px-4 py-4">
-            <div className="space-y-6 pb-8">
+          <ScrollArea className="flex-1">
+            <div className="px-4 py-4 space-y-6 pb-8">
               {filteredGroups.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Search className="h-10 w-10 mx-auto mb-3 opacity-50" />
@@ -268,48 +225,48 @@ export function MobileBottomNav() {
                 </div>
               ) : (
                 filteredGroups.map((group) => (
-                <div key={group.label}>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-1">
-                    {group.label}
-                  </h3>
-                  <div className="grid grid-cols-4 gap-2">
-                    {group.items.map((item) => {
-                      const isActive = location.pathname === item.path;
-                      const badgeCount = 'badgeKey' in item ? badgeCounts[item.badgeKey as keyof typeof badgeCounts] : 0;
-                      return (
-                        <button
-                          key={item.path}
-                          onClick={() => handleMenuItemClick(item.path)}
-                          className={cn(
-                            "flex flex-col items-center gap-2 p-3 rounded-xl transition-all relative",
-                            isActive 
-                              ? "bg-accent text-accent-foreground" 
-                              : "bg-muted/50 hover:bg-muted text-foreground"
-                          )}
-                        >
-                          <div className="relative">
-                            <item.icon className="h-6 w-6" />
-                            {badgeCount > 0 && (
-                              <Badge 
-                                variant="destructive" 
-                                className="absolute -top-2 -right-2 h-4 min-w-4 flex items-center justify-center p-0 text-[9px]"
-                              >
-                                {badgeCount > 9 ? '9+' : badgeCount}
-                              </Badge>
+                  <div key={group.label}>
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-1">
+                      {group.label}
+                    </h3>
+                    <div className="grid grid-cols-4 gap-2">
+                      {group.items.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        const badgeCount = 'badgeKey' in item ? badgeCounts[item.badgeKey as keyof typeof badgeCounts] : 0;
+                        return (
+                          <button
+                            key={item.path}
+                            onClick={() => handleMenuItemClick(item.path)}
+                            className={cn(
+                              "flex flex-col items-center gap-2 p-3 rounded-xl transition-all relative",
+                              isActive 
+                                ? "bg-accent text-accent-foreground" 
+                                : "bg-muted/50 hover:bg-muted text-foreground"
                             )}
-                          </div>
-                          <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">
-                            {item.label}
-                          </span>
-                        </button>
-                      );
-                    })}
+                          >
+                            <div className="relative">
+                              <item.icon className="h-6 w-6" />
+                              {badgeCount > 0 && (
+                                <Badge 
+                                  variant="destructive" 
+                                  className="absolute -top-2 -right-2 h-4 min-w-4 flex items-center justify-center p-0 text-[9px]"
+                                >
+                                  {badgeCount > 9 ? '9+' : badgeCount}
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">
+                              {item.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))
+                ))
               )}
             </div>
-          </div>
+          </ScrollArea>
         </DrawerContent>
       </Drawer>
     </>
