@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, BarChart3, Calendar, User, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TransactionFormWrapper } from '@/components/transactions/TransactionFormWrapper';
 
@@ -13,13 +13,64 @@ const NAV_ITEMS = [
   { icon: User, label: 'Perfil', route: '/profile' },
 ];
 
+const SCROLL_THRESHOLD = 10;
+
 export function MobileBottomNav() {
   const location = useLocation();
   const [showQuickAction, setShowQuickAction] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const ticking = useRef(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const scrollDifference = currentScrollY - lastScrollY.current;
+          
+          // Only trigger if scroll difference is significant
+          if (Math.abs(scrollDifference) > SCROLL_THRESHOLD) {
+            if (scrollDifference > 0 && currentScrollY > 100) {
+              // Scrolling down & past threshold - hide
+              setIsVisible(false);
+            } else if (scrollDifference < 0) {
+              // Scrolling up - show
+              setIsVisible(true);
+            }
+            lastScrollY.current = currentScrollY;
+          }
+          
+          // Always show at top of page
+          if (currentScrollY < 50) {
+            setIsVisible(true);
+          }
+          
+          ticking.current = false;
+        });
+        ticking.current = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Reset visibility when route changes
+  useEffect(() => {
+    setIsVisible(true);
+    lastScrollY.current = 0;
+  }, [location.pathname]);
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-card/98 backdrop-blur-lg border-t border-border shadow-lg" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}>
+      <nav 
+        className={cn(
+          "fixed bottom-0 left-0 right-0 z-[100] bg-card/98 backdrop-blur-lg border-t border-border shadow-lg transition-transform duration-300 ease-out",
+          isVisible ? "translate-y-0" : "translate-y-full"
+        )}
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}
+      >
         <div className="flex items-center justify-around h-16 px-2">
           {NAV_ITEMS.map((item, index) => {
             if (item.isCenter) {
