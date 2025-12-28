@@ -47,64 +47,64 @@ import { ResponsiveRouteWrapper } from "@/components/layout/ResponsiveRouteWrapp
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<ResponsiveRouteWrapper />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            
-            {/* Mobile Layout Routes */}
-            <Route element={<MobileLayout />}>
-              <Route path="/home" element={<MobileHome />} />
-            </Route>
-            
-            {/* Desktop Layout Routes */}
-            <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/accounts" element={<Accounts />} />
-              <Route path="/transactions" element={<Transactions />} />
-              <Route path="/budgets" element={<Budgets />} />
-              <Route path="/investments" element={<Investments />} />
-              <Route path="/goals" element={<Goals />} />
-              <Route path="/insights" element={<Insights />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/ocr/upload" element={<OCRUpload />} />
-              <Route path="/ocr/review/:id" element={<OCRReview />} />
-              <Route path="/debts" element={<Debts />} />
-              <Route path="/simulator" element={<Simulator />} />
-              <Route path="/reconciliation" element={<ReconciliationSelect />} />
-              <Route path="/reconciliation/:accountId" element={<Reconciliation />} />
-              <Route path="/cost-centers" element={<CostCenters />} />
-              <Route path="/tags" element={<Tags />} />
-              <Route path="/assistant" element={<Assistant />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/recurring" element={<RecurringTransactions />} />
-              <Route path="/subscriptions" element={<Subscriptions />} />
-              <Route path="/retirement" element={<RetirementCalculator />} />
-              <Route path="/emergency-fund" element={<EmergencyFundCalculator />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/exchange-rates" element={<ExchangeRates />} />
-              <Route path="/kixikilas" element={<Kixikilas />} />
-              <Route path="/remittances" element={<Remittances />} />
-              <Route path="/school-fees" element={<SchoolFees />} />
-              <Route path="/split-expenses" element={<SplitExpenses />} />
-              <Route path="/inflation-alerts" element={<InflationAlerts />} />
-              <Route path="/automatic-transactions" element={<AutomaticTransactions />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+            <Routes>
+              <Route path="/" element={<ResponsiveRouteWrapper />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              
+              {/* Mobile Layout Routes */}
+              <Route element={<MobileLayout />}>
+                <Route path="/home" element={<MobileHome />} />
+              </Route>
+              
+              {/* Desktop Layout Routes */}
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/accounts" element={<Accounts />} />
+                <Route path="/transactions" element={<Transactions />} />
+                <Route path="/budgets" element={<Budgets />} />
+                <Route path="/investments" element={<Investments />} />
+                <Route path="/goals" element={<Goals />} />
+                <Route path="/insights" element={<Insights />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/ocr/upload" element={<OCRUpload />} />
+                <Route path="/ocr/review/:id" element={<OCRReview />} />
+                <Route path="/debts" element={<Debts />} />
+                <Route path="/simulator" element={<Simulator />} />
+                <Route path="/reconciliation" element={<ReconciliationSelect />} />
+                <Route path="/reconciliation/:accountId" element={<Reconciliation />} />
+                <Route path="/cost-centers" element={<CostCenters />} />
+                <Route path="/tags" element={<Tags />} />
+                <Route path="/assistant" element={<Assistant />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/recurring" element={<RecurringTransactions />} />
+                <Route path="/subscriptions" element={<Subscriptions />} />
+                <Route path="/retirement" element={<RetirementCalculator />} />
+                <Route path="/emergency-fund" element={<EmergencyFundCalculator />} />
+                <Route path="/install" element={<Install />} />
+                <Route path="/exchange-rates" element={<ExchangeRates />} />
+                <Route path="/kixikilas" element={<Kixikilas />} />
+                <Route path="/remittances" element={<Remittances />} />
+                <Route path="/school-fees" element={<SchoolFees />} />
+                <Route path="/split-expenses" element={<SplitExpenses />} />
+                <Route path="/inflation-alerts" element={<InflationAlerts />} />
+                <Route path="/automatic-transactions" element={<AutomaticTransactions />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   </ThemeProvider>
-  </QueryClientProvider>
 );
 
 export default App;
