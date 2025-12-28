@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,6 +13,7 @@ import { formatCurrency } from '@/lib/constants';
 type Account = Database['public']['Tables']['accounts']['Row'];
 
 export default function Accounts() {
+  const { t } = useTranslation();
   const { data: accounts, isLoading } = useAccounts();
   const createAccount = useCreateAccount();
   const updateAccount = useUpdateAccount();
@@ -55,29 +57,29 @@ export default function Accounts() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Contas</h1>
-          <p className="text-muted-foreground">Gerencie as suas contas financeiras</p>
+          <h1 className="text-2xl font-bold text-foreground">{t('accounts.title')}</h1>
+          <p className="text-muted-foreground">{t('accounts.subtitle')}</p>
         </div>
         <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Nova Conta
+          {t('accounts.newAccount')}
         </Button>
       </div>
 
       {/* Summary Card */}
       <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground">
-        <p className="text-sm opacity-90">Saldo Total (contas activas)</p>
+        <p className="text-sm opacity-90">{t('accounts.totalBalance')}</p>
         <p className="text-3xl font-bold mt-1">
           {isLoading ? '...' : formatCurrency(totalBalance, 'AOA')}
         </p>
         <p className="text-sm opacity-75 mt-2">
-          {activeAccounts.length} conta{activeAccounts.length !== 1 ? 's' : ''} activa{activeAccounts.length !== 1 ? 's' : ''}
+          {activeAccounts.length} {t('accounts.activeAccounts').toLowerCase()}
         </p>
       </div>
 
       {/* Active Accounts */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Contas Activas</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('accounts.activeAccounts')}</h2>
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map(i => (
@@ -86,9 +88,9 @@ export default function Accounts() {
           </div>
         ) : activeAccounts.length === 0 ? (
           <div className="text-center py-12 bg-muted/30 rounded-xl">
-            <p className="text-muted-foreground">Nenhuma conta activa</p>
+            <p className="text-muted-foreground">{t('accounts.noActiveAccounts')}</p>
             <Button variant="link" onClick={() => setIsDialogOpen(true)}>
-              Criar primeira conta
+              {t('accounts.createFirstAccount')}
             </Button>
           </div>
         ) : (
@@ -108,7 +110,7 @@ export default function Accounts() {
       {/* Inactive Accounts */}
       {inactiveAccounts.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold mb-4 text-muted-foreground">Contas Inactivas</h2>
+          <h2 className="text-lg font-semibold mb-4 text-muted-foreground">{t('accounts.inactiveAccounts')}</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {inactiveAccounts.map(account => (
               <AccountCard
@@ -126,12 +128,12 @@ export default function Accounts() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nova Conta</DialogTitle>
+            <DialogTitle>{t('accounts.newAccount')}</DialogTitle>
           </DialogHeader>
           <AccountForm
             onSubmit={handleCreate}
             isLoading={createAccount.isPending}
-            submitLabel="Criar Conta"
+            submitLabel={t('accounts.createAccount')}
           />
         </DialogContent>
       </Dialog>
@@ -140,7 +142,7 @@ export default function Accounts() {
       <Dialog open={!!editingAccount} onOpenChange={(open) => !open && setEditingAccount(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Conta</DialogTitle>
+            <DialogTitle>{t('accounts.editAccount')}</DialogTitle>
           </DialogHeader>
           {editingAccount && (
             <AccountForm
@@ -153,7 +155,7 @@ export default function Accounts() {
               }}
               onSubmit={handleUpdate}
               isLoading={updateAccount.isPending}
-              submitLabel="Actualizar"
+              submitLabel={t('common.update')}
             />
           )}
         </DialogContent>

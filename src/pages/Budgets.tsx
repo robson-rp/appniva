@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -11,6 +12,7 @@ import { formatCurrency, formatMonth, getCurrentMonth } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 export default function Budgets() {
+  const { t } = useTranslation();
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<any>(null);
@@ -56,12 +58,12 @@ export default function Budgets() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Orçamentos</h1>
-          <p className="text-muted-foreground">Defina limites mensais por categoria</p>
+          <h1 className="text-2xl font-bold text-foreground">{t('budgets.title')}</h1>
+          <p className="text-muted-foreground">{t('budgets.subtitle')}</p>
         </div>
         <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Novo Orçamento
+          {t('budgets.newBudget')}
         </Button>
       </div>
 
@@ -82,15 +84,15 @@ export default function Budgets() {
       <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground">
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <p className="text-sm opacity-90">Total Orçamentado</p>
+            <p className="text-sm opacity-90">{t('budgets.totalBudgeted')}</p>
             <p className="text-2xl font-bold">{formatCurrency(totalLimit)}</p>
           </div>
           <div>
-            <p className="text-sm opacity-90">Total Gasto</p>
+            <p className="text-sm opacity-90">{t('budgets.totalSpent')}</p>
             <p className="text-2xl font-bold">{formatCurrency(totalSpent)}</p>
           </div>
           <div>
-            <p className="text-sm opacity-90">Utilização</p>
+            <p className="text-sm opacity-90">{t('budgets.usage')}</p>
             <p className={cn(
               'text-2xl font-bold',
               overallPercentage > 100 && 'text-expense',
@@ -111,9 +113,9 @@ export default function Budgets() {
         </div>
       ) : budgets?.length === 0 ? (
         <div className="text-center py-12 bg-muted/30 rounded-xl">
-          <p className="text-muted-foreground mb-2">Nenhum orçamento definido para este mês</p>
+          <p className="text-muted-foreground mb-2">{t('budgets.noBudgetsThisMonth')}</p>
           <Button variant="link" onClick={() => setIsDialogOpen(true)}>
-            Criar primeiro orçamento
+            {t('budgets.createFirstBudget')}
           </Button>
         </div>
       ) : (
@@ -150,18 +152,18 @@ export default function Budgets() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Eliminar orçamento?</AlertDialogTitle>
+                      <AlertDialogTitle>{t('budgets.deleteBudget')}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esta acção não pode ser desfeita. O orçamento será permanentemente eliminado.
+                        {t('budgets.deleteBudgetDescription')}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => handleDelete(budget.id)}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >
-                        Eliminar
+                        {t('common.delete')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -176,13 +178,13 @@ export default function Budgets() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Orçamento</DialogTitle>
+            <DialogTitle>{t('budgets.newBudget')}</DialogTitle>
           </DialogHeader>
           <BudgetForm
             defaultValues={{ month: selectedMonth }}
             onSubmit={handleCreate}
             isLoading={createBudget.isPending}
-            submitLabel="Criar Orçamento"
+            submitLabel={t('budgets.newBudget')}
             existingCategoryIds={existingCategoryIds}
           />
         </DialogContent>
@@ -192,7 +194,7 @@ export default function Budgets() {
       <Dialog open={!!editingBudget} onOpenChange={(open) => !open && setEditingBudget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Orçamento</DialogTitle>
+            <DialogTitle>{t('budgets.editBudget')}</DialogTitle>
           </DialogHeader>
           {editingBudget && (
             <BudgetForm
@@ -203,7 +205,7 @@ export default function Budgets() {
               }}
               onSubmit={handleUpdate}
               isLoading={updateBudget.isPending}
-              submitLabel="Actualizar"
+              submitLabel={t('common.update')}
             />
           )}
         </DialogContent>
