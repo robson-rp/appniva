@@ -149,6 +149,7 @@ export function useCreateSplitExpense() {
       expense: Omit<SplitExpense, 'id' | 'creator_id' | 'created_at' | 'updated_at' | 'share_token'>;
       participants: Array<{ name: string; phone?: string; email?: string; amount_owed: number; is_creator: boolean }>;
       receiptFile?: File;
+      accountId?: string; // Optional: account to record the expense transaction
     }) => {
       // Generate share token
       const shareToken = generateShareToken();
@@ -198,10 +199,31 @@ export function useCreateSplitExpense() {
       
       if (participantsError) throw participantsError;
       
+      // Create transaction if account is provided
+      if (data.accountId) {
+        const { error: transactionError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user!.id,
+            account_id: data.accountId,
+            type: 'expense',
+            amount: data.expense.total_amount,
+            currency: data.expense.currency,
+            date: data.expense.expense_date,
+            description: `Despesa partilhada: ${data.expense.description}`,
+          });
+        
+        if (transactionError) {
+          console.error('Failed to create transaction:', transactionError);
+          // Don't throw - the split expense was created successfully
+        }
+      }
+      
       return expense;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast({ title: 'Despesa criada', description: 'A despesa partilhada foi criada com sucesso.' });
     },
     onError: () => {

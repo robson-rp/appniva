@@ -48,6 +48,7 @@ import { useParticipantGroups, useCreateParticipantGroup, useDeleteParticipantGr
 import { usePaymentHistory, useReversePayment } from '@/hooks/usePaymentHistory';
 import { formatCurrency, formatDate, CURRENCIES } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
+import { useAccounts } from '@/hooks/useAccounts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -389,6 +390,7 @@ function ExpenseDetails({ expense, onClose }: { expense: SplitExpenseWithPartici
 export default function SplitExpenses() {
   const { data: expenses = [], isLoading } = useSplitExpenses();
   const { data: groups = [] } = useParticipantGroups();
+  const { data: accounts = [] } = useAccounts();
   const stats = useSplitExpenseStats();
   const createExpense = useCreateSplitExpense();
   const deleteExpense = useDeleteSplitExpense();
@@ -409,6 +411,7 @@ export default function SplitExpenses() {
     currency: 'AOA',
     expense_date: new Date().toISOString().split('T')[0],
     category: '',
+    account_id: '',
     participants: [{ name: '', phone: '', email: '', is_creator: true, custom_amount: '' }],
     split_equally: true,
   });
@@ -508,6 +511,7 @@ export default function SplitExpenses() {
       },
       participants,
       receiptFile: receiptFile || undefined,
+      accountId: formData.account_id || undefined,
     });
     setCreateOpen(false);
     setReceiptFile(null);
@@ -517,6 +521,7 @@ export default function SplitExpenses() {
       currency: 'AOA',
       expense_date: new Date().toISOString().split('T')[0],
       category: '',
+      account_id: '',
       participants: [{ name: '', phone: '', email: '', is_creator: true, custom_amount: '' }],
       split_equally: true,
     });
@@ -641,6 +646,22 @@ export default function SplitExpenses() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Conta de Pagamento</Label>
+                  <Select value={formData.account_id} onValueChange={(v) => setFormData(p => ({ ...p, account_id: v }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a conta (opcional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.filter(a => a.is_active).map(a => (
+                        <SelectItem key={a.id} value={a.id}>{a.name} ({a.currency})</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Se seleccionar uma conta, será criada uma transação de despesa automaticamente.
+                  </p>
+                </div>
                 <div className="flex items-center gap-2">
                   <Switch 
                     checked={formData.split_equally} 
