@@ -90,6 +90,15 @@ export function useBudgetWithSpending(month?: string) {
   });
 }
 
+export function useBudgetsAtRiskCount() {
+  const { data: budgets = [] } = useBudgetWithSpending();
+  
+  // Count budgets at 80% or more of limit
+  const atRiskCount = budgets.filter(b => b.percentage >= 80).length;
+  
+  return atRiskCount;
+}
+
 export function useCreateBudget() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
