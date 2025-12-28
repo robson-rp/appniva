@@ -15,6 +15,8 @@ import {
   BarChart3,
   Building2,
   Repeat,
+  BookTemplate,
+  Save,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +30,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { 
   useSchoolFees, 
   useSchoolFeeStats,
@@ -41,6 +43,12 @@ import {
   TERMS,
   SchoolFee,
 } from '@/hooks/useSchoolFees';
+import { 
+  useSchoolFeeTemplates, 
+  useCreateSchoolFeeTemplate, 
+  useDeleteSchoolFeeTemplate,
+  SchoolFeeTemplate,
+} from '@/hooks/useSchoolFeeTemplates';
 import { formatCurrency, formatDate, CURRENCIES } from '@/lib/constants';
 import { SchoolFeeEvolutionChart } from '@/components/school-fees/SchoolFeeEvolutionChart';
 import { SchoolFeeCalendar } from '@/components/school-fees/SchoolFeeCalendar';
@@ -53,16 +61,21 @@ type ViewMode = 'list' | 'school' | 'charts';
 
 export default function SchoolFees() {
   const { data: fees = [], isLoading } = useSchoolFees();
+  const { data: templates = [] } = useSchoolFeeTemplates();
   const stats = useSchoolFeeStats();
   const createFee = useCreateSchoolFee();
   const markPaid = useMarkSchoolFeePaid();
   const deleteFee = useDeleteSchoolFee();
   const updateFee = useUpdateSchoolFee();
+  const createTemplate = useCreateSchoolFeeTemplate();
+  const deleteTemplate = useDeleteSchoolFeeTemplate();
   
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editFee, setEditFee] = useState<SchoolFee | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [templateName, setTemplateName] = useState('');
   
   const currentYear = new Date().getFullYear();
   const academicYears = [`${currentYear}/${currentYear + 1}`, `${currentYear - 1}/${currentYear}`, `${currentYear + 1}/${currentYear + 2}`];
@@ -219,6 +232,39 @@ export default function SchoolFees() {
     setEditFee(fee);
   };
 
+  // Apply a template to the form
+  const applyTemplate = (template: SchoolFeeTemplate) => {
+    setFormData(p => ({
+      ...p,
+      school_name: template.school_name || '',
+      education_level: template.education_level,
+      fee_type: template.fee_type,
+      amount: template.amount.toString(),
+      currency: template.currency,
+      notes: template.notes || '',
+      createRecurring: template.is_recurring,
+    }));
+  };
+
+  // Save current form as template
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim()) return;
+    
+    await createTemplate.mutateAsync({
+      name: templateName,
+      school_name: formData.school_name || null,
+      education_level: formData.education_level,
+      fee_type: formData.fee_type,
+      amount: parseFloat(formData.amount) || 0,
+      currency: formData.currency,
+      is_recurring: formData.createRecurring,
+      notes: formData.notes || null,
+    });
+    
+    setTemplateName('');
+    setTemplateDialogOpen(false);
+  };
+
   const unpaidFees = fees.filter(f => !f.paid);
   const paidFees = fees.filter(f => f.paid);
 
@@ -231,6 +277,32 @@ export default function SchoolFees() {
 
   const FeeForm = ({ isEdit = false }: { isEdit?: boolean }) => (
     <div className="space-y-4">
+      {/* Template selector - only show when creating (not editing) */}
+      {!isEdit && templates.length > 0 && (
+        <div className="p-3 rounded-lg border bg-muted/30">
+          <Label className="flex items-center gap-2 mb-2">
+            <BookTemplate className="h-4 w-4 text-primary" />
+            Usar Modelo
+          </Label>
+          <div className="flex flex-wrap gap-2">
+            {templates.map((template) => (
+              <Button
+                key={template.id}
+                variant="outline"
+                size="sm"
+                onClick={() => applyTemplate(template)}
+                className="gap-1"
+              >
+                {template.name}
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {formatCurrency(template.amount, template.currency)}
+                </Badge>
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Nome do Estudante</Label>
@@ -351,16 +423,64 @@ export default function SchoolFees() {
         </div>
       )}
 
-      <Button 
-        onClick={isEdit ? handleEdit : handleCreate} 
-        disabled={!formData.student_name || !formData.school_name || !formData.amount || !formData.due_date || (isEdit ? updateFee.isPending : createFee.isPending)}
-        className="w-full"
-      >
-        {isEdit 
-          ? (updateFee.isPending ? 'A guardar...' : 'Guardar Alterações')
-          : (createFee.isPending ? 'A registar...' : 'Registar Propina')
-        }
-      </Button>
+      <div className="flex gap-2">
+        <Button 
+          onClick={isEdit ? handleEdit : handleCreate} 
+          disabled={!formData.student_name || !formData.school_name || !formData.amount || !formData.due_date || (isEdit ? updateFee.isPending : createFee.isPending)}
+          className="flex-1"
+        >
+          {isEdit 
+            ? (updateFee.isPending ? 'A guardar...' : 'Guardar Alterações')
+            : (createFee.isPending ? 'A registar...' : 'Registar Propina')
+          }
+        </Button>
+        
+        {/* Save as template button - only show when creating */}
+        {!isEdit && formData.amount && formData.fee_type && (
+          <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon" title="Guardar como modelo">
+                <Save className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Guardar como Modelo</DialogTitle>
+                <DialogDescription>
+                  Guarde estas configurações como um modelo para usar em futuras propinas.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Nome do Modelo</Label>
+                  <Input 
+                    placeholder="Ex: Propina Mensal Colégio X"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                  />
+                </div>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p><strong>Escola:</strong> {formData.school_name || '-'}</p>
+                  <p><strong>Tipo:</strong> {FEE_TYPES.find(t => t.value === formData.fee_type)?.label}</p>
+                  <p><strong>Valor:</strong> {formData.amount ? formatCurrency(parseFloat(formData.amount), formData.currency) : '-'}</p>
+                  <p><strong>Recorrente:</strong> {formData.createRecurring ? 'Sim' : 'Não'}</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setTemplateDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleSaveTemplate}
+                  disabled={!templateName.trim() || createTemplate.isPending}
+                >
+                  {createTemplate.isPending ? 'A guardar...' : 'Guardar Modelo'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
     </div>
   );
 
@@ -461,6 +581,38 @@ export default function SchoolFees() {
           <p className="text-muted-foreground">Gestão de despesas educacionais por período</p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          {/* Templates dropdown */}
+          {templates.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <BookTemplate className="mr-2 h-4 w-4" />
+                  Modelos ({templates.length})
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                {templates.map((template) => (
+                  <div key={template.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-muted rounded-sm">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{template.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {FEE_TYPES.find(t => t.value === template.fee_type)?.label} • {formatCurrency(template.amount, template.currency)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => deleteTemplate.mutate(template.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
@@ -492,7 +644,7 @@ export default function SchoolFees() {
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Registar Nova Propina</DialogTitle>
-                <DialogDescription>Adicione uma nova despesa escolar.</DialogDescription>
+                <DialogDescription>Adicione uma nova despesa escolar. {templates.length > 0 && 'Pode usar um modelo existente para preencher automaticamente.'}</DialogDescription>
               </DialogHeader>
               <FeeForm />
             </DialogContent>
