@@ -17,6 +17,9 @@ import {
   Repeat,
   BookTemplate,
   Save,
+  Upload,
+  FileImage,
+  ExternalLink,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -76,6 +79,9 @@ export default function SchoolFees() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [markPaidDialogOpen, setMarkPaidDialogOpen] = useState(false);
+  const [feeToMarkPaid, setFeeToMarkPaid] = useState<SchoolFee | null>(null);
+  const [proofFile, setProofFile] = useState<File | null>(null);
   
   const currentYear = new Date().getFullYear();
   const academicYears = [`${currentYear}/${currentYear + 1}`, `${currentYear - 1}/${currentYear}`, `${currentYear + 1}/${currentYear + 2}`];
@@ -135,6 +141,7 @@ export default function SchoolFees() {
       academic_year: formData.academic_year,
       paid: false,
       paid_date: null,
+      payment_proof_url: null,
       account_id: null,
       notes: formData.notes || null,
     };
@@ -210,6 +217,7 @@ export default function SchoolFees() {
       due_date: '', // User should set new date
       paid: false,
       paid_date: null,
+      payment_proof_url: null,
       account_id: null,
       notes: fee.notes,
     });
@@ -540,9 +548,15 @@ export default function SchoolFees() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {!fee.paid && (
-                <DropdownMenuItem onClick={() => markPaid.mutate(fee.id)}>
+                <DropdownMenuItem onClick={() => { setFeeToMarkPaid(fee); setMarkPaidDialogOpen(true); }}>
                   <CheckCircle2 className="mr-2 h-4 w-4" />
                   Marcar como Pago
+                </DropdownMenuItem>
+              )}
+              {fee.paid && fee.payment_proof_url && (
+                <DropdownMenuItem onClick={() => window.open(fee.payment_proof_url!, '_blank')}>
+                  <FileImage className="mr-2 h-4 w-4" />
+                  Ver Comprovativo
                 </DropdownMenuItem>
               )}
               {fee.paid && (
@@ -861,6 +875,67 @@ export default function SchoolFees() {
             <DialogDescription>Modifique os dados da propina.</DialogDescription>
           </DialogHeader>
           <FeeForm isEdit />
+        </DialogContent>
+      </Dialog>
+
+      {/* Mark as Paid Dialog with Proof Upload */}
+      <Dialog open={markPaidDialogOpen} onOpenChange={(open) => { 
+        setMarkPaidDialogOpen(open); 
+        if (!open) { setFeeToMarkPaid(null); setProofFile(null); }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Marcar como Pago</DialogTitle>
+            <DialogDescription>
+              Confirme o pagamento da propina. Pode anexar um comprovativo (opcional).
+            </DialogDescription>
+          </DialogHeader>
+          {feeToMarkPaid && (
+            <div className="space-y-4 py-4">
+              <div className="p-3 rounded-lg border bg-muted/30">
+                <p className="font-medium">{feeToMarkPaid.student_name}</p>
+                <p className="text-sm text-muted-foreground">{feeToMarkPaid.school_name}</p>
+                <p className="text-lg font-bold text-primary mt-2">
+                  {formatCurrency(feeToMarkPaid.amount, feeToMarkPaid.currency)}
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Comprovativo de Pagamento (opcional)
+                </Label>
+                <Input 
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                />
+                {proofFile && (
+                  <p className="text-sm text-muted-foreground">
+                    Ficheiro: {proofFile.name}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setMarkPaidDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={async () => {
+                if (feeToMarkPaid) {
+                  await markPaid.mutateAsync({ id: feeToMarkPaid.id, proofFile: proofFile || undefined });
+                  setMarkPaidDialogOpen(false);
+                  setFeeToMarkPaid(null);
+                  setProofFile(null);
+                }
+              }}
+              disabled={markPaid.isPending}
+            >
+              {markPaid.isPending ? 'A processar...' : 'Confirmar Pagamento'}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

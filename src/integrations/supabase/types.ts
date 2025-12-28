@@ -1299,6 +1299,7 @@ export type Database = {
           notes: string | null
           paid: boolean
           paid_date: string | null
+          payment_proof_url: string | null
           school_name: string
           student_name: string
           term: string | null
@@ -1318,6 +1319,7 @@ export type Database = {
           notes?: string | null
           paid?: boolean
           paid_date?: string | null
+          payment_proof_url?: string | null
           school_name: string
           student_name: string
           term?: string | null
@@ -1337,6 +1339,7 @@ export type Database = {
           notes?: string | null
           paid?: boolean
           paid_date?: string | null
+          payment_proof_url?: string | null
           school_name?: string
           student_name?: string
           term?: string | null
