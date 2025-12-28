@@ -8,6 +8,12 @@ import {
   Trash2,
   ChevronRight,
   Play,
+  Pause,
+  Edit,
+  MessageCircle,
+  GripVertical,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   useKixikilas, 
   useKixikilaMembers, 
@@ -26,9 +33,15 @@ import {
   useAddKixikilaContribution,
   useUpdateKixikilaRound,
   useDeleteKixikila,
+  useUpdateKixikila,
+  useUpdateMemberOrder,
 } from '@/hooks/useKixikilas';
 import { formatCurrency, CURRENCIES } from '@/lib/constants';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { KixikilaProgressChart } from '@/components/kixikila/KixikilaProgressChart';
+import { KixikilaStats } from '@/components/kixikila/KixikilaStats';
+import { KixikilaCalendar } from '@/components/kixikila/KixikilaCalendar';
+import { KixikilaHistory } from '@/components/kixikila/KixikilaHistory';
 
 const FREQUENCIES = [
   { value: 'weekly', label: 'Semanal' },
@@ -42,6 +55,13 @@ function KixikilaDetails({ kixikilaId, onClose }: { kixikilaId: string; onClose:
   const addContribution = useAddKixikilaContribution();
   const { data: kixikilas = [] } = useKixikilas();
   const updateRound = useUpdateKixikilaRound();
+  const updateKixikila = useUpdateKixikila();
+  const updateMemberOrder = useUpdateMemberOrder();
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editAmount, setEditAmount] = useState('');
   
   const kixikila = kixikilas.find(k => k.id === kixikilaId);
   if (!kixikila) return null;
@@ -70,111 +90,250 @@ function KixikilaDetails({ kixikilaId, onClose }: { kixikilaId: string; onClose:
     }
   };
 
+  const handleTogglePause = async () => {
+    await updateKixikila.mutateAsync({
+      id: kixikilaId,
+      status: kixikila.status === 'active' ? 'paused' : 'active',
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    await updateKixikila.mutateAsync({
+      id: kixikilaId,
+      name: editName,
+      description: editDescription || null,
+      contribution_amount: parseFloat(editAmount),
+    });
+    setIsEditing(false);
+  };
+
+  const handleStartEdit = () => {
+    setEditName(kixikila.name);
+    setEditDescription(kixikila.description || '');
+    setEditAmount(kixikila.contribution_amount.toString());
+    setIsEditing(true);
+  };
+
+  const handleMoveMember = async (memberId: string, direction: 'up' | 'down') => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+    
+    const newOrder = direction === 'up' ? member.order_number - 1 : member.order_number + 1;
+    if (newOrder < 1 || newOrder > members.length) return;
+    
+    const otherMember = members.find(m => m.order_number === newOrder);
+    if (!otherMember) return;
+    
+    await updateMemberOrder.mutateAsync({
+      members: [
+        { id: member.id, order_number: newOrder },
+        { id: otherMember.id, order_number: member.order_number },
+      ],
+    });
+  };
+
+  const handleWhatsAppReminder = (member: { name: string; phone: string | null }) => {
+    if (!member.phone) return;
+    const message = encodeURIComponent(
+      `Olá ${member.name}! 👋\n\nLembrete: A sua contribuição de ${formatCurrency(kixikila.contribution_amount, kixikila.currency)} para a Kixikila "${kixikila.name}" está pendente.\n\nObrigado! 🙏`
+    );
+    window.open(`https://wa.me/${member.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">{kixikila.name}</h3>
-          <p className="text-sm text-muted-foreground">{kixikila.description}</p>
-        </div>
-        <Badge variant={kixikila.status === 'active' ? 'default' : 'secondary'}>
-          {kixikila.status === 'active' ? 'Ativa' : kixikila.status === 'completed' ? 'Concluída' : 'Pausada'}
-        </Badge>
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        {isEditing ? (
+          <div className="flex-1 space-y-3">
+            <Input 
+              value={editName} 
+              onChange={(e) => setEditName(e.target.value)}
+              placeholder="Nome da Kixikila"
+            />
+            <Input 
+              value={editDescription} 
+              onChange={(e) => setEditDescription(e.target.value)}
+              placeholder="Descrição"
+            />
+            <Input 
+              type="number"
+              value={editAmount} 
+              onChange={(e) => setEditAmount(e.target.value)}
+              placeholder="Valor da contribuição"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSaveEdit} disabled={updateKixikila.isPending}>
+                Guardar
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div>
+              <h3 className="text-lg font-semibold">{kixikila.name}</h3>
+              <p className="text-sm text-muted-foreground">{kixikila.description}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="icon" variant="ghost" onClick={handleStartEdit}>
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button 
+                size="icon" 
+                variant={kixikila.status === 'active' ? 'outline' : 'default'}
+                onClick={handleTogglePause}
+                disabled={updateKixikila.isPending}
+              >
+                {kixikila.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              </Button>
+              <Badge variant={kixikila.status === 'active' ? 'default' : kixikila.status === 'paused' ? 'secondary' : 'outline'}>
+                {kixikila.status === 'active' ? 'Ativa' : kixikila.status === 'paused' ? 'Pausada' : 'Concluída'}
+              </Badge>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-sm text-muted-foreground">Contribuição</p>
-            <p className="text-xl font-bold">{formatCurrency(kixikila.contribution_amount, kixikila.currency)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4">
-            <p className="text-sm text-muted-foreground">Rodada Atual</p>
-            <p className="text-xl font-bold">{kixikila.current_round} de {kixikila.total_members}</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Stats */}
+      <KixikilaStats kixikila={kixikila} members={members} contributions={contributions} />
 
-      {currentRecipient && (
-        <Card className="border-primary">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Recebedor desta Rodada</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-primary" />
+      {/* Tabs */}
+      <Tabs defaultValue="members" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="members">Membros</TabsTrigger>
+          <TabsTrigger value="progress">Progresso</TabsTrigger>
+          <TabsTrigger value="calendar">Calendário</TabsTrigger>
+          <TabsTrigger value="history">Histórico</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="members" className="mt-4 space-y-4">
+          {currentRecipient && (
+            <Card className="border-primary">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Recebedor desta Rodada</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Users className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{currentRecipient.name}</p>
+                      <p className="text-sm text-muted-foreground">{currentRecipient.phone}</p>
+                    </div>
+                  </div>
+                  <p className="text-lg font-bold text-primary">
+                    {formatCurrency(kixikila.contribution_amount * (kixikila.total_members - 1), kixikila.currency)}
+                  </p>
                 </div>
-                <div>
-                  <p className="font-medium">{currentRecipient.name}</p>
-                  <p className="text-sm text-muted-foreground">{currentRecipient.phone}</p>
-                </div>
-              </div>
-              <p className="text-lg font-bold text-primary">
-                {formatCurrency(kixikila.contribution_amount * (kixikila.total_members - 1), kixikila.currency)}
+              </CardContent>
+            </Card>
+          )}
+
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium">Membros</h4>
+              <p className="text-sm text-muted-foreground">
+                {paidMemberIds.size} de {members.length} pagaram
               </p>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="font-medium">Membros</h4>
-          <p className="text-sm text-muted-foreground">
-            {paidMemberIds.size} de {members.length} pagaram
-          </p>
-        </div>
-        <Progress value={(paidMemberIds.size / members.length) * 100} className="mb-4" />
-        <div className="space-y-2">
-          {members.map((member) => {
-            const hasPaid = paidMemberIds.has(member.id);
-            const isRecipient = member.order_number === kixikila.current_round;
-            return (
-              <div 
-                key={member.id} 
-                className={`flex items-center justify-between p-3 rounded-lg border ${isRecipient ? 'border-primary bg-primary/5' : ''}`}
-              >
-                <div className="flex items-center gap-3">
-                  {hasPaid ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-muted-foreground" />
-                  )}
-                  <div>
-                    <p className="font-medium">
-                      {member.name}
-                      {member.is_creator && <Badge variant="outline" className="ml-2">Criador</Badge>}
-                      {isRecipient && <Badge className="ml-2">Recebe</Badge>}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Ordem: {member.order_number}</p>
-                  </div>
-                </div>
-                {!hasPaid && !isRecipient && (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => handleMarkPaid(member.id)}
-                    disabled={addContribution.isPending}
+            <Progress value={(paidMemberIds.size / members.length) * 100} className="mb-4" />
+            <div className="space-y-2">
+              {members.map((member) => {
+                const hasPaid = paidMemberIds.has(member.id);
+                const isRecipient = member.order_number === kixikila.current_round;
+                return (
+                  <div 
+                    key={member.id} 
+                    className={`flex items-center justify-between p-3 rounded-lg border ${isRecipient ? 'border-primary bg-primary/5' : ''}`}
                   >
-                    Marcar Pago
-                  </Button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col gap-1">
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-5 w-5"
+                          onClick={() => handleMoveMember(member.id, 'up')}
+                          disabled={member.order_number === 1 || kixikila.current_round > 1}
+                        >
+                          <ArrowUp className="h-3 w-3" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-5 w-5"
+                          onClick={() => handleMoveMember(member.id, 'down')}
+                          disabled={member.order_number === members.length || kixikila.current_round > 1}
+                        >
+                          <ArrowDown className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      {hasPaid ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <Circle className="h-5 w-5 text-muted-foreground" />
+                      )}
+                      <div>
+                        <p className="font-medium">
+                          {member.name}
+                          {member.is_creator && <Badge variant="outline" className="ml-2">Criador</Badge>}
+                          {isRecipient && <Badge className="ml-2">Recebe</Badge>}
+                        </p>
+                        <p className="text-sm text-muted-foreground">Ordem: {member.order_number}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {member.phone && !isRecipient && !hasPaid && (
+                        <Button 
+                          size="icon" 
+                          variant="ghost"
+                          onClick={() => handleWhatsAppReminder(member)}
+                          title="Enviar lembrete via WhatsApp"
+                        >
+                          <MessageCircle className="h-4 w-4 text-green-600" />
+                        </Button>
+                      )}
+                      {!hasPaid && !isRecipient && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleMarkPaid(member.id)}
+                          disabled={addContribution.isPending}
+                        >
+                          Marcar Pago
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-      {allPaid && kixikila.current_round < kixikila.total_members && (
-        <Button onClick={handleAdvanceRound} className="w-full" disabled={updateRound.isPending}>
-          <Play className="mr-2 h-4 w-4" />
-          Avançar para Rodada {kixikila.current_round + 1}
-        </Button>
-      )}
+          {allPaid && kixikila.current_round < kixikila.total_members && (
+            <Button onClick={handleAdvanceRound} className="w-full" disabled={updateRound.isPending}>
+              <Play className="mr-2 h-4 w-4" />
+              Avançar para Rodada {kixikila.current_round + 1}
+            </Button>
+          )}
+        </TabsContent>
+
+        <TabsContent value="progress" className="mt-4">
+          <KixikilaProgressChart kixikila={kixikila} />
+        </TabsContent>
+
+        <TabsContent value="calendar" className="mt-4">
+          <KixikilaCalendar kixikila={kixikila} members={members} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-4">
+          <KixikilaHistory kixikila={kixikila} members={members} contributions={contributions} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -250,6 +409,9 @@ export default function Kixikilas() {
       members: [{ name: '', phone: '', is_creator: true }],
     });
   };
+
+  const activeKixikilas = kixikilas.filter(k => k.status === 'active');
+  const pausedKixikilas = kixikilas.filter(k => k.status === 'paused');
 
   return (
     <div className="space-y-6">
@@ -347,10 +509,10 @@ export default function Kixikilas() {
                         className="flex-1"
                       />
                       <Input 
-                        placeholder="Telefone"
+                        placeholder="Telefone (com código país)"
                         value={member.phone}
                         onChange={(e) => updateMember(index, 'phone', e.target.value)}
-                        className="w-32"
+                        className="w-40"
                       />
                       {formData.members.length > 1 && (
                         <Button 
@@ -365,6 +527,9 @@ export default function Kixikilas() {
                     </div>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  💡 Adicione o código do país no telefone (ex: 244923456789) para receber lembretes via WhatsApp.
+                </p>
               </div>
 
               <Button 
@@ -380,7 +545,7 @@ export default function Kixikilas() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Kixikilas</CardTitle>
@@ -394,7 +559,15 @@ export default function Kixikilas() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Ativas</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-500">{kixikilas.filter(k => k.status === 'active').length}</p>
+            <p className="text-2xl font-bold text-green-500">{activeKixikilas.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Pausadas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-yellow-500">{pausedKixikilas.length}</p>
           </CardContent>
         </Card>
         <Card>
@@ -404,7 +577,7 @@ export default function Kixikilas() {
           <CardContent>
             <p className="text-2xl font-bold">
               {formatCurrency(
-                kixikilas.filter(k => k.status === 'active').reduce((sum, k) => sum + k.contribution_amount, 0),
+                activeKixikilas.reduce((sum, k) => sum + k.contribution_amount, 0),
                 'AOA'
               )}
             </p>
@@ -432,7 +605,7 @@ export default function Kixikilas() {
           {kixikilas.map((kixikila) => (
             <Card 
               key={kixikila.id} 
-              className="cursor-pointer hover:border-primary transition-colors"
+              className={`cursor-pointer hover:border-primary transition-colors ${kixikila.status === 'paused' ? 'opacity-75' : ''}`}
               onClick={() => setSelectedKixikila(kixikila.id)}
             >
               <CardHeader className="pb-2">
@@ -441,8 +614,8 @@ export default function Kixikilas() {
                     <CardTitle className="text-base">{kixikila.name}</CardTitle>
                     <CardDescription>{kixikila.description}</CardDescription>
                   </div>
-                  <Badge variant={kixikila.status === 'active' ? 'default' : 'secondary'}>
-                    {kixikila.status === 'active' ? 'Ativa' : 'Concluída'}
+                  <Badge variant={kixikila.status === 'active' ? 'default' : kixikila.status === 'paused' ? 'secondary' : 'outline'}>
+                    {kixikila.status === 'active' ? 'Ativa' : kixikila.status === 'paused' ? 'Pausada' : 'Concluída'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -479,7 +652,7 @@ export default function Kixikilas() {
 
       {/* Details Dialog */}
       <Dialog open={!!selectedKixikila} onOpenChange={() => setSelectedKixikila(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           {selectedKixikila && (
             <KixikilaDetails kixikilaId={selectedKixikila} onClose={() => setSelectedKixikila(null)} />
           )}
