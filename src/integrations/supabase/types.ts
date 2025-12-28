@@ -482,6 +482,75 @@ export type Database = {
         }
         Relationships: []
       }
+      exchange_rate_alerts: {
+        Row: {
+          alert_direction: string
+          base_currency: string
+          created_at: string
+          id: string
+          is_active: boolean
+          last_triggered_at: string | null
+          target_currency: string
+          threshold_rate: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_direction: string
+          base_currency?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          target_currency?: string
+          threshold_rate: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_direction?: string
+          base_currency?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          target_currency?: string
+          threshold_rate?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      exchange_rates: {
+        Row: {
+          base_currency: string
+          created_at: string
+          fetched_at: string
+          id: string
+          rate: number
+          source: string | null
+          target_currency: string
+        }
+        Insert: {
+          base_currency?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          rate: number
+          source?: string | null
+          target_currency: string
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          rate?: number
+          source?: string | null
+          target_currency?: string
+        }
+        Relationships: []
+      }
       financial_products: {
         Row: {
           created_at: string | null
@@ -647,6 +716,36 @@ export type Database = {
         }
         Relationships: []
       }
+      inflation_rates: {
+        Row: {
+          annual_rate: number
+          country: string
+          created_at: string
+          id: string
+          month: string
+          monthly_rate: number | null
+          source: string | null
+        }
+        Insert: {
+          annual_rate: number
+          country?: string
+          created_at?: string
+          id?: string
+          month: string
+          monthly_rate?: number | null
+          source?: string | null
+        }
+        Update: {
+          annual_rate?: number
+          country?: string
+          created_at?: string
+          id?: string
+          month?: string
+          monthly_rate?: number | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       insights: {
         Row: {
           generated_at: string | null
@@ -718,6 +817,143 @@ export type Database = {
           principal_amount?: number
           start_date?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kixikila_contributions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kixikila_id: string
+          member_id: string
+          notes: string | null
+          paid_at: string
+          round_number: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kixikila_id: string
+          member_id: string
+          notes?: string | null
+          paid_at?: string
+          round_number: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kixikila_id?: string
+          member_id?: string
+          notes?: string | null
+          paid_at?: string
+          round_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kixikila_contributions_kixikila_id_fkey"
+            columns: ["kixikila_id"]
+            isOneToOne: false
+            referencedRelation: "kixikilas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kixikila_contributions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "kixikila_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kixikila_members: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_creator: boolean
+          kixikila_id: string
+          name: string
+          order_number: number
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_creator?: boolean
+          kixikila_id: string
+          name: string
+          order_number: number
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_creator?: boolean
+          kixikila_id?: string
+          name?: string
+          order_number?: number
+          phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kixikila_members_kixikila_id_fkey"
+            columns: ["kixikila_id"]
+            isOneToOne: false
+            referencedRelation: "kixikilas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kixikilas: {
+        Row: {
+          contribution_amount: number
+          created_at: string
+          currency: string
+          current_round: number
+          description: string | null
+          frequency: string
+          id: string
+          name: string
+          start_date: string
+          status: string
+          total_members: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contribution_amount: number
+          created_at?: string
+          currency?: string
+          current_round?: number
+          description?: string | null
+          frequency: string
+          id?: string
+          name: string
+          start_date: string
+          status?: string
+          total_members?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contribution_amount?: number
+          created_at?: string
+          currency?: string
+          current_round?: number
+          description?: string | null
+          frequency?: string
+          id?: string
+          name?: string
+          start_date?: string
+          status?: string
+          total_members?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -890,6 +1126,69 @@ export type Database = {
           },
         ]
       }
+      remittances: {
+        Row: {
+          amount_received: number
+          amount_sent: number
+          created_at: string
+          currency_from: string
+          currency_to: string
+          exchange_rate: number
+          fee: number
+          id: string
+          notes: string | null
+          recipient_name: string
+          recipient_phone: string | null
+          sender_country: string
+          sender_name: string
+          service_provider: string
+          status: string
+          transfer_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_received: number
+          amount_sent: number
+          created_at?: string
+          currency_from: string
+          currency_to?: string
+          exchange_rate: number
+          fee?: number
+          id?: string
+          notes?: string | null
+          recipient_name: string
+          recipient_phone?: string | null
+          sender_country: string
+          sender_name: string
+          service_provider: string
+          status?: string
+          transfer_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_received?: number
+          amount_sent?: number
+          created_at?: string
+          currency_from?: string
+          currency_to?: string
+          exchange_rate?: number
+          fee?: number
+          id?: string
+          notes?: string | null
+          recipient_name?: string
+          recipient_phone?: string | null
+          sender_country?: string
+          sender_name?: string
+          service_provider?: string
+          status?: string
+          transfer_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       scenarios: {
         Row: {
           created_at: string | null
@@ -938,6 +1237,160 @@ export type Database = {
           time_horizon_years?: number
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      school_fees: {
+        Row: {
+          academic_year: string
+          account_id: string | null
+          amount: number
+          created_at: string
+          currency: string
+          due_date: string
+          education_level: string
+          fee_type: string
+          id: string
+          notes: string | null
+          paid: boolean
+          paid_date: string | null
+          school_name: string
+          student_name: string
+          term: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          academic_year: string
+          account_id?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          due_date: string
+          education_level: string
+          fee_type: string
+          id?: string
+          notes?: string | null
+          paid?: boolean
+          paid_date?: string | null
+          school_name: string
+          student_name: string
+          term?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          academic_year?: string
+          account_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          due_date?: string
+          education_level?: string
+          fee_type?: string
+          id?: string
+          notes?: string | null
+          paid?: boolean
+          paid_date?: string | null
+          school_name?: string
+          student_name?: string
+          term?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_fees_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      split_expense_participants: {
+        Row: {
+          amount_owed: number
+          amount_paid: number
+          created_at: string
+          email: string | null
+          expense_id: string
+          id: string
+          is_creator: boolean
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_owed: number
+          amount_paid?: number
+          created_at?: string
+          email?: string | null
+          expense_id: string
+          id?: string
+          is_creator?: boolean
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_owed?: number
+          amount_paid?: number
+          created_at?: string
+          email?: string | null
+          expense_id?: string
+          id?: string
+          is_creator?: boolean
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_expense_participants_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "split_expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      split_expenses: {
+        Row: {
+          category: string | null
+          created_at: string
+          creator_id: string
+          currency: string
+          description: string
+          expense_date: string
+          id: string
+          is_settled: boolean
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          creator_id: string
+          currency?: string
+          description: string
+          expense_date?: string
+          id?: string
+          is_settled?: boolean
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          creator_id?: string
+          currency?: string
+          description?: string
+          expense_date?: string
+          id?: string
+          is_settled?: boolean
+          total_amount?: number
+          updated_at?: string
         }
         Relationships: []
       }
