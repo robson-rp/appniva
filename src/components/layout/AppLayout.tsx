@@ -97,7 +97,7 @@ const navGroups = [
     ],
   },
   {
-    label: 'Angola',
+    label: 'Comunidade',
     icon: DollarSign,
     items: [
       { path: '/exchange-rates', label: 'Taxas de Câmbio', icon: DollarSign },
