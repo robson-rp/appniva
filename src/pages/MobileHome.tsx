@@ -31,9 +31,12 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TransactionFormWrapper } from '@/components/transactions/TransactionFormWrapper';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefresh } from '@/components/layout/PullToRefresh';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Feature grid items configuration
 const FEATURE_ITEMS = [
@@ -60,6 +63,7 @@ const QUICK_ACTIONS = [
 
 export default function MobileHome() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { profile } = useAuth();
   const { data: accounts, isLoading: loadingAccounts } = useAccounts();
   const { data: monthlyStats, isLoading: loadingStats } = useMonthlyStats();
@@ -72,6 +76,27 @@ export default function MobileHome() {
 
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+      queryClient.invalidateQueries({ queryKey: ['monthlyStats'] }),
+      queryClient.invalidateQueries({ queryKey: ['investmentStats'] }),
+      queryClient.invalidateQueries({ queryKey: ['goals'] }),
+      queryClient.invalidateQueries({ queryKey: ['debts'] }),
+      queryClient.invalidateQueries({ queryKey: ['insights'] }),
+      queryClient.invalidateQueries({ queryKey: ['subscriptions'] }),
+    ]);
+    // Small delay to show the animation
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing, handlers } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    maxPull: 120
+  });
 
   // Trigger animations after mount
   useEffect(() => {
@@ -146,7 +171,13 @@ export default function MobileHome() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <PullToRefresh
+      pullDistance={pullDistance}
+      isRefreshing={isRefreshing}
+      handlers={handlers}
+      threshold={80}
+    >
+      <div className="min-h-screen bg-background pb-24">
       {/* BLOCO 1 - Fixed Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="px-4 py-3">
@@ -455,5 +486,6 @@ export default function MobileHome() {
         </DialogContent>
       </Dialog>
     </div>
+    </PullToRefresh>
   );
 }
