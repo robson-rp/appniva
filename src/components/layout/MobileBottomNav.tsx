@@ -216,8 +216,8 @@ export function MobileBottomNav() {
 
       {/* More Menu Drawer */}
       <Drawer open={showMoreMenu} onOpenChange={setShowMoreMenu}>
-        <DrawerContent className="max-h-[85vh]">
-          <DrawerHeader className="border-b border-border pb-4">
+        <DrawerContent className="max-h-[85vh] flex flex-col">
+          <DrawerHeader className="border-b border-border pb-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-lg font-semibold">Menu</DrawerTitle>
               <DrawerClose asChild>
@@ -227,8 +227,8 @@ export function MobileBottomNav() {
               </DrawerClose>
             </div>
           </DrawerHeader>
-          <ScrollArea className="flex-1 px-4 py-4">
-            <div className="space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 py-4">
+            <div className="space-y-6 pb-8">
               {MENU_GROUPS.map((group) => (
                 <div key={group.label}>
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-1">
@@ -270,7 +270,7 @@ export function MobileBottomNav() {
                 </div>
               ))}
             </div>
-          </ScrollArea>
+          </div>
         </DrawerContent>
       </Drawer>
     </>
