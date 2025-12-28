@@ -161,7 +161,16 @@ export function useMarkSchoolFeePaid() {
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: async ({ id, proofFile }: { id: string; proofFile?: File }) => {
+    mutationFn: async ({ id, proofFile, accountId }: { id: string; proofFile?: File; accountId?: string }) => {
+      // First get the school fee details for transaction description
+      const { data: fee, error: feeError } = await supabase
+        .from('school_fees')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (feeError) throw feeError;
+      
       let payment_proof_url: string | null = null;
       
       // Upload proof file if provided
@@ -193,9 +202,29 @@ export function useMarkSchoolFeePaid() {
         .eq('id', id);
       
       if (error) throw error;
+      
+      // Create expense transaction if account is provided
+      if (accountId && user) {
+        const { error: transactionError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user.id,
+            account_id: accountId,
+            type: 'expense',
+            amount: fee.amount,
+            currency: fee.currency,
+            date: new Date().toISOString().split('T')[0],
+            description: `Propina: ${fee.student_name} - ${fee.school_name} (${fee.fee_type})`,
+          });
+        
+        if (transactionError) {
+          console.error('Failed to create transaction:', transactionError);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['school-fees'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast({ title: 'Propina paga', description: 'A propina foi marcada como paga.' });
     },
     onError: () => {

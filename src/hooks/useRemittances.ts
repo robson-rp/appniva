@@ -106,18 +106,42 @@ export function useCreateRemittance() {
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: async (remittance: Omit<Remittance, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
+    mutationFn: async (data: { 
+      remittance: Omit<Remittance, 'id' | 'user_id' | 'created_at' | 'updated_at'>; 
+      accountId?: string;
+    }) => {
+      const { data: remittance, error } = await supabase
         .from('remittances')
-        .insert({ ...remittance, user_id: user!.id })
+        .insert({ ...data.remittance, user_id: user!.id })
         .select()
         .single();
       
       if (error) throw error;
-      return data;
+      
+      // Create income transaction if account is provided
+      if (data.accountId && data.remittance.status === 'completed') {
+        const { error: transactionError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: user!.id,
+            account_id: data.accountId,
+            type: 'income',
+            amount: data.remittance.amount_received,
+            currency: data.remittance.currency_to,
+            date: data.remittance.transfer_date,
+            description: `Remessa de ${data.remittance.sender_name} (${data.remittance.sender_country})`,
+          });
+        
+        if (transactionError) {
+          console.error('Failed to create transaction:', transactionError);
+        }
+      }
+      
+      return remittance;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remittances'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast({ title: 'Remessa registada', description: 'A remessa foi registada com sucesso.' });
     },
     onError: () => {
