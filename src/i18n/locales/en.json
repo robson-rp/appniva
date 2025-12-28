@@ -437,5 +437,12 @@
   "admin": {
     "title": "Admin Panel",
     "subtitle": "System management"
+  },
+  "mobileHome": {
+    "customizeMenu": "Customize menu",
+    "selectFeatures": "Select features",
+    "dragToReorder": "Drag to reorder",
+    "maxFeatures": "Maximum {{max}} features",
+    "savePreferences": "Save preferences"
   }
 }
