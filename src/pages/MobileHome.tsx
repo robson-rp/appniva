@@ -29,7 +29,17 @@ import {
   ChevronRight,
   AlertCircle,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Settings,
+  MessageCircle,
+  Calculator,
+  Repeat,
+  DollarSign,
+  Users,
+  Send,
+  Receipt,
+  ScanText,
+  LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback } from 'react';
@@ -38,20 +48,15 @@ import { TransactionFormWrapper } from '@/components/transactions/TransactionFor
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefresh } from '@/components/layout/PullToRefresh';
 import { useQueryClient } from '@tanstack/react-query';
+import { useMobileHomePreferences } from '@/hooks/useMobileHomePreferences';
+import { MobileHomeCustomizer } from '@/components/mobile/MobileHomeCustomizer';
 
-// Feature grid items configuration - using translation keys
-const FEATURE_ITEMS = [
-  { icon: Wallet, labelKey: 'nav.accounts', route: '/accounts', color: 'bg-blue-500' },
-  { icon: ArrowUpDown, labelKey: 'nav.transactions', route: '/transactions', color: 'bg-emerald-500' },
-  { icon: PiggyBank, labelKey: 'nav.budgets', route: '/budgets', color: 'bg-purple-500' },
-  { icon: TrendingUp, labelKey: 'nav.investments', route: '/investments', color: 'bg-amber-500' },
-  { icon: Target, labelKey: 'nav.goals', route: '/goals', color: 'bg-pink-500' },
-  { icon: Calendar, labelKey: 'nav.schoolFees', route: '/school-fees', color: 'bg-indigo-500' },
-  { icon: RefreshCw, labelKey: 'nav.subscriptions', route: '/subscriptions', color: 'bg-teal-500' },
-  { icon: CreditCard, labelKey: 'nav.debts', route: '/debts', color: 'bg-red-500' },
-  { icon: BarChart3, labelKey: 'nav.dashboard', route: '/dashboard', color: 'bg-cyan-500' },
-  { icon: Lightbulb, labelKey: 'nav.insights', route: '/insights', color: 'bg-yellow-500' },
-];
+// Icon map for dynamic rendering
+const ICON_MAP: Record<string, LucideIcon> = {
+  Wallet, ArrowUpDown, PiggyBank, TrendingUp, Target, Calendar, RefreshCw, 
+  CreditCard, BarChart3, Lightbulb, MessageCircle, Calculator, Repeat, 
+  DollarSign, Users, Send, Receipt, ScanText
+};
 
 // Quick action items
 const QUICK_ACTIONS = [
@@ -75,9 +80,14 @@ export default function MobileHome() {
   const { data: insights } = useInsights();
   const { data: unreadInsights } = useUnreadInsightsCount();
   const upcomingRenewals = useUpcomingRenewals(7);
+  const { getSelectedFeatureData } = useMobileHomePreferences();
 
   const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+
+  // Get selected features with full data
+  const selectedFeatures = getSelectedFeatureData();
 
   // Pull-to-refresh handler
   const handleRefresh = useCallback(async () => {
@@ -123,16 +133,10 @@ export default function MobileHome() {
 
   const healthStatus = getHealthStatus();
 
-  // Filter features based on user data
-  const visibleFeatures = FEATURE_ITEMS.filter(item => {
-    if (item.route === '/investments' && (!investmentStats || investmentStats.total === 0)) {
-      return true; // Still show but can be customized
-    }
-    if (item.route === '/debts' && (!debts || debts.length === 0)) {
-      return true; // Still show but can be customized
-    }
-    return true;
-  });
+  // Get icon component from name
+  const getIcon = (iconName: string): LucideIcon => {
+    return ICON_MAP[iconName] || Wallet;
+  };
 
   const handleQuickAction = (action: string | undefined, route: string | undefined) => {
     if (action === 'transaction') {
@@ -276,41 +280,22 @@ export default function MobileHome() {
           "transition-all duration-500 ease-out delay-100",
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         )}>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-            Funcionalidades
-          </h2>
-          <div className="grid grid-cols-4 gap-3">
-            {visibleFeatures.slice(0, 8).map((item, index) => (
-              <Link
-                key={item.route}
-                to={item.route}
-                className={cn(
-                  "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95",
-                  "transform duration-500 ease-out",
-                  isVisible 
-                    ? "opacity-100 translate-y-0 scale-100" 
-                    : "opacity-0 translate-y-4 scale-90"
-                )}
-                style={{ 
-                  transitionDelay: isVisible ? `${150 + index * 50}ms` : '0ms'
-                }}
-              >
-                <div className={cn(
-                  'h-12 w-12 rounded-xl flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110',
-                  item.color
-                )}>
-                  <item.icon className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-xs font-medium text-foreground text-center leading-tight">
-                  {t(item.labelKey)}
-                </span>
-              </Link>
-            ))}
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Funcionalidades
+            </h2>
+            <button
+              onClick={() => setShowCustomizer(true)}
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            >
+              <Settings className="h-4 w-4 text-muted-foreground" />
+            </button>
           </div>
-          
-          {visibleFeatures.length > 8 && (
-            <div className="mt-3 grid grid-cols-4 gap-3">
-              {visibleFeatures.slice(8).map((item, index) => (
+          <div className="grid grid-cols-4 gap-3">
+            {selectedFeatures.slice(0, 8).map((item, index) => {
+              if (!item) return null;
+              const Icon = getIcon(item.iconName);
+              return (
                 <Link
                   key={item.route}
                   to={item.route}
@@ -322,20 +307,55 @@ export default function MobileHome() {
                       : "opacity-0 translate-y-4 scale-90"
                   )}
                   style={{ 
-                    transitionDelay: isVisible ? `${550 + index * 50}ms` : '0ms'
+                    transitionDelay: isVisible ? `${150 + index * 50}ms` : '0ms'
                   }}
                 >
                   <div className={cn(
-                    'h-12 w-12 rounded-xl flex items-center justify-center mb-2',
+                    'h-12 w-12 rounded-xl flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110',
                     item.color
                   )}>
-                    <item.icon className="h-6 w-6 text-white" />
+                    <Icon className="h-6 w-6 text-white" />
                   </div>
                   <span className="text-xs font-medium text-foreground text-center leading-tight">
                     {t(item.labelKey)}
                   </span>
                 </Link>
-              ))}
+              );
+            })}
+          </div>
+          
+          {selectedFeatures.length > 8 && (
+            <div className="mt-3 grid grid-cols-4 gap-3">
+              {selectedFeatures.slice(8, 12).map((item, index) => {
+                if (!item) return null;
+                const Icon = getIcon(item.iconName);
+                return (
+                  <Link
+                    key={item.route}
+                    to={item.route}
+                    className={cn(
+                      "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95",
+                      "transform duration-500 ease-out",
+                      isVisible 
+                        ? "opacity-100 translate-y-0 scale-100" 
+                        : "opacity-0 translate-y-4 scale-90"
+                    )}
+                    style={{ 
+                      transitionDelay: isVisible ? `${550 + index * 50}ms` : '0ms'
+                    }}
+                  >
+                    <div className={cn(
+                      'h-12 w-12 rounded-xl flex items-center justify-center mb-2',
+                      item.color
+                    )}>
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-foreground text-center leading-tight">
+                      {t(item.labelKey)}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -487,6 +507,9 @@ export default function MobileHome() {
           <TransactionFormWrapper onSuccess={() => setShowTransactionForm(false)} />
         </DialogContent>
       </Dialog>
+
+      {/* Mobile Home Customizer */}
+      <MobileHomeCustomizer open={showCustomizer} onOpenChange={setShowCustomizer} />
     </div>
     </PullToRefresh>
   );
