@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BarChart3, User, Plus, MoreHorizontal, Wallet, ArrowLeftRight, PiggyBank, Target, CreditCard, TrendingUp, Repeat, RefreshCw, GraduationCap, MessageCircle, Lightbulb, Calculator, Umbrella, Shield, Scale, TrendingDown, DollarSign, Users, Send, Receipt, Building2, Tags, ShoppingBag, ScanText, Smartphone, X } from 'lucide-react';
+import { Home, BarChart3, User, Plus, MoreHorizontal, Wallet, ArrowLeftRight, PiggyBank, Target, CreditCard, TrendingUp, Repeat, RefreshCw, GraduationCap, MessageCircle, Lightbulb, Calculator, Umbrella, Shield, Scale, TrendingDown, DollarSign, Users, Send, Receipt, Building2, Tags, ShoppingBag, ScanText, Smartphone, X, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -76,6 +77,7 @@ export function MobileBottomNav() {
   
   const [showQuickAction, setShowQuickAction] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
@@ -88,6 +90,19 @@ export function MobileBottomNav() {
 
   // Total notifications for "More" button badge
   const totalNotifications = unreadInsights + budgetsAtRisk;
+
+  // Filter menu groups based on search query
+  const filteredGroups = useMemo(() => {
+    if (!searchQuery.trim()) return MENU_GROUPS;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return MENU_GROUPS.map(group => ({
+      ...group,
+      items: group.items.filter(item => 
+        item.label.toLowerCase().includes(query)
+      )
+    })).filter(group => group.items.length > 0);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -126,8 +141,16 @@ export function MobileBottomNav() {
 
   const handleMenuItemClick = (path: string) => {
     setShowMoreMenu(false);
+    setSearchQuery('');
     navigate(path);
   };
+
+  // Reset search when drawer closes
+  useEffect(() => {
+    if (!showMoreMenu) {
+      setSearchQuery('');
+    }
+  }, [showMoreMenu]);
 
   return (
     <>
@@ -217,7 +240,7 @@ export function MobileBottomNav() {
       {/* More Menu Drawer */}
       <Drawer open={showMoreMenu} onOpenChange={setShowMoreMenu}>
         <DrawerContent className="max-h-[85vh] flex flex-col">
-          <DrawerHeader className="border-b border-border pb-4 flex-shrink-0">
+          <DrawerHeader className="border-b border-border pb-4 flex-shrink-0 space-y-3">
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-lg font-semibold">Menu</DrawerTitle>
               <DrawerClose asChild>
@@ -226,10 +249,25 @@ export function MobileBottomNav() {
                 </button>
               </DrawerClose>
             </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Pesquisar funcionalidades..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
           </DrawerHeader>
           <div className="flex-1 overflow-y-auto px-4 py-4">
             <div className="space-y-6 pb-8">
-              {MENU_GROUPS.map((group) => (
+              {filteredGroups.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Search className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">Nenhum resultado encontrado</p>
+                </div>
+              ) : (
+                filteredGroups.map((group) => (
                 <div key={group.label}>
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-1">
                     {group.label}
@@ -268,7 +306,8 @@ export function MobileBottomNav() {
                     })}
                   </div>
                 </div>
-              ))}
+              ))
+              )}
             </div>
           </div>
         </DrawerContent>
