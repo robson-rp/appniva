@@ -5,6 +5,7 @@ import { useUnreadInsightsCount } from '@/hooks/useInsights';
 import { useBudgetsAtRiskCount } from '@/hooks/useBudgets';
 import { useMenuPreferences } from '@/hooks/useMenuPreferences';
 import { useTheme } from 'next-themes';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   Wallet,
@@ -48,6 +49,7 @@ import {
   Sun,
   Moon,
   Monitor,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -148,10 +150,10 @@ export default function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState('pt');
   const [openGroups, setOpenGroups] = useState<string[]>(() => {
     // Auto-open group that contains current path
     const currentGroup = navGroups.find(g => g.items.some(i => i.path === location.pathname));
@@ -163,6 +165,12 @@ export default function AppLayout() {
     { code: 'en', label: 'English', flag: '🇬🇧' },
     { code: 'fr', label: 'Français', flag: '🇫🇷' },
   ];
+
+  const currentLanguage = i18n.language?.split('-')[0] || 'pt';
+
+  const handleLanguageChange = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+  };
 
   // All searchable items
   const searchableItems = [
@@ -497,16 +505,17 @@ export default function AppLayout() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Idioma</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('language.title')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
-                    onClick={() => setCurrentLanguage(lang.code)}
+                    onClick={() => handleLanguageChange(lang.code)}
                     className={cn(currentLanguage === lang.code && 'bg-accent')}
                   >
                     <span className="mr-2">{lang.flag}</span>
                     {lang.label}
+                    {currentLanguage === lang.code && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

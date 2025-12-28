@@ -9,6 +9,7 @@ import { useInsights, useUnreadInsightsCount } from '@/hooks/useInsights';
 import { formatCurrency } from '@/lib/constants';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Wallet, 
   ArrowUpDown, 
@@ -38,33 +39,34 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefresh } from '@/components/layout/PullToRefresh';
 import { useQueryClient } from '@tanstack/react-query';
 
-// Feature grid items configuration
+// Feature grid items configuration - using translation keys
 const FEATURE_ITEMS = [
-  { icon: Wallet, label: 'Contas', route: '/accounts', color: 'bg-blue-500' },
-  { icon: ArrowUpDown, label: 'Transações', route: '/transactions', color: 'bg-emerald-500' },
-  { icon: PiggyBank, label: 'Orçamento', route: '/budgets', color: 'bg-purple-500' },
-  { icon: TrendingUp, label: 'Investimentos', route: '/investments', color: 'bg-amber-500' },
-  { icon: Target, label: 'Metas', route: '/goals', color: 'bg-pink-500' },
-  { icon: Calendar, label: 'Calendário', route: '/school-fees', color: 'bg-indigo-500' },
-  { icon: RefreshCw, label: 'Subscrições', route: '/subscriptions', color: 'bg-teal-500' },
-  { icon: CreditCard, label: 'Dívidas', route: '/debts', color: 'bg-red-500' },
-  { icon: BarChart3, label: 'Relatórios', route: '/dashboard', color: 'bg-cyan-500' },
-  { icon: Lightbulb, label: 'Insights', route: '/insights', color: 'bg-yellow-500' },
+  { icon: Wallet, labelKey: 'nav.accounts', route: '/accounts', color: 'bg-blue-500' },
+  { icon: ArrowUpDown, labelKey: 'nav.transactions', route: '/transactions', color: 'bg-emerald-500' },
+  { icon: PiggyBank, labelKey: 'nav.budgets', route: '/budgets', color: 'bg-purple-500' },
+  { icon: TrendingUp, labelKey: 'nav.investments', route: '/investments', color: 'bg-amber-500' },
+  { icon: Target, labelKey: 'nav.goals', route: '/goals', color: 'bg-pink-500' },
+  { icon: Calendar, labelKey: 'nav.schoolFees', route: '/school-fees', color: 'bg-indigo-500' },
+  { icon: RefreshCw, labelKey: 'nav.subscriptions', route: '/subscriptions', color: 'bg-teal-500' },
+  { icon: CreditCard, labelKey: 'nav.debts', route: '/debts', color: 'bg-red-500' },
+  { icon: BarChart3, labelKey: 'nav.dashboard', route: '/dashboard', color: 'bg-cyan-500' },
+  { icon: Lightbulb, labelKey: 'nav.insights', route: '/insights', color: 'bg-yellow-500' },
 ];
 
 // Quick action items
 const QUICK_ACTIONS = [
-  { icon: Plus, label: 'Nova Transação', action: 'transaction' },
-  { icon: Target, label: 'Nova Meta', route: '/goals' },
-  { icon: Wallet, label: 'Nova Conta', route: '/accounts' },
-  { icon: FileText, label: 'Importar', route: '/reconciliation' },
-  { icon: Camera, label: 'OCR', route: '/ocr/upload' },
+  { icon: Plus, labelKey: 'home.newTransaction', action: 'transaction' },
+  { icon: Target, labelKey: 'home.newGoal', route: '/goals' },
+  { icon: Wallet, labelKey: 'home.newAccount', route: '/accounts' },
+  { icon: FileText, labelKey: 'home.import', route: '/reconciliation' },
+  { icon: Camera, labelKey: 'nav.ocr', route: '/ocr/upload' },
 ];
 
 export default function MobileHome() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { profile } = useAuth();
+  const { t } = useTranslation();
   const { data: accounts, isLoading: loadingAccounts } = useAccounts();
   const { data: monthlyStats, isLoading: loadingStats } = useMonthlyStats();
   const { data: investmentStats, isLoading: loadingInvestments } = useInvestmentStats();
@@ -300,7 +302,7 @@ export default function MobileHome() {
                   <item.icon className="h-6 w-6 text-white" />
                 </div>
                 <span className="text-xs font-medium text-foreground text-center leading-tight">
-                  {item.label}
+                  {t(item.labelKey)}
                 </span>
               </Link>
             ))}
@@ -330,7 +332,7 @@ export default function MobileHome() {
                     <item.icon className="h-6 w-6 text-white" />
                   </div>
                   <span className="text-xs font-medium text-foreground text-center leading-tight">
-                    {item.label}
+                    {t(item.labelKey)}
                   </span>
                 </Link>
               ))}
@@ -344,7 +346,7 @@ export default function MobileHome() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         )}>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-            Acções Rápidas
+            {t('home.quickActions')}
           </h2>
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {QUICK_ACTIONS.map((action, index) => (
@@ -363,7 +365,7 @@ export default function MobileHome() {
                 }}
               >
                 <action.icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{action.label}</span>
+                <span className="text-sm font-medium">{t(action.labelKey)}</span>
               </button>
             ))}
           </div>
