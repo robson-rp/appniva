@@ -14,6 +14,7 @@ import {
   Edit,
   BarChart3,
   Building2,
+  Repeat,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -68,14 +70,15 @@ export default function SchoolFees() {
   const [formData, setFormData] = useState({
     student_name: '',
     school_name: '',
-    education_level: 'primary' as const,
-    fee_type: 'tuition' as const,
+    education_level: 'primary' as string,
+    fee_type: 'tuition' as string,
     amount: '',
     currency: 'AOA',
     academic_year: academicYears[0],
-    term: '1' as const,
+    term: '1' as string,
     due_date: '',
     notes: '',
+    createRecurring: false,
   });
 
   const resetForm = () => {
@@ -90,25 +93,60 @@ export default function SchoolFees() {
       term: '1',
       due_date: '',
       notes: '',
+      createRecurring: false,
     });
   };
 
+  // Calculate due dates for each term based on the initial due date
+  const calculateTermDueDates = (initialDueDate: string, academicYear: string) => {
+    const baseDate = new Date(initialDueDate);
+    const [startYear] = academicYear.split('/').map(Number);
+    
+    // Typical term due dates in Angola (approximate months)
+    // 1st Term: September-December, 2nd Term: January-March, 3rd Term: April-June
+    return {
+      '1': new Date(startYear, 8, baseDate.getDate()).toISOString().split('T')[0], // September
+      '2': new Date(startYear + 1, 0, baseDate.getDate()).toISOString().split('T')[0], // January
+      '3': new Date(startYear + 1, 3, baseDate.getDate()).toISOString().split('T')[0], // April
+    };
+  };
+
   const handleCreate = async () => {
-    await createFee.mutateAsync({
+    const baseFeeData = {
       student_name: formData.student_name,
       school_name: formData.school_name,
-      education_level: formData.education_level,
-      fee_type: formData.fee_type,
+      education_level: formData.education_level as 'pre_school' | 'primary' | 'secondary' | 'university' | 'vocational' | 'other',
+      fee_type: formData.fee_type as 'tuition' | 'registration' | 'materials' | 'uniform' | 'transport' | 'meals' | 'other',
       amount: parseFloat(formData.amount),
       currency: formData.currency,
       academic_year: formData.academic_year,
-      term: formData.term,
-      due_date: formData.due_date,
       paid: false,
       paid_date: null,
       account_id: null,
       notes: formData.notes || null,
-    });
+    };
+
+    if (formData.createRecurring && formData.term !== 'annual') {
+      // Create fees for all 3 terms
+      const termDueDates = calculateTermDueDates(formData.due_date, formData.academic_year);
+      const terms: ('1' | '2' | '3')[] = ['1', '2', '3'];
+      
+      for (const term of terms) {
+        await createFee.mutateAsync({
+          ...baseFeeData,
+          term,
+          due_date: termDueDates[term],
+        });
+      }
+    } else {
+      // Create single fee
+      await createFee.mutateAsync({
+        ...baseFeeData,
+        term: formData.term as '1' | '2' | '3' | 'annual',
+        due_date: formData.due_date,
+      });
+    }
+    
     setCreateOpen(false);
     resetForm();
   };
@@ -119,12 +157,12 @@ export default function SchoolFees() {
       id: editFee.id,
       student_name: formData.student_name,
       school_name: formData.school_name,
-      education_level: formData.education_level,
-      fee_type: formData.fee_type,
+      education_level: formData.education_level as 'pre_school' | 'primary' | 'secondary' | 'university' | 'vocational' | 'other',
+      fee_type: formData.fee_type as 'tuition' | 'registration' | 'materials' | 'uniform' | 'transport' | 'meals' | 'other',
       amount: parseFloat(formData.amount),
       currency: formData.currency,
       academic_year: formData.academic_year,
-      term: formData.term,
+      term: formData.term as '1' | '2' | '3' | 'annual',
       due_date: formData.due_date,
       notes: formData.notes || null,
     });
@@ -168,14 +206,15 @@ export default function SchoolFees() {
     setFormData({
       student_name: fee.student_name,
       school_name: fee.school_name,
-      education_level: fee.education_level as any,
-      fee_type: fee.fee_type as any,
+      education_level: fee.education_level,
+      fee_type: fee.fee_type,
       amount: fee.amount.toString(),
       currency: fee.currency,
       academic_year: fee.academic_year,
-      term: (fee.term || '1') as any,
+      term: fee.term || '1',
       due_date: fee.due_date,
       notes: fee.notes || '',
+      createRecurring: false,
     });
     setEditFee(fee);
   };
@@ -291,6 +330,26 @@ export default function SchoolFees() {
           onChange={(e) => setFormData(p => ({ ...p, notes: e.target.value }))}
         />
       </div>
+
+      {/* Recurring fees option - only show when creating (not editing) */}
+      {!isEdit && formData.term !== 'annual' && (
+        <div className="flex items-center space-x-3 p-4 rounded-lg border bg-muted/30">
+          <Checkbox
+            id="createRecurring"
+            checked={formData.createRecurring}
+            onCheckedChange={(checked) => setFormData(p => ({ ...p, createRecurring: checked === true }))}
+          />
+          <div className="flex-1">
+            <Label htmlFor="createRecurring" className="flex items-center gap-2 cursor-pointer font-medium">
+              <Repeat className="h-4 w-4 text-primary" />
+              Criar para todos os trimestres
+            </Label>
+            <p className="text-sm text-muted-foreground mt-1">
+              Cria automaticamente propinas para o 1º, 2º e 3º trimestre do ano lectivo com datas de vencimento distribuídas.
+            </p>
+          </div>
+        </div>
+      )}
 
       <Button 
         onClick={isEdit ? handleEdit : handleCreate} 
