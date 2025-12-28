@@ -5,9 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
+import { MobileLayout } from "@/components/layout/MobileLayout";
 import Auth from "@/pages/Auth";
 import Onboarding from "@/pages/Onboarding";
 import Dashboard from "@/pages/Dashboard";
+import MobileHome from "@/pages/MobileHome";
 import Accounts from "@/pages/Accounts";
 import Transactions from "@/pages/Transactions";
 import Budgets from "@/pages/Budgets";
@@ -39,6 +41,7 @@ import SplitExpenses from "@/pages/SplitExpenses";
 import InflationAlerts from "@/pages/InflationAlerts";
 import AutomaticTransactions from "@/pages/AutomaticTransactions";
 import NotFound from "./pages/NotFound";
+import { ResponsiveRouteWrapper } from "@/components/layout/ResponsiveRouteWrapper";
 
 const queryClient = new QueryClient();
 
@@ -50,9 +53,16 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<ResponsiveRouteWrapper />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            
+            {/* Mobile Layout Routes */}
+            <Route element={<MobileLayout />}>
+              <Route path="/home" element={<MobileHome />} />
+            </Route>
+            
+            {/* Desktop Layout Routes */}
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/accounts" element={<Accounts />} />
