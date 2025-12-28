@@ -958,6 +958,65 @@ export type Database = {
         }
         Relationships: []
       }
+      participant_group_members: {
+        Row: {
+          created_at: string
+          email: string | null
+          group_id: string
+          id: string
+          name: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          group_id: string
+          id?: string
+          name: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          group_id?: string
+          id?: string
+          name?: string
+          phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participant_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "participant_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participant_groups: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_requests: {
         Row: {
           created_at: string | null
@@ -1403,6 +1462,41 @@ export type Database = {
           },
         ]
       }
+      split_expense_payment_history: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          participant_id: string
+          payment_date: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          participant_id: string
+          payment_date?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          participant_id?: string
+          payment_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "split_expense_payment_history_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "split_expense_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       split_expenses: {
         Row: {
           category: string | null
@@ -1413,6 +1507,8 @@ export type Database = {
           expense_date: string
           id: string
           is_settled: boolean
+          receipt_url: string | null
+          share_token: string | null
           total_amount: number
           updated_at: string
         }
@@ -1425,6 +1521,8 @@ export type Database = {
           expense_date?: string
           id?: string
           is_settled?: boolean
+          receipt_url?: string | null
+          share_token?: string | null
           total_amount: number
           updated_at?: string
         }
@@ -1437,6 +1535,8 @@ export type Database = {
           expense_date?: string
           id?: string
           is_settled?: boolean
+          receipt_url?: string | null
+          share_token?: string | null
           total_amount?: number
           updated_at?: string
         }

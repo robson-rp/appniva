@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { 
   Split, 
   Plus, 
@@ -9,6 +9,15 @@ import {
   DollarSign,
   Phone,
   Mail,
+  Upload,
+  ExternalLink,
+  Copy,
+  History,
+  FileText,
+  QrCode,
+  Download,
+  UserPlus,
+  Image,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +30,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   useSplitExpenses, 
   useSplitExpenseStats,
@@ -28,14 +39,99 @@ import {
   useRecordPayment,
   useSettleSplitExpense,
   useDeleteSplitExpense,
+  useBalanceCalculation,
+  useUploadReceipt,
   SplitExpenseWithParticipants,
+  SPLIT_EXPENSE_CATEGORIES,
 } from '@/hooks/useSplitExpenses';
+import { useParticipantGroups, useCreateParticipantGroup, useDeleteParticipantGroup } from '@/hooks/useParticipantGroups';
+import { usePaymentHistory } from '@/hooks/usePaymentHistory';
 import { formatCurrency, formatDate, CURRENCIES } from '@/lib/constants';
+import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+function PaymentHistoryDialog({ participantId, participantName, currency }: { participantId: string; participantName: string; currency: string }) {
+  const { data: history = [], isLoading } = usePaymentHistory(participantId);
+  
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <History className="h-4 w-4 mr-1" />
+          Histórico
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Histórico de Pagamentos</DialogTitle>
+          <DialogDescription>Pagamentos de {participantName}</DialogDescription>
+        </DialogHeader>
+        {isLoading ? (
+          <div className="space-y-2">
+            {[1, 2].map(i => <Skeleton key={i} className="h-12" />)}
+          </div>
+        ) : history.length === 0 ? (
+          <p className="text-center text-muted-foreground py-4">Nenhum pagamento registado.</p>
+        ) : (
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {history.map(entry => (
+              <div key={entry.id} className="flex justify-between items-center p-3 rounded-lg border">
+                <div>
+                  <p className="font-medium">{formatCurrency(entry.amount, currency)}</p>
+                  <p className="text-sm text-muted-foreground">{formatDate(entry.payment_date)}</p>
+                </div>
+                {entry.notes && <p className="text-sm text-muted-foreground">{entry.notes}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function BalanceCard() {
+  const balances = useBalanceCalculation();
+  
+  if (balances.length === 0) return null;
+  
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          Balanço entre Pessoas
+        </CardTitle>
+        <CardDescription>Resumo de quem deve o quê</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2 max-h-40 overflow-y-auto">
+          {balances.map((b, i) => (
+            <div key={i} className="flex justify-between items-center p-2 rounded border">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{b.name}</span>
+                {b.phone && <Phone className="h-3 w-3 text-muted-foreground" />}
+              </div>
+              <span className={b.balance > 0 ? 'text-orange-500 font-medium' : 'text-green-500 font-medium'}>
+                {b.balance > 0 ? `Deve-te ${formatCurrency(b.balance, 'AOA')}` : `Tu deves ${formatCurrency(Math.abs(b.balance), 'AOA')}`}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function ExpenseDetails({ expense, onClose }: { expense: SplitExpenseWithParticipants; onClose: () => void }) {
   const recordPayment = useRecordPayment();
   const settleExpense = useSettleSplitExpense();
+  const uploadReceipt = useUploadReceipt();
+  const { toast } = useToast();
   const [paymentAmount, setPaymentAmount] = useState<Record<string, string>>({});
+  const [paymentNotes, setPaymentNotes] = useState<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const totalOwed = expense.participants
     .filter(p => !p.is_creator)
@@ -46,13 +142,58 @@ function ExpenseDetails({ expense, onClose }: { expense: SplitExpenseWithPartici
     .reduce((sum, p) => sum + p.amount_paid, 0);
 
   const allPaid = expense.participants.every(p => p.amount_paid >= p.amount_owed);
+  
+  const shareUrl = `${window.location.origin}/split-expenses?share=${expense.share_token}`;
 
   const handleRecordPayment = async (participantId: string) => {
     const amount = parseFloat(paymentAmount[participantId] || '0');
     if (amount > 0) {
       await recordPayment.mutateAsync({ participantId, amount });
       setPaymentAmount(p => ({ ...p, [participantId]: '' }));
+      setPaymentNotes(p => ({ ...p, [participantId]: '' }));
     }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    toast({ title: 'Link copiado', description: 'O link foi copiado para a área de transferência.' });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await uploadReceipt.mutateAsync({ expenseId: expense.id, file });
+    }
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Despesa Partilhada', 14, 20);
+    
+    doc.setFontSize(12);
+    doc.text(`Descrição: ${expense.description}`, 14, 35);
+    doc.text(`Data: ${formatDate(expense.expense_date)}`, 14, 42);
+    doc.text(`Total: ${formatCurrency(expense.total_amount, expense.currency)}`, 14, 49);
+    doc.text(`Estado: ${expense.is_settled ? 'Liquidada' : 'Pendente'}`, 14, 56);
+    
+    const tableData = expense.participants.map(p => [
+      p.name,
+      formatCurrency(p.amount_owed, expense.currency),
+      formatCurrency(p.amount_paid, expense.currency),
+      formatCurrency(p.amount_owed - p.amount_paid, expense.currency),
+      p.is_creator ? 'Criador' : (p.amount_paid >= p.amount_owed ? 'Pago' : 'Pendente'),
+    ]);
+    
+    autoTable(doc, {
+      head: [['Nome', 'Deve', 'Pagou', 'Restante', 'Estado']],
+      body: tableData,
+      startY: 65,
+    });
+    
+    doc.save(`despesa-${expense.description.replace(/\s+/g, '-')}.pdf`);
+    toast({ title: 'PDF exportado', description: 'O resumo foi exportado com sucesso.' });
   };
 
   return (
@@ -61,6 +202,11 @@ function ExpenseDetails({ expense, onClose }: { expense: SplitExpenseWithPartici
         <div>
           <h3 className="text-lg font-semibold">{expense.description}</h3>
           <p className="text-sm text-muted-foreground">{formatDate(expense.expense_date)}</p>
+          {expense.category && (
+            <Badge variant="outline" className="mt-1">
+              {SPLIT_EXPENSE_CATEGORIES.find(c => c.value === expense.category)?.icon} {SPLIT_EXPENSE_CATEGORIES.find(c => c.value === expense.category)?.label}
+            </Badge>
+          )}
         </div>
         <Badge variant={expense.is_settled ? 'default' : 'secondary'}>
           {expense.is_settled ? 'Liquidada' : 'Pendente'}
@@ -80,6 +226,42 @@ function ExpenseDetails({ expense, onClose }: { expense: SplitExpenseWithPartici
             <p className="text-xl font-bold text-orange-500">{formatCurrency(totalOwed, expense.currency)}</p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Share & Receipt Actions */}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" onClick={handleCopyLink}>
+          <Copy className="h-4 w-4 mr-1" />
+          Copiar Link
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => {
+          const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+          window.open(qrUrl, '_blank');
+        }}>
+          <QrCode className="h-4 w-4 mr-1" />
+          QR Code
+        </Button>
+        <Button variant="outline" size="sm" onClick={exportToPDF}>
+          <Download className="h-4 w-4 mr-1" />
+          Exportar PDF
+        </Button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          accept="image/*,.pdf"
+          className="hidden"
+        />
+        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploadReceipt.isPending}>
+          <Upload className="h-4 w-4 mr-1" />
+          {uploadReceipt.isPending ? 'A enviar...' : 'Anexar Recibo'}
+        </Button>
+        {expense.receipt_url && (
+          <Button variant="outline" size="sm" onClick={() => window.open(expense.receipt_url!, '_blank')}>
+            <Image className="h-4 w-4 mr-1" />
+            Ver Recibo
+          </Button>
+        )}
       </div>
 
       <div>
@@ -138,31 +320,40 @@ function ExpenseDetails({ expense, onClose }: { expense: SplitExpenseWithPartici
                     )}
                   </div>
                 </div>
-                {!participant.is_creator && !hasPaidAll && !expense.is_settled && (
-                  <div className="flex gap-2 mt-3">
-                    <Input
-                      type="number"
-                      placeholder="Valor"
-                      value={paymentAmount[participant.id] || ''}
-                      onChange={(e) => setPaymentAmount(p => ({ ...p, [participant.id]: e.target.value }))}
-                      className="w-32"
+                {!participant.is_creator && (
+                  <div className="flex items-center gap-2 mt-3">
+                    <PaymentHistoryDialog 
+                      participantId={participant.id} 
+                      participantName={participant.name}
+                      currency={expense.currency}
                     />
-                    <Button 
-                      size="sm"
-                      onClick={() => handleRecordPayment(participant.id)}
-                      disabled={!paymentAmount[participant.id] || recordPayment.isPending}
-                    >
-                      Registar Pagamento
-                    </Button>
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setPaymentAmount(p => ({ ...p, [participant.id]: owes.toString() }));
-                      }}
-                    >
-                      Total
-                    </Button>
+                    {!hasPaidAll && !expense.is_settled && (
+                      <>
+                        <Input
+                          type="number"
+                          placeholder="Valor"
+                          value={paymentAmount[participant.id] || ''}
+                          onChange={(e) => setPaymentAmount(p => ({ ...p, [participant.id]: e.target.value }))}
+                          className="w-24"
+                        />
+                        <Button 
+                          size="sm"
+                          onClick={() => handleRecordPayment(participant.id)}
+                          disabled={!paymentAmount[participant.id] || recordPayment.isPending}
+                        >
+                          Registar
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setPaymentAmount(p => ({ ...p, [participant.id]: owes.toString() }));
+                          }}
+                        >
+                          Total
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -183,13 +374,20 @@ function ExpenseDetails({ expense, onClose }: { expense: SplitExpenseWithPartici
 
 export default function SplitExpenses() {
   const { data: expenses = [], isLoading } = useSplitExpenses();
+  const { data: groups = [] } = useParticipantGroups();
   const stats = useSplitExpenseStats();
   const createExpense = useCreateSplitExpense();
   const deleteExpense = useDeleteSplitExpense();
+  const createGroup = useCreateParticipantGroup();
+  const deleteGroup = useDeleteParticipantGroup();
+  const { toast } = useToast();
   
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<SplitExpenseWithParticipants | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
   
   const [formData, setFormData] = useState({
     description: '',
@@ -197,14 +395,14 @@ export default function SplitExpenses() {
     currency: 'AOA',
     expense_date: new Date().toISOString().split('T')[0],
     category: '',
-    participants: [{ name: '', phone: '', email: '', is_creator: true }],
+    participants: [{ name: '', phone: '', email: '', is_creator: true, custom_amount: '' }],
     split_equally: true,
   });
 
   const addParticipant = () => {
     setFormData(p => ({
       ...p,
-      participants: [...p.participants, { name: '', phone: '', email: '', is_creator: false }],
+      participants: [...p.participants, { name: '', phone: '', email: '', is_creator: false, custom_amount: '' }],
     }));
   };
 
@@ -224,9 +422,65 @@ export default function SplitExpenses() {
     }
   };
 
+  const loadGroup = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (group) {
+      const creator = formData.participants.find(p => p.is_creator) || { name: '', phone: '', email: '', is_creator: true, custom_amount: '' };
+      setFormData(p => ({
+        ...p,
+        participants: [
+          creator,
+          ...group.members.map(m => ({ 
+            name: m.name, 
+            phone: m.phone || '', 
+            email: m.email || '', 
+            is_creator: false,
+            custom_amount: '',
+          })),
+        ],
+      }));
+      toast({ title: 'Grupo carregado', description: `Participantes do grupo "${group.name}" foram adicionados.` });
+    }
+  };
+
+  const saveAsGroup = async () => {
+    if (!newGroupName.trim()) return;
+    const members = formData.participants
+      .filter(p => !p.is_creator && p.name.trim())
+      .map(p => ({ name: p.name, phone: p.phone || undefined, email: p.email || undefined }));
+    
+    if (members.length === 0) {
+      toast({ title: 'Erro', description: 'Adicione pelo menos um participante além de você.', variant: 'destructive' });
+      return;
+    }
+    
+    await createGroup.mutateAsync({ name: newGroupName, members });
+    setNewGroupName('');
+    setGroupDialogOpen(false);
+  };
+
   const handleCreate = async () => {
     const total = parseFloat(formData.total_amount);
-    const perPerson = total / formData.participants.length;
+    
+    let participants;
+    if (formData.split_equally) {
+      const perPerson = total / formData.participants.length;
+      participants = formData.participants.map(p => ({
+        name: p.name,
+        phone: p.phone || undefined,
+        email: p.email || undefined,
+        amount_owed: perPerson,
+        is_creator: p.is_creator,
+      }));
+    } else {
+      participants = formData.participants.map(p => ({
+        name: p.name,
+        phone: p.phone || undefined,
+        email: p.email || undefined,
+        amount_owed: parseFloat(p.custom_amount) || 0,
+        is_creator: p.is_creator,
+      }));
+    }
     
     await createExpense.mutateAsync({
       expense: {
@@ -236,23 +490,20 @@ export default function SplitExpenses() {
         expense_date: formData.expense_date,
         category: formData.category || null,
         is_settled: false,
+        receipt_url: null,
       },
-      participants: formData.participants.map(p => ({
-        name: p.name,
-        phone: p.phone || undefined,
-        email: p.email || undefined,
-        amount_owed: perPerson,
-        is_creator: p.is_creator,
-      })),
+      participants,
+      receiptFile: receiptFile || undefined,
     });
     setCreateOpen(false);
+    setReceiptFile(null);
     setFormData({
       description: '',
       total_amount: '',
       currency: 'AOA',
       expense_date: new Date().toISOString().split('T')[0],
       category: '',
-      participants: [{ name: '', phone: '', email: '', is_creator: true }],
+      participants: [{ name: '', phone: '', email: '', is_creator: true, custom_amount: '' }],
       split_equally: true,
     });
   };
@@ -267,119 +518,239 @@ export default function SplitExpenses() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Divisão de Despesas</h1>
           <p className="text-muted-foreground">Partilhar contas com amigos e família</p>
         </div>
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Despesa
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Dividir Nova Despesa</DialogTitle>
-              <DialogDescription>Crie uma despesa para dividir com outras pessoas.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Descrição</Label>
-                <Input 
-                  placeholder="Ex: Jantar no restaurante"
-                  value={formData.description}
-                  onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Valor Total</Label>
-                  <Input 
-                    type="number"
-                    placeholder="50000"
-                    value={formData.total_amount}
-                    onChange={(e) => setFormData(p => ({ ...p, total_amount: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Moeda</Label>
-                  <Select value={formData.currency} onValueChange={(v) => setFormData(p => ({ ...p, currency: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {CURRENCIES.map(c => (
-                        <SelectItem key={c.code} value={c.code}>{c.symbol} {c.code}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Data</Label>
-                  <Input 
-                    type="date"
-                    value={formData.expense_date}
-                    onChange={(e) => setFormData(p => ({ ...p, expense_date: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label>Participantes</Label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
-                      {formData.total_amount && formData.participants.length > 0 
-                        ? `${formatCurrency(parseFloat(formData.total_amount) / formData.participants.length, formData.currency)} cada`
-                        : ''}
-                    </span>
-                    <Button type="button" variant="outline" size="sm" onClick={addParticipant}>
-                      <Plus className="mr-1 h-3 w-3" /> Adicionar
-                    </Button>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {formData.participants.map((participant, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                      <Input 
-                        placeholder="Nome"
-                        value={participant.name}
-                        onChange={(e) => updateParticipant(index, 'name', e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input 
-                        placeholder="Telefone"
-                        value={participant.phone}
-                        onChange={(e) => updateParticipant(index, 'phone', e.target.value)}
-                        className="w-28"
-                      />
-                      <Input 
-                        placeholder="Email"
-                        value={participant.email}
-                        onChange={(e) => updateParticipant(index, 'email', e.target.value)}
-                        className="w-36"
-                      />
-                      {index === 0 && <Badge className="shrink-0">Você</Badge>}
-                      {formData.participants.length > 1 && index !== 0 && (
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
+        <div className="flex gap-2">
+          <Dialog open={groupDialogOpen} onOpenChange={setGroupDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Users className="mr-2 h-4 w-4" />
+                Grupos
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Grupos de Participantes</DialogTitle>
+                <DialogDescription>Gerir grupos de pessoas frequentes</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                {groups.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">Nenhum grupo criado.</p>
+                ) : (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {groups.map(group => (
+                      <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border">
+                        <div>
+                          <p className="font-medium">{group.name}</p>
+                          <p className="text-sm text-muted-foreground">{group.members.length} membros</p>
+                        </div>
+                        <Button
+                          variant="ghost"
                           size="icon"
-                          onClick={() => removeParticipant(index)}
+                          onClick={() => deleteGroup.mutate(group.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Dica: Crie uma despesa com os participantes e depois guarde como grupo.
+                </p>
               </div>
-
-              <Button 
-                onClick={handleCreate} 
-                disabled={!formData.description || !formData.total_amount || formData.participants.some(p => !p.name) || createExpense.isPending}
-                className="w-full"
-              >
-                {createExpense.isPending ? 'A criar...' : 'Criar Despesa Partilhada'}
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Despesa
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Dividir Nova Despesa</DialogTitle>
+                <DialogDescription>Crie uma despesa para dividir com outras pessoas.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Descrição</Label>
+                  <Input 
+                    placeholder="Ex: Jantar no restaurante"
+                    value={formData.description}
+                    onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Categoria</Label>
+                    <Select value={formData.category} onValueChange={(v) => setFormData(p => ({ ...p, category: v }))}>
+                      <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                      <SelectContent>
+                        {SPLIT_EXPENSE_CATEGORIES.map(c => (
+                          <SelectItem key={c.value} value={c.value}>{c.icon} {c.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Data</Label>
+                    <Input 
+                      type="date"
+                      value={formData.expense_date}
+                      onChange={(e) => setFormData(p => ({ ...p, expense_date: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Valor Total</Label>
+                    <Input 
+                      type="number"
+                      placeholder="50000"
+                      value={formData.total_amount}
+                      onChange={(e) => setFormData(p => ({ ...p, total_amount: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Moeda</Label>
+                    <Select value={formData.currency} onValueChange={(v) => setFormData(p => ({ ...p, currency: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {CURRENCIES.map(c => (
+                          <SelectItem key={c.code} value={c.code}>{c.symbol} {c.code}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Switch 
+                    checked={formData.split_equally} 
+                    onCheckedChange={(v) => setFormData(p => ({ ...p, split_equally: v }))}
+                  />
+                  <Label>Dividir igualmente entre todos</Label>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Anexar Recibo (opcional)</Label>
+                  <Input 
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <Label>Participantes</Label>
+                    <div className="flex items-center gap-2">
+                      {groups.length > 0 && (
+                        <Select onValueChange={loadGroup}>
+                          <SelectTrigger className="w-36">
+                            <SelectValue placeholder="Carregar grupo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {groups.map(g => (
+                              <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      <span className="text-sm text-muted-foreground">
+                        {formData.total_amount && formData.participants.length > 0 && formData.split_equally
+                          ? `${formatCurrency(parseFloat(formData.total_amount) / formData.participants.length, formData.currency)} cada`
+                          : ''}
+                      </span>
+                      <Button type="button" variant="outline" size="sm" onClick={addParticipant}>
+                        <Plus className="mr-1 h-3 w-3" /> Adicionar
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {formData.participants.map((participant, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <Input 
+                          placeholder="Nome"
+                          value={participant.name}
+                          onChange={(e) => updateParticipant(index, 'name', e.target.value)}
+                          className="flex-1"
+                        />
+                        <Input 
+                          placeholder="Telefone"
+                          value={participant.phone}
+                          onChange={(e) => updateParticipant(index, 'phone', e.target.value)}
+                          className="w-28"
+                        />
+                        {!formData.split_equally && (
+                          <Input 
+                            type="number"
+                            placeholder="Valor"
+                            value={participant.custom_amount}
+                            onChange={(e) => updateParticipant(index, 'custom_amount', e.target.value)}
+                            className="w-24"
+                          />
+                        )}
+                        {index === 0 && <Badge className="shrink-0">Você</Badge>}
+                        {formData.participants.length > 1 && index !== 0 && (
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => removeParticipant(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {formData.participants.filter(p => !p.is_creator && p.name.trim()).length > 0 && (
+                    <div className="mt-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button type="button" variant="ghost" size="sm">
+                            <UserPlus className="h-4 w-4 mr-1" />
+                            Guardar como Grupo
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Guardar como Grupo</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>Nome do Grupo</Label>
+                              <Input 
+                                placeholder="Ex: Família, Colegas de trabalho"
+                                value={newGroupName}
+                                onChange={(e) => setNewGroupName(e.target.value)}
+                              />
+                            </div>
+                            <Button onClick={saveAsGroup} disabled={!newGroupName.trim() || createGroup.isPending} className="w-full">
+                              {createGroup.isPending ? 'A guardar...' : 'Guardar Grupo'}
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  )}
+                </div>
+
+                <Button 
+                  onClick={handleCreate} 
+                  disabled={!formData.description || !formData.total_amount || formData.participants.some(p => !p.name) || createExpense.isPending}
+                  className="w-full"
+                >
+                  {createExpense.isPending ? 'A criar...' : 'Criar Despesa Partilhada'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Stats */}
@@ -430,6 +801,9 @@ export default function SplitExpenses() {
         </Card>
       </div>
 
+      {/* Balance Card */}
+      <BalanceCard />
+
       {/* Expenses List */}
       <Card>
         <CardHeader>
@@ -463,6 +837,7 @@ export default function SplitExpenses() {
                     const owed = expense.participants
                       .filter(p => !p.is_creator)
                       .reduce((sum, p) => sum + (p.amount_owed - p.amount_paid), 0);
+                    const category = SPLIT_EXPENSE_CATEGORIES.find(c => c.value === expense.category);
                     return (
                       <div 
                         key={expense.id} 
@@ -471,7 +846,7 @@ export default function SplitExpenses() {
                       >
                         <div className="flex items-start gap-4">
                           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Split className="h-5 w-5 text-primary" />
+                            {category ? <span className="text-lg">{category.icon}</span> : <Split className="h-5 w-5 text-primary" />}
                           </div>
                           <div>
                             <p className="font-medium">{expense.description}</p>
@@ -485,6 +860,7 @@ export default function SplitExpenses() {
                             <p className="text-lg font-bold">{formatCurrency(expense.total_amount, expense.currency)}</p>
                             <p className="text-sm text-orange-500">Por receber: {formatCurrency(owed, expense.currency)}</p>
                           </div>
+                          {expense.receipt_url && <FileText className="h-4 w-4 text-muted-foreground" />}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -500,38 +876,42 @@ export default function SplitExpenses() {
               </TabsContent>
               <TabsContent value="settled">
                 <div className="space-y-3">
-                  {settledExpenses.map((expense) => (
-                    <div 
-                      key={expense.id} 
-                      className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border gap-4 opacity-75 cursor-pointer"
-                      onClick={() => setSelectedExpense(expense)}
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
-                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  {settledExpenses.map((expense) => {
+                    const category = SPLIT_EXPENSE_CATEGORIES.find(c => c.value === expense.category);
+                    return (
+                      <div 
+                        key={expense.id} 
+                        className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border gap-4 opacity-75 cursor-pointer"
+                        onClick={() => setSelectedExpense(expense)}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
+                            {category ? <span className="text-lg">{category.icon}</span> : <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                          </div>
+                          <div>
+                            <p className="font-medium">{expense.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {expense.participants.length} participantes • {formatDate(expense.expense_date)}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{expense.description}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {expense.participants.length} participantes • {formatDate(expense.expense_date)}
-                          </p>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-green-500">{formatCurrency(expense.total_amount, expense.currency)}</p>
+                            <Badge variant="outline" className="text-green-500">Liquidada</Badge>
+                          </div>
+                          {expense.receipt_url && <FileText className="h-4 w-4 text-muted-foreground" />}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => { e.stopPropagation(); setDeleteId(expense.id); }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-green-500">{formatCurrency(expense.total_amount, expense.currency)}</p>
-                          <Badge variant="outline" className="text-green-500">Liquidada</Badge>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => { e.stopPropagation(); setDeleteId(expense.id); }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </TabsContent>
             </Tabs>
