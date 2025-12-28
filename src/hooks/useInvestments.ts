@@ -132,6 +132,7 @@ export function useCreateInvestment() {
             description: `Investimento: ${investment.name}`,
             date: investment.start_date,
             currency: investment.currency || 'AOA',
+            source: 'investment',
           });
 
         if (txError) throw txError;

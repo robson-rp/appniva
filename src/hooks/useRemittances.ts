@@ -130,6 +130,7 @@ export function useCreateRemittance() {
             currency: data.remittance.currency_to,
             date: data.remittance.transfer_date,
             description: `Remessa de ${data.remittance.sender_name} (${data.remittance.sender_country})`,
+            source: 'remittance',
           });
         
         if (transactionError) {

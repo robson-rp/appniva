@@ -248,6 +248,7 @@ export function useCreatePayment() {
             currency: debt.currency,
             date: input.payment_date || new Date().toISOString().split('T')[0],
             description: `Pagamento de dívida: ${debt.name}`,
+            source: 'debt_payment',
           });
         
         if (transactionError) {
