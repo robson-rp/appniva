@@ -2,6 +2,7 @@ import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileBottomNav } from './MobileBottomNav';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMaturityProfile } from '@/hooks/useMaturityProfile';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Routes that should redirect to mobile home on mobile devices
@@ -11,9 +12,10 @@ export function ResponsiveLayout() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const { user, profile, loading, isAdmin } = useAuth();
+  const { maturityProfile, isLoading: maturityLoading } = useMaturityProfile();
 
   // Show loading state
-  if (loading) {
+  if (loading || maturityLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="space-y-4 w-full max-w-sm p-4">
@@ -29,8 +31,13 @@ export function ResponsiveLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect users who haven't completed onboarding
-  if (profile && !profile.onboarding_completed && location.pathname !== '/onboarding') {
+  // Redirect users who haven't completed onboarding (either basic or maturity)
+  if (!profile?.onboarding_completed && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+  
+  // If basic onboarding done but maturity not set, also redirect to onboarding
+  if (profile?.onboarding_completed && !maturityProfile?.onboarding_completed && location.pathname !== '/onboarding') {
     return <Navigate to="/onboarding" replace />;
   }
 

@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, BarChart3, User, Plus, MoreHorizontal, Wallet, ArrowLeftRight, PiggyBank, Target, CreditCard, TrendingUp, Repeat, RefreshCw, GraduationCap, MessageCircle, Lightbulb, Calculator, Umbrella, Shield, Scale, TrendingDown, DollarSign, Users, Send, Receipt, Building2, Tags, ShoppingBag, ScanText, Smartphone, X, Search } from 'lucide-react';
+import { Home, BarChart3, User, Plus, MoreHorizontal, Wallet, ArrowLeftRight, PiggyBank, Target, CreditCard, TrendingUp, Repeat, RefreshCw, GraduationCap, MessageCircle, Lightbulb, Calculator, Umbrella, Shield, Scale, TrendingDown, DollarSign, Users, Send, Receipt, Building2, Tags, ShoppingBag, ScanText, Smartphone, X, Search, Lock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useMemo } from 'react';
@@ -8,8 +8,11 @@ import { TransactionFormWrapper } from '@/components/transactions/TransactionFor
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@/components/ui/drawer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUnreadInsightsCount } from '@/hooks/useInsights';
 import { useBudgetsAtRiskCount } from '@/hooks/useBudgets';
+import { useMaturityProfile, getRequiredLevel, getLevelDisplayName, MaturityLevel } from '@/hooks/useMaturityProfile';
+import { toast } from 'sonner';
 
 const NAV_ITEMS = [
   { icon: Home, label: 'Home', route: '/home' },
@@ -19,7 +22,19 @@ const NAV_ITEMS = [
   { icon: User, label: 'Perfil', route: '/profile' },
 ];
 
-const MENU_GROUPS = [
+interface MenuItem {
+  path: string;
+  label: string;
+  icon: typeof Wallet;
+  badgeKey?: string;
+}
+
+interface MenuGroup {
+  label: string;
+  items: MenuItem[];
+}
+
+const MENU_GROUPS: MenuGroup[] = [
   {
     label: 'Planeamento',
     items: [
@@ -66,12 +81,12 @@ const MENU_GROUPS = [
     ],
   },
 ];
-
 export function MobileBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { data: unreadInsights = 0 } = useUnreadInsightsCount();
   const budgetsAtRisk = useBudgetsAtRiskCount();
+  const { hasAccess, level } = useMaturityProfile();
   
   const [showQuickAction, setShowQuickAction] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -100,6 +115,14 @@ export function MobileBottomNav() {
   }, [searchQuery]);
 
   const handleMenuItemClick = (path: string) => {
+    const canAccess = hasAccess(path);
+    
+    if (!canAccess) {
+      const requiredLevel = getRequiredLevel(path);
+      toast.info(`Disponível no nível ${getLevelDisplayName(requiredLevel || 'intermediate')}`);
+      return;
+    }
+    
     setShowMoreMenu(false);
     setSearchQuery('');
     navigate(path);
@@ -237,24 +260,34 @@ export function MobileBottomNav() {
                       {group.items.map((item, itemIndex) => {
                         const isActive = location.pathname === item.path;
                         const badgeCount = 'badgeKey' in item ? badgeCounts[item.badgeKey as keyof typeof badgeCounts] : 0;
+                        const canAccess = hasAccess(item.path);
+                        const requiredLevel = getRequiredLevel(item.path);
+                        
                         return (
                           <button
                             key={item.path}
                             onClick={() => handleMenuItemClick(item.path)}
                             className={cn(
                               "flex flex-col items-center gap-2 p-3 rounded-xl transition-all relative active:scale-95",
-                              isActive 
-                                ? "bg-accent text-accent-foreground" 
-                                : "bg-muted/50 hover:bg-muted text-foreground hover:scale-105"
+                              !canAccess 
+                                ? "opacity-50 bg-muted/30"
+                                : isActive 
+                                  ? "bg-accent text-accent-foreground" 
+                                  : "bg-muted/50 hover:bg-muted text-foreground hover:scale-105"
                             )}
                             style={{ 
                               animationDelay: `${(groupIndex * 4 + itemIndex) * 30}ms`,
                               animationFillMode: 'both'
                             }}
                           >
+                            {!canAccess && (
+                              <div className="absolute top-1 right-1">
+                                <Lock className="h-3 w-3 text-muted-foreground" />
+                              </div>
+                            )}
                             <div className="relative transition-transform duration-200">
-                              <item.icon className="h-6 w-6" />
-                              {badgeCount > 0 && (
+                              <item.icon className={cn("h-6 w-6", !canAccess && "text-muted-foreground")} />
+                              {badgeCount > 0 && canAccess && (
                                 <Badge 
                                   variant="destructive" 
                                   className="absolute -top-2 -right-2 h-4 min-w-4 flex items-center justify-center p-0 text-[9px]"
@@ -263,7 +296,10 @@ export function MobileBottomNav() {
                                 </Badge>
                               )}
                             </div>
-                            <span className="text-[10px] font-medium text-center leading-tight line-clamp-2">
+                            <span className={cn(
+                              "text-[10px] font-medium text-center leading-tight line-clamp-2",
+                              !canAccess && "text-muted-foreground"
+                            )}>
                               {item.label}
                             </span>
                           </button>
