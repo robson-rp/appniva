@@ -413,5 +413,51 @@
     "createGoal": "Criar uma meta",
     "recordDebtOrInvestment": "Registar dívida ou investimento",
     "availableAtLevel": "Disponível no nível {{level}}"
+  },
+  "security": {
+    "title": "Segurança e Privacidade",
+    "subtitle": "A tua informação financeira está protegida",
+    "badges": {
+      "protected": "Dados protegidos",
+      "privacy": "Privacidade garantida",
+      "control": "Controlo total"
+    },
+    "dataProtection": {
+      "title": "Protecção de Dados",
+      "description": "Como protegemos a tua informação",
+      "encrypted": "Dados encriptados",
+      "encryptedDesc": "Toda a informação é encriptada em trânsito e em repouso",
+      "restricted": "Acesso restrito",
+      "restrictedDesc": "Apenas tu podes aceder aos teus dados financeiros",
+      "sessions": "Sessões protegidas",
+      "sessionsDesc": "Autenticação segura com tokens encriptados"
+    },
+    "privacy": {
+      "title": "Privacidade",
+      "description": "O nosso compromisso com a tua privacidade",
+      "noSale": "Dados nunca vendidos",
+      "noSaleDesc": "Os teus dados nunca são vendidos a terceiros",
+      "consent": "Partilha com consentimento",
+      "consentDesc": "Qualquer partilha requer a tua autorização explícita"
+    },
+    "control": {
+      "title": "Controlo do Utilizador",
+      "description": "Tu tens controlo total sobre os teus dados",
+      "export": "Exportar meus dados",
+      "exporting": "A exportar...",
+      "delete": "Apagar minha conta",
+      "deleteConfirmTitle": "Apagar conta permanentemente?",
+      "deleteConfirmDesc": "Esta acção é irreversível. Todos os teus dados serão eliminados permanentemente.",
+      "confirmDelete": "Sim, apagar conta"
+    },
+    "activity": {
+      "title": "Actividade Recente",
+      "description": "Últimas acções na tua conta",
+      "empty": "Nenhuma actividade registada"
+    },
+    "exportSuccess": "Dados exportados com sucesso",
+    "exportError": "Erro ao exportar dados",
+    "deleteInfo": "Para eliminar a conta, contacte o suporte.",
+    "deleteError": "Erro ao processar pedido"
   }
 }

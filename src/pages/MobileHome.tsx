@@ -54,6 +54,7 @@ import { MobileHomeCustomizer } from '@/components/mobile/MobileHomeCustomizer';
 import { FinancialProgressCard } from '@/components/onboarding/FinancialProgressCard';
 import { useMaturityProfile, getRequiredLevel, getLevelDisplayName } from '@/hooks/useMaturityProfile';
 import { toast } from 'sonner';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 // Icon map for dynamic rendering
 const ICON_MAP: Record<string, LucideIcon> = {
   Wallet, ArrowUpDown, PiggyBank, TrendingUp, Target, Calendar, RefreshCw, 
@@ -275,6 +276,13 @@ export default function MobileHome() {
             <Link to="/dashboard" className="text-accent text-sm font-medium flex items-center gap-1">
               Ver detalhes
               <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+          
+          {/* Security Badge */}
+          <div className="mt-4 pt-4 border-t border-border flex justify-center">
+            <Link to="/security">
+              <SecurityBadge variant="protected" size="sm" />
             </Link>
           </div>
         </div>
