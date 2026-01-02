@@ -42,6 +42,7 @@ import SchoolFees from "@/pages/SchoolFees";
 import SplitExpenses from "@/pages/SplitExpenses";
 import InflationAlerts from "@/pages/InflationAlerts";
 import AutomaticTransactions from "@/pages/AutomaticTransactions";
+import FinancialScore from "@/pages/FinancialScore";
 import NotFound from "./pages/NotFound";
 import { ResponsiveRouteWrapper } from "@/components/layout/ResponsiveRouteWrapper";
 
@@ -98,6 +99,7 @@ const App = () => (
                 <Route path="/split-expenses" element={<SplitExpenses />} />
                 <Route path="/inflation-alerts" element={<InflationAlerts />} />
                 <Route path="/automatic-transactions" element={<AutomaticTransactions />} />
+                <Route path="/score" element={<FinancialScore />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

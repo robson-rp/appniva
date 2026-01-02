@@ -1,19 +1,22 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import { Link } from 'react-router-dom';
 import {
   TrendingUp,
   PiggyBank,
   CreditCard,
-  BarChart3,
-  Globe,
+  FolderKanban,
+  Target,
   RefreshCw,
   Info,
+  ChevronRight,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import {
   Tooltip,
   TooltipContent,
@@ -27,41 +30,40 @@ import {
 import { cn } from '@/lib/utils';
 
 const criteriaIcons: Record<string, React.ElementType> = {
-  Disciplina: TrendingUp,
+  'Disciplina de Despesas': TrendingUp,
   'Taxa de Poupança': PiggyBank,
+  'Nível de Endividamento': CreditCard,
+  'Organização Financeira': FolderKanban,
+  'Planeamento Futuro': Target,
+  Disciplina: TrendingUp,
   'Saúde das Dívidas': CreditCard,
-  'Diversificação de Investimentos': BarChart3,
-  'Exposição Cambial': Globe,
+  'Diversificação de Investimentos': FolderKanban,
+  'Exposição Cambial': Target,
 };
 
 const getScoreColor = (score: number) => {
-  if (score >= 80) return 'text-emerald-500';
-  if (score >= 60) return 'text-amber-500';
-  if (score >= 40) return 'text-orange-500';
+  if (score >= 70) return 'text-emerald-500';
+  if (score >= 50) return 'text-amber-500';
   return 'text-red-500';
 };
 
 const getScoreGradient = (score: number) => {
-  if (score >= 80) return 'from-emerald-500 to-emerald-600';
-  if (score >= 60) return 'from-amber-500 to-amber-600';
-  if (score >= 40) return 'from-orange-500 to-orange-600';
+  if (score >= 70) return 'from-emerald-500 to-emerald-600';
+  if (score >= 50) return 'from-amber-500 to-amber-600';
   return 'from-red-500 to-red-600';
 };
 
 const getScoreLabel = (score: number) => {
-  if (score >= 90) return 'Excelente';
-  if (score >= 80) return 'Muito Bom';
-  if (score >= 70) return 'Bom';
-  if (score >= 60) return 'Razoável';
-  if (score >= 50) return 'Regular';
-  if (score >= 40) return 'Precisa Atenção';
-  return 'Crítico';
+  if (score >= 70) return { label: 'Saudável', emoji: '🟢' };
+  if (score >= 50) return { label: 'Em Melhoria', emoji: '🟡' };
+  return { label: 'Frágil', emoji: '🔴' };
 };
 
 export function FinancialScoreCard() {
   const { data: score, isLoading } = useLatestFinancialScore();
   const generateScore = useGenerateFinancialScore();
   const [showDetails, setShowDetails] = useState(false);
+  const status = score ? getScoreLabel(score.score) : null;
 
   if (isLoading) {
     return (
@@ -79,7 +81,7 @@ export function FinancialScoreCard() {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-medium">Score Financeiro</CardTitle>
+        <CardTitle className="text-lg font-medium">Saúde Financeira</CardTitle>
         <Button
           variant="ghost"
           size="sm"
@@ -97,7 +99,7 @@ export function FinancialScoreCard() {
       <CardContent>
         {!score ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
+            <TrendingUp className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">
               Ainda não calculou o seu score financeiro
             </p>
@@ -123,23 +125,31 @@ export function FinancialScoreCard() {
                 </div>
               </div>
               <div className="flex-1">
-                <p className={cn('text-xl font-semibold', getScoreColor(score.score))}>
-                  {getScoreLabel(score.score)}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <Badge className={cn('mb-2', getScoreColor(score.score))}>
+                  {status?.emoji} {status?.label}
+                </Badge>
+                <p className="text-sm text-muted-foreground">
                   Calculado em{' '}
                   {format(new Date(score.generated_at), "dd 'de' MMMM 'às' HH:mm", {
                     locale: pt,
                   })}
                 </p>
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="px-0 mt-2"
-                  onClick={() => setShowDetails(!showDetails)}
-                >
-                  {showDetails ? 'Ocultar detalhes' : 'Ver detalhes'}
-                </Button>
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="px-0"
+                    onClick={() => setShowDetails(!showDetails)}
+                  >
+                    {showDetails ? 'Ocultar detalhes' : 'Ver detalhes'}
+                  </Button>
+                  <Button variant="link" size="sm" className="px-0" asChild>
+                    <Link to="/score">
+                      Ver análise completa
+                      <ChevronRight className="h-3 w-3 ml-1" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -148,7 +158,7 @@ export function FinancialScoreCard() {
               <div className="space-y-4 pt-4 border-t">
                 <TooltipProvider>
                   {score.criteria_json.criteria.map((criterion) => {
-                    const Icon = criteriaIcons[criterion.name] || BarChart3;
+                    const Icon = criteriaIcons[criterion.name] || TrendingUp;
                     return (
                       <div key={criterion.name} className="space-y-2">
                         <div className="flex items-center justify-between">

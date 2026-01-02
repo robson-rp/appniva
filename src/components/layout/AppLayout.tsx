@@ -108,6 +108,7 @@ const navGroups = [
     label: 'Análise',
     icon: BarChart3,
     items: [
+      { path: '/score', label: 'Saúde Financeira', icon: TrendingUp },
       { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
       { path: '/insights', label: 'Insights', icon: Lightbulb, hasBadge: true },
       { path: '/simulator', label: 'Simulador', icon: Calculator },
