@@ -1831,6 +1831,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_maturity_profiles: {
+        Row: {
+          created_at: string
+          has_debts: boolean | null
+          has_fixed_income: boolean | null
+          has_investments: boolean | null
+          id: string
+          level: string
+          onboarding_completed: boolean
+          primary_goal: string | null
+          progress_steps_completed: number
+          total_progress_steps: number
+          updated_at: string
+          user_id: string
+          uses_budget: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          has_debts?: boolean | null
+          has_fixed_income?: boolean | null
+          has_investments?: boolean | null
+          id?: string
+          level?: string
+          onboarding_completed?: boolean
+          primary_goal?: string | null
+          progress_steps_completed?: number
+          total_progress_steps?: number
+          updated_at?: string
+          user_id: string
+          uses_budget?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          has_debts?: boolean | null
+          has_fixed_income?: boolean | null
+          has_investments?: boolean | null
+          id?: string
+          level?: string
+          onboarding_completed?: boolean
+          primary_goal?: string | null
+          progress_steps_completed?: number
+          total_progress_steps?: number
+          updated_at?: string
+          user_id?: string
+          uses_budget?: boolean | null
+        }
+        Relationships: []
+      }
       user_mobile_preferences: {
         Row: {
           created_at: string
@@ -1878,6 +1926,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_maturity_level: {
+        Args: {
+          p_has_debts: boolean
+          p_has_investments: boolean
+          p_uses_budget: boolean
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
