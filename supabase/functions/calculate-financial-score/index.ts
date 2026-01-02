@@ -50,12 +50,16 @@ serve(async (req) => {
       debtsResult,
       investmentsResult,
       profileResult,
+      goalsResult,
+      budgetsResult,
     ] = await Promise.all([
       supabase.from("accounts").select("*").eq("user_id", userId),
       supabase.from("transactions").select("*").eq("user_id", userId),
       supabase.from("debts").select("*").eq("user_id", userId),
       supabase.from("investments").select("*").eq("user_id", userId),
       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+      supabase.from("goals").select("*").eq("user_id", userId),
+      supabase.from("budgets").select("*").eq("user_id", userId),
     ]);
 
     const accounts = accountsResult.data || [];
@@ -63,15 +67,17 @@ serve(async (req) => {
     const debts = debtsResult.data || [];
     const investments = investmentsResult.data || [];
     const profile = profileResult.data;
+    const goals = goalsResult.data || [];
+    const budgets = budgetsResult.data || [];
 
     const criteria: CriteriaScore[] = [];
 
-    // 1. DISCIPLINA (Consistência de despesas) - 20%
+    // 1. DISCIPLINA DE DESPESAS - 25%
     const disciplineScore = calculateDiscipline(transactions);
     criteria.push({
-      name: "Disciplina",
+      name: "Disciplina de Despesas",
       score: disciplineScore.score,
-      weight: 20,
+      weight: 25,
       details: disciplineScore.details,
     });
 
@@ -84,31 +90,31 @@ serve(async (req) => {
       details: savingsScore.details,
     });
 
-    // 3. SAÚDE DAS DÍVIDAS - 25%
+    // 3. NÍVEL DE ENDIVIDAMENTO - 20%
     const debtScore = calculateDebtHealth(debts, profile?.monthly_income);
     criteria.push({
-      name: "Saúde das Dívidas",
+      name: "Nível de Endividamento",
       score: debtScore.score,
-      weight: 25,
+      weight: 20,
       details: debtScore.details,
     });
 
-    // 4. DIVERSIFICAÇÃO DE INVESTIMENTOS - 20%
-    const diversificationScore = calculateInvestmentDiversification(investments);
+    // 4. ORGANIZAÇÃO FINANCEIRA - 15%
+    const organizationScore = calculateOrganization(accounts, transactions, budgets);
     criteria.push({
-      name: "Diversificação de Investimentos",
-      score: diversificationScore.score,
-      weight: 20,
-      details: diversificationScore.details,
+      name: "Organização Financeira",
+      score: organizationScore.score,
+      weight: 15,
+      details: organizationScore.details,
     });
 
-    // 5. EXPOSIÇÃO CAMBIAL - 10%
-    const currencyScore = calculateCurrencyExposure(accounts, investments);
+    // 5. PLANEAMENTO FUTURO - 15%
+    const planningScore = calculatePlanning(goals, investments);
     criteria.push({
-      name: "Exposição Cambial",
-      score: currencyScore.score,
-      weight: 10,
-      details: currencyScore.details,
+      name: "Planeamento Futuro",
+      score: planningScore.score,
+      weight: 15,
+      details: planningScore.details,
     });
 
     // Calculate weighted final score
@@ -247,72 +253,92 @@ function calculateDebtHealth(debts: any[], monthlyIncome?: number): { score: num
   };
 }
 
-function calculateInvestmentDiversification(investments: any[]): { score: number; details: string } {
-  if (investments.length === 0) {
-    return { score: 30, details: "Sem investimentos registados" };
+function calculateOrganization(accounts: any[], transactions: any[], budgets: any[]): { score: number; details: string } {
+  let score = 50; // Base score
+  const factors: string[] = [];
+
+  // Check if user has multiple accounts (better organization)
+  if (accounts.length >= 2) {
+    score += 15;
+    factors.push(`${accounts.length} contas`);
+  } else if (accounts.length === 1) {
+    score += 5;
+    factors.push("1 conta");
   }
 
-  const types = new Set(investments.map((i) => i.investment_type));
-  const typeCount = types.size;
+  // Check if transactions have categories
+  const categorizedTx = transactions.filter((t) => t.category_id);
+  const categorizationRate = transactions.length > 0 
+    ? (categorizedTx.length / transactions.length) * 100 
+    : 0;
+  
+  if (categorizationRate >= 80) {
+    score += 20;
+  } else if (categorizationRate >= 50) {
+    score += 10;
+  }
+  factors.push(`${categorizationRate.toFixed(0)}% categorizado`);
 
-  // Calculate HHI (Herfindahl-Hirschman Index) for concentration
-  const totalValue = investments.reduce((acc, i) => acc + Number(i.principal_amount), 0);
-  const shares = investments.map((i) => (Number(i.principal_amount) / totalValue) * 100);
-  const hhi = shares.reduce((acc, s) => acc + s * s, 0);
-
-  // HHI 10000 = one asset, < 1500 = well diversified
-  let score = Math.max(0, Math.min(100, 100 - (hhi / 100)));
-
-  // Bonus for multiple asset types
-  if (typeCount >= 4) score = Math.min(100, score + 15);
-  else if (typeCount >= 3) score = Math.min(100, score + 10);
-  else if (typeCount >= 2) score = Math.min(100, score + 5);
+  // Check if user has budgets
+  if (budgets.length >= 3) {
+    score += 15;
+    factors.push(`${budgets.length} orçamentos`);
+  } else if (budgets.length >= 1) {
+    score += 8;
+    factors.push(`${budgets.length} orçamento(s)`);
+  }
 
   return {
-    score: Math.round(score),
-    details: `${typeCount} tipo(s) de investimento, ${investments.length} posição(ões)`,
+    score: Math.min(100, Math.round(score)),
+    details: factors.join(", ") || "Sem dados de organização",
   };
 }
 
-function calculateCurrencyExposure(accounts: any[], investments: any[]): { score: number; details: string } {
-  const currencies = new Set<string>();
-  let totalValue = 0;
-  const currencyValues: Record<string, number> = {};
+function calculatePlanning(goals: any[], investments: any[]): { score: number; details: string } {
+  let score = 30; // Base score
+  const factors: string[] = [];
 
-  accounts.forEach((a) => {
-    currencies.add(a.currency);
-    currencyValues[a.currency] = (currencyValues[a.currency] || 0) + Number(a.current_balance);
-    totalValue += Number(a.current_balance);
-  });
-
-  investments.forEach((i) => {
-    currencies.add(i.currency);
-    currencyValues[i.currency] = (currencyValues[i.currency] || 0) + Number(i.principal_amount);
-    totalValue += Number(i.principal_amount);
-  });
-
-  if (totalValue === 0 || currencies.size === 0) {
-    return { score: 50, details: "Sem dados para análise cambial" };
+  // Check if user has active goals
+  const activeGoals = goals.filter((g) => g.status === "in_progress");
+  if (activeGoals.length >= 2) {
+    score += 25;
+    factors.push(`${activeGoals.length} metas ativas`);
+  } else if (activeGoals.length === 1) {
+    score += 15;
+    factors.push("1 meta ativa");
   }
 
-  // Having some foreign currency exposure is good for hedging
-  const aoaPercentage = ((currencyValues["AOA"] || 0) / totalValue) * 100;
-  const foreignPercentage = 100 - aoaPercentage;
+  // Check goal progress
+  const goalProgress = activeGoals.reduce((acc, g) => {
+    const progress = g.target_amount > 0 
+      ? (Number(g.current_saved_amount || 0) / Number(g.target_amount)) * 100 
+      : 0;
+    return acc + progress;
+  }, 0) / (activeGoals.length || 1);
+  
+  if (goalProgress >= 50) {
+    score += 15;
+  } else if (goalProgress >= 25) {
+    score += 8;
+  }
 
-  // Ideal: 10-30% foreign currency
-  let score: number;
-  if (foreignPercentage >= 10 && foreignPercentage <= 30) {
-    score = 100;
-  } else if (foreignPercentage < 10) {
-    score = 60 + foreignPercentage * 4; // Up to 100 at 10%
-  } else if (foreignPercentage > 30 && foreignPercentage <= 50) {
-    score = 100 - (foreignPercentage - 30) * 2;
-  } else {
-    score = Math.max(30, 60 - (foreignPercentage - 50));
+  // Check if user has investments (long-term planning)
+  if (investments.length >= 2) {
+    score += 20;
+    factors.push(`${investments.length} investimentos`);
+  } else if (investments.length === 1) {
+    score += 10;
+    factors.push("1 investimento");
+  }
+
+  // Check for goals with target dates (better planning)
+  const goalsWithDates = activeGoals.filter((g) => g.target_date);
+  if (goalsWithDates.length > 0) {
+    score += 10;
   }
 
   return {
-    score: Math.round(score),
-    details: `${foreignPercentage.toFixed(1)}% em moeda estrangeira`,
+    score: Math.min(100, Math.round(score)),
+    details: factors.length > 0 ? factors.join(", ") : "Sem planeamento definido",
   };
 }
