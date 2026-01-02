@@ -39,7 +39,8 @@ import {
   Send,
   Receipt,
   ScanText,
-  LucideIcon
+  LucideIcon,
+  Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback } from 'react';
@@ -50,7 +51,9 @@ import { PullToRefresh } from '@/components/layout/PullToRefresh';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMobileHomePreferences } from '@/hooks/useMobileHomePreferences';
 import { MobileHomeCustomizer } from '@/components/mobile/MobileHomeCustomizer';
-
+import { FinancialProgressCard } from '@/components/onboarding/FinancialProgressCard';
+import { useMaturityProfile, getRequiredLevel, getLevelDisplayName } from '@/hooks/useMaturityProfile';
+import { toast } from 'sonner';
 // Icon map for dynamic rendering
 const ICON_MAP: Record<string, LucideIcon> = {
   Wallet, ArrowUpDown, PiggyBank, TrendingUp, Target, Calendar, RefreshCw, 
@@ -81,6 +84,7 @@ export default function MobileHome() {
   const { data: unreadInsights } = useUnreadInsightsCount();
   const upcomingRenewals = useUpcomingRenewals(7);
   const { getSelectedFeatureData } = useMobileHomePreferences();
+  const { hasAccess, level, maturityProfile } = useMaturityProfile();
 
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [showCustomizer, setShowCustomizer] = useState(false);
@@ -275,6 +279,16 @@ export default function MobileHome() {
           </div>
         </div>
 
+        {/* BLOCO 2.5 - Financial Progress Card */}
+        {maturityProfile?.onboarding_completed && (
+          <div className={cn(
+            "transition-all duration-500 ease-out delay-75",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          )}>
+            <FinancialProgressCard />
+          </div>
+        )}
+
         {/* BLOCO 3 - Feature Grid */}
         <div className={cn(
           "transition-all duration-500 ease-out delay-100",
@@ -295,13 +309,25 @@ export default function MobileHome() {
             {selectedFeatures.slice(0, 8).map((item, index) => {
               if (!item) return null;
               const Icon = getIcon(item.iconName);
+              const canAccess = hasAccess(item.route);
+              const requiredLevel = getRequiredLevel(item.route);
+              
+              const handleFeatureClick = (e: React.MouseEvent) => {
+                if (!canAccess) {
+                  e.preventDefault();
+                  toast.info(`Disponível no nível ${getLevelDisplayName(requiredLevel || 'intermediate')}`);
+                }
+              };
+              
               return (
                 <Link
                   key={item.route}
-                  to={item.route}
+                  to={canAccess ? item.route : '#'}
+                  onClick={handleFeatureClick}
                   className={cn(
-                    "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95",
+                    "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95 relative",
                     "transform duration-500 ease-out",
+                    !canAccess && "opacity-50",
                     isVisible 
                       ? "opacity-100 translate-y-0 scale-100" 
                       : "opacity-0 translate-y-4 scale-90"
@@ -310,13 +336,21 @@ export default function MobileHome() {
                     transitionDelay: isVisible ? `${150 + index * 50}ms` : '0ms'
                   }}
                 >
+                  {!canAccess && (
+                    <div className="absolute top-1 right-1">
+                      <Lock className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  )}
                   <div className={cn(
                     'h-12 w-12 rounded-xl flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110',
-                    item.color
+                    canAccess ? item.color : 'bg-muted'
                   )}>
-                    <Icon className="h-6 w-6 text-white" />
+                    <Icon className={cn("h-6 w-6", canAccess ? "text-white" : "text-muted-foreground")} />
                   </div>
-                  <span className="text-xs font-medium text-foreground text-center leading-tight">
+                  <span className={cn(
+                    "text-xs font-medium text-center leading-tight",
+                    canAccess ? "text-foreground" : "text-muted-foreground"
+                  )}>
                     {t(item.labelKey)}
                   </span>
                 </Link>
@@ -329,13 +363,25 @@ export default function MobileHome() {
               {selectedFeatures.slice(8, 12).map((item, index) => {
                 if (!item) return null;
                 const Icon = getIcon(item.iconName);
+                const canAccess = hasAccess(item.route);
+                const requiredLevel = getRequiredLevel(item.route);
+                
+                const handleFeatureClick = (e: React.MouseEvent) => {
+                  if (!canAccess) {
+                    e.preventDefault();
+                    toast.info(`Disponível no nível ${getLevelDisplayName(requiredLevel || 'intermediate')}`);
+                  }
+                };
+                
                 return (
                   <Link
                     key={item.route}
-                    to={item.route}
+                    to={canAccess ? item.route : '#'}
+                    onClick={handleFeatureClick}
                     className={cn(
-                      "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95",
+                      "flex flex-col items-center p-3 rounded-2xl bg-card border border-border transition-all hover:shadow-md active:scale-95 relative",
                       "transform duration-500 ease-out",
+                      !canAccess && "opacity-50",
                       isVisible 
                         ? "opacity-100 translate-y-0 scale-100" 
                         : "opacity-0 translate-y-4 scale-90"
@@ -344,13 +390,21 @@ export default function MobileHome() {
                       transitionDelay: isVisible ? `${550 + index * 50}ms` : '0ms'
                     }}
                   >
+                    {!canAccess && (
+                      <div className="absolute top-1 right-1">
+                        <Lock className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    )}
                     <div className={cn(
                       'h-12 w-12 rounded-xl flex items-center justify-center mb-2',
-                      item.color
+                      canAccess ? item.color : 'bg-muted'
                     )}>
-                      <Icon className="h-6 w-6 text-white" />
+                      <Icon className={cn("h-6 w-6", canAccess ? "text-white" : "text-muted-foreground")} />
                     </div>
-                    <span className="text-xs font-medium text-foreground text-center leading-tight">
+                    <span className={cn(
+                      "text-xs font-medium text-center leading-tight",
+                      canAccess ? "text-foreground" : "text-muted-foreground"
+                    )}>
                       {t(item.labelKey)}
                     </span>
                   </Link>
