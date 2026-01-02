@@ -354,5 +354,51 @@
     "createGoal": "Créer un objectif",
     "recordDebtOrInvestment": "Enregistrer dette ou investissement",
     "availableAtLevel": "Disponible au niveau {{level}}"
+  },
+  "security": {
+    "title": "Sécurité et Confidentialité",
+    "subtitle": "Vos informations financières sont protégées",
+    "badges": {
+      "protected": "Données protégées",
+      "privacy": "Confidentialité garantie",
+      "control": "Contrôle total"
+    },
+    "dataProtection": {
+      "title": "Protection des Données",
+      "description": "Comment nous protégeons vos informations",
+      "encrypted": "Données cryptées",
+      "encryptedDesc": "Toutes les informations sont cryptées en transit et au repos",
+      "restricted": "Accès restreint",
+      "restrictedDesc": "Seul vous pouvez accéder à vos données financières",
+      "sessions": "Sessions protégées",
+      "sessionsDesc": "Authentification sécurisée avec jetons cryptés"
+    },
+    "privacy": {
+      "title": "Confidentialité",
+      "description": "Notre engagement envers votre vie privée",
+      "noSale": "Données jamais vendues",
+      "noSaleDesc": "Vos données ne sont jamais vendues à des tiers",
+      "consent": "Partage avec consentement",
+      "consentDesc": "Tout partage nécessite votre autorisation explicite"
+    },
+    "control": {
+      "title": "Contrôle Utilisateur",
+      "description": "Vous avez le contrôle total sur vos données",
+      "export": "Exporter mes données",
+      "exporting": "Exportation...",
+      "delete": "Supprimer mon compte",
+      "deleteConfirmTitle": "Supprimer le compte définitivement?",
+      "deleteConfirmDesc": "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
+      "confirmDelete": "Oui, supprimer le compte"
+    },
+    "activity": {
+      "title": "Activité Récente",
+      "description": "Dernières actions sur votre compte",
+      "empty": "Aucune activité enregistrée"
+    },
+    "exportSuccess": "Données exportées avec succès",
+    "exportError": "Erreur lors de l'exportation des données",
+    "deleteInfo": "Pour supprimer le compte, contactez le support.",
+    "deleteError": "Erreur lors du traitement de la demande"
   }
 }

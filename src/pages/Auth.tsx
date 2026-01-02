@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Wallet, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
+import { SecurityBadgesRow } from '@/components/security/SecurityBadgesRow';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -281,6 +282,11 @@ export default function Auth() {
               </form>
             </TabsContent>
           </Tabs>
+          
+          {/* Security Badges */}
+          <div className="mt-6 pt-4 border-t">
+            <SecurityBadgesRow size="sm" />
+          </div>
         </CardContent>
       </Card>
     </div>

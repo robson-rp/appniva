@@ -488,5 +488,51 @@
     "createGoal": "Create a goal",
     "recordDebtOrInvestment": "Record debt or investment",
     "availableAtLevel": "Available at {{level}} level"
+  },
+  "security": {
+    "title": "Security and Privacy",
+    "subtitle": "Your financial information is protected",
+    "badges": {
+      "protected": "Protected data",
+      "privacy": "Privacy guaranteed",
+      "control": "Full control"
+    },
+    "dataProtection": {
+      "title": "Data Protection",
+      "description": "How we protect your information",
+      "encrypted": "Encrypted data",
+      "encryptedDesc": "All information is encrypted in transit and at rest",
+      "restricted": "Restricted access",
+      "restrictedDesc": "Only you can access your financial data",
+      "sessions": "Protected sessions",
+      "sessionsDesc": "Secure authentication with encrypted tokens"
+    },
+    "privacy": {
+      "title": "Privacy",
+      "description": "Our commitment to your privacy",
+      "noSale": "Data never sold",
+      "noSaleDesc": "Your data is never sold to third parties",
+      "consent": "Sharing with consent",
+      "consentDesc": "Any sharing requires your explicit authorization"
+    },
+    "control": {
+      "title": "User Control",
+      "description": "You have full control over your data",
+      "export": "Export my data",
+      "exporting": "Exporting...",
+      "delete": "Delete my account",
+      "deleteConfirmTitle": "Delete account permanently?",
+      "deleteConfirmDesc": "This action is irreversible. All your data will be permanently deleted.",
+      "confirmDelete": "Yes, delete account"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "description": "Latest actions on your account",
+      "empty": "No activity recorded"
+    },
+    "exportSuccess": "Data exported successfully",
+    "exportError": "Error exporting data",
+    "deleteInfo": "To delete the account, contact support.",
+    "deleteError": "Error processing request"
   }
 }

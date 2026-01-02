@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 
 const productTypes: { type: ProductType; label: string; icon: React.ElementType }[] = [
   { type: 'term_deposit', label: 'Depósitos a Prazo', icon: Banknote },
@@ -68,11 +69,14 @@ export default function Products() {
       </Helmet>
 
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Produtos Financeiros</h1>
-          <p className="text-muted-foreground">
-            Compare taxas, simule retornos e solicite os melhores produtos financeiros.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Produtos Financeiros</h1>
+            <p className="text-muted-foreground">
+              Compare taxas, simule retornos e solicite os melhores produtos financeiros.
+            </p>
+          </div>
+          <SecurityBadge variant="protected" size="md" />
         </div>
 
         <Tabs defaultValue="catalog" className="space-y-6">

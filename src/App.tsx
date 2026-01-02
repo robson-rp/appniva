@@ -43,6 +43,7 @@ import SplitExpenses from "@/pages/SplitExpenses";
 import InflationAlerts from "@/pages/InflationAlerts";
 import AutomaticTransactions from "@/pages/AutomaticTransactions";
 import FinancialScore from "@/pages/FinancialScore";
+import Security from "@/pages/Security";
 import NotFound from "./pages/NotFound";
 import { ResponsiveRouteWrapper } from "@/components/layout/ResponsiveRouteWrapper";
 
@@ -100,6 +101,7 @@ const App = () => (
                 <Route path="/inflation-alerts" element={<InflationAlerts />} />
                 <Route path="/automatic-transactions" element={<AutomaticTransactions />} />
                 <Route path="/score" element={<FinancialScore />} />
+                <Route path="/security" element={<Security />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

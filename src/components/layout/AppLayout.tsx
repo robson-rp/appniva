@@ -136,6 +136,7 @@ const navGroups = [
       { path: '/tags', label: 'Tags', icon: Tags },
       { path: '/products', label: 'Produtos', icon: ShoppingBag },
       { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
+      { path: '/security', label: 'Segurança', icon: Shield },
       { path: '/install', label: 'Instalar App', icon: Smartphone },
     ],
   },

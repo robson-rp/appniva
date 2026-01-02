@@ -14,10 +14,12 @@ import {
   Landmark,
   ArrowRight, 
   CheckCircle,
-  Sparkles
+  Sparkles,
+  Shield
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { SecurityBadgesRow } from '@/components/security/SecurityBadgesRow';
 import { 
   useMaturityProfile, 
   OnboardingAnswers, 
@@ -349,6 +351,20 @@ export function SmartOnboardingWizard() {
                       </span>
                     )}
                   </div>
+                </div>
+
+                {/* Security Message */}
+                <div className={cn(
+                  "p-4 rounded-xl bg-muted/50 border border-border text-center transition-all duration-500 delay-550",
+                  showLevelReveal ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                )}>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Shield className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium text-foreground">
+                      A tua informação financeira está protegida
+                    </span>
+                  </div>
+                  <SecurityBadgesRow size="sm" />
                 </div>
 
                 <Button 
