@@ -78,6 +78,29 @@ export function formatCurrency(amount: number, currency: string = 'AOA'): string
   return `${formatter.format(amount)} ${curr?.symbol || currency}`;
 }
 
+export function formatCompactCurrency(amount: number, currency: string = 'AOA'): string {
+  const curr = CURRENCIES.find(c => c.code === currency);
+  const absAmount = Math.abs(amount);
+  const sign = amount < 0 ? '-' : '';
+  
+  let formatted: string;
+  if (absAmount >= 1_000_000_000) {
+    formatted = `${(absAmount / 1_000_000_000).toFixed(1)}B`;
+  } else if (absAmount >= 1_000_000) {
+    formatted = `${(absAmount / 1_000_000).toFixed(1)}M`;
+  } else if (absAmount >= 100_000) {
+    formatted = `${(absAmount / 1_000).toFixed(0)}K`;
+  } else {
+    const formatter = new Intl.NumberFormat('pt-AO', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+    formatted = formatter.format(absAmount);
+  }
+  
+  return `${sign}${formatted} ${curr?.symbol || currency}`;
+}
+
 export function formatPercentage(value: number): string {
   return `${value.toFixed(2)}%`;
 }

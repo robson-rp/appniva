@@ -6,7 +6,7 @@ import { useActiveGoals } from '@/hooks/useGoals';
 import { useDebts } from '@/hooks/useDebts';
 import { useUpcomingRenewals } from '@/hooks/useSubscriptions';
 import { useInsights, useUnreadInsightsCount } from '@/hooks/useInsights';
-import { formatCurrency } from '@/lib/constants';
+import { formatCurrency, formatCompactCurrency } from '@/lib/constants';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -194,12 +194,12 @@ export default function MobileHome() {
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-semibold text-foreground">
+            <div className="flex-1 min-w-0 pr-2">
+              <h1 className="text-lg font-semibold text-foreground truncate">
                 Olá, {profile?.name?.split(' ')[0] || 'Utilizador'}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                {formatCurrency(totalBalance, currency)} disponível
+              <p className="text-sm text-muted-foreground truncate">
+                {totalBalance >= 100_000_000 ? formatCompactCurrency(totalBalance, currency) : formatCurrency(totalBalance, currency)} disponível
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -238,10 +238,13 @@ export default function MobileHome() {
             : "opacity-0 translate-y-6 scale-95"
         )}>
           <div className="flex items-start justify-between mb-4">
-            <div>
+            <div className="flex-1 min-w-0 pr-2">
               <p className="text-sm text-muted-foreground mb-1">Património Líquido</p>
-              <p className="text-3xl font-bold text-foreground">
-                {formatCurrency(netWorth, currency)}
+              <p className={cn(
+                "font-bold text-foreground truncate",
+                netWorth >= 100_000_000 ? "text-xl" : netWorth >= 1_000_000 ? "text-2xl" : "text-3xl"
+              )}>
+                {netWorth >= 100_000_000 ? formatCompactCurrency(netWorth, currency) : formatCurrency(netWorth, currency)}
               </p>
             </div>
             <div className={cn(
@@ -267,14 +270,15 @@ export default function MobileHome() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-border">
-            <div>
+          <div className="flex items-center justify-between pt-4 border-t border-border gap-2">
+            <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground">Balanço do Mês</p>
               <p className={cn(
-                'text-lg font-semibold',
+                'font-semibold truncate',
+                Math.abs(monthlyBalance) >= 10_000_000 ? 'text-base' : 'text-lg',
                 monthlyBalance >= 0 ? 'text-income' : 'text-expense'
               )}>
-                {monthlyBalance >= 0 ? '+' : ''}{formatCurrency(monthlyBalance, currency)}
+                {monthlyBalance >= 0 ? '+' : ''}{Math.abs(monthlyBalance) >= 100_000_000 ? formatCompactCurrency(monthlyBalance, currency) : formatCurrency(monthlyBalance, currency)}
               </p>
             </div>
             <Link to="/dashboard" className="text-accent text-sm font-medium flex items-center gap-1">
