@@ -380,6 +380,42 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_recommendations: {
+        Row: {
+          action_label: string
+          action_route: string
+          created_at: string
+          generated_at: string
+          id: string
+          message: string
+          priority: Database["public"]["Enums"]["recommendation_priority"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_label: string
+          action_route: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          message: string
+          priority?: Database["public"]["Enums"]["recommendation_priority"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_label?: string
+          action_route?: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          message?: string
+          priority?: Database["public"]["Enums"]["recommendation_priority"]
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       debt_payments: {
         Row: {
           amount: number
@@ -2013,6 +2049,7 @@ export type Database = {
         | "equity"
         | "other"
       product_request_status: "pending" | "approved" | "rejected" | "cancelled"
+      recommendation_priority: "low" | "medium" | "high"
       reconciliation_status: "matched" | "mismatched" | "pending"
       transaction_type: "income" | "expense" | "transfer"
     }
@@ -2186,6 +2223,7 @@ export const Constants = {
         "other",
       ],
       product_request_status: ["pending", "approved", "rejected", "cancelled"],
+      recommendation_priority: ["low", "medium", "high"],
       reconciliation_status: ["matched", "mismatched", "pending"],
       transaction_type: ["income", "expense", "transfer"],
     },

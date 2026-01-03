@@ -400,5 +400,11 @@
     "exportError": "Erreur lors de l'exportation des données",
     "deleteInfo": "Pour supprimer le compte, contactez le support.",
     "deleteError": "Erreur lors du traitement de la demande"
+  },
+  "today": {
+    "urgent": "Urgent",
+    "important": "Important",
+    "tip": "Conseil",
+    "today": "Aujourd'hui"
   }
 }

@@ -55,6 +55,7 @@ import { FinancialProgressCard } from '@/components/onboarding/FinancialProgress
 import { useMaturityProfile, getRequiredLevel, getLevelDisplayName } from '@/hooks/useMaturityProfile';
 import { toast } from 'sonner';
 import { SecurityBadge } from '@/components/security/SecurityBadge';
+import { TodayCard } from '@/components/home/TodayCard';
 // Icon map for dynamic rendering
 const ICON_MAP: Record<string, LucideIcon> = {
   Wallet, ArrowUpDown, PiggyBank, TrendingUp, Target, Calendar, RefreshCw, 
@@ -226,6 +227,9 @@ export default function MobileHome() {
 
       {/* Main Content */}
       <main className="p-4 space-y-6">
+        {/* TODAY CARD - Daily Recommendation */}
+        <TodayCard />
+
         {/* BLOCO 2 - Financial Status Card */}
         <div className={cn(
           "bg-card rounded-2xl p-5 shadow-lg border border-border transition-all duration-500 ease-out",
