@@ -3,7 +3,7 @@ import nivaLogoFull from '@/assets/niva-logo-new.png';
 interface NivaLogoProps {
   variant?: 'full' | 'symbol';
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | '8xl' | '9xl' | '10xl' | '11xl' | '12xl' | '13xl' | '14xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | '8xl' | '9xl' | '10xl' | '11xl' | '12xl' | '13xl' | '14xl' | '15xl';
 }
 
 const sizeClasses = {
@@ -24,6 +24,7 @@ const sizeClasses = {
   '12xl': 'h-56',
   '13xl': 'h-64',
   '14xl': 'h-72',
+  '15xl': 'h-80',
 };
 
 export function NivaLogo({ variant = 'full', className = '', size = 'md' }: NivaLogoProps) {
