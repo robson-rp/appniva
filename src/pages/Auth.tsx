@@ -170,7 +170,7 @@ export default function Auth() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-hero p-4">
       <Card className="w-full max-w-md animate-scale-in">
         <CardHeader className="text-center pt-8 pb-4">
-          <div className="mx-auto mb-4">
+          <div className="mx-auto mb-1">
             <NivaLogo size="14xl" />
           </div>
           <CardDescription>
