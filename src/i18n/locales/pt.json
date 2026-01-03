@@ -459,5 +459,11 @@
     "exportError": "Erro ao exportar dados",
     "deleteInfo": "Para eliminar a conta, contacte o suporte.",
     "deleteError": "Erro ao processar pedido"
+  },
+  "today": {
+    "urgent": "Urgente",
+    "important": "Importante",
+    "tip": "Dica",
+    "today": "Hoje"
   }
 }

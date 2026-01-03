@@ -534,5 +534,11 @@
     "exportError": "Error exporting data",
     "deleteInfo": "To delete the account, contact support.",
     "deleteError": "Error processing request"
+  },
+  "today": {
+    "urgent": "Urgent",
+    "important": "Important",
+    "tip": "Tip",
+    "today": "Today"
   }
 }
