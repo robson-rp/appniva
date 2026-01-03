@@ -51,7 +51,7 @@ export default function RecurringTransactionsPage() {
   return (
     <>
       <Helmet>
-        <title>Transações Recorrentes | Bolso Inteligente</title>
+        <title>Transações Recorrentes | NIVA</title>
         <meta
           name="description"
           content="Gerencie suas transações recorrentes automáticas"

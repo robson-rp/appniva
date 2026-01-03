@@ -7,6 +7,7 @@ import { useMenuPreferences } from '@/hooks/useMenuPreferences';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { NivaLogo } from '@/components/brand/NivaLogo';
 import {
   LayoutDashboard,
   Wallet,
@@ -262,10 +263,7 @@ export default function AppLayout() {
         {/* Logo */}
         <div className="flex h-16 items-center justify-between px-6">
           <Link to={isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
-              <Wallet className="h-5 w-5 text-sidebar-primary-foreground" />
-            </div>
-            <span className="text-lg font-semibold text-sidebar-foreground">Bolso Inteligente</span>
+            <NivaLogo size="lg" className="brightness-0 invert" />
           </Link>
           <Button
             variant="ghost"

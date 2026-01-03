@@ -64,7 +64,7 @@ export default function Products() {
   return (
     <>
       <Helmet>
-        <title>Produtos Financeiros | Finança Pessoal</title>
+        <title>Produtos Financeiros | NIVA</title>
         <meta name="description" content="Compare e solicite produtos financeiros: depósitos a prazo, seguros, microcrédito e fundos de investimento." />
       </Helmet>
 

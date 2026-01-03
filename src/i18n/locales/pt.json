@@ -78,7 +78,7 @@
     "loggingIn": "A entrar...",
     "creatingAccount": "A criar conta...",
     "yourName": "O seu nome",
-    "personalFinanceManager": "O seu gestor financeiro pessoal"
+    "personalFinanceManager": "O seu sistema pessoal de decisão financeira"
   },
   "home": {
     "greeting": "Olá, {{name}}",

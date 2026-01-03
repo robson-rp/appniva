@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Wallet, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 import { SecurityBadgesRow } from '@/components/security/SecurityBadgesRow';
+import { NivaLogo } from '@/components/brand/NivaLogo';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -130,8 +131,8 @@ export default function Auth() {
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary">
-              <Mail className="h-7 w-7 text-primary-foreground" />
+            <div className="mx-auto mb-4">
+              <NivaLogo size="lg" />
             </div>
             <CardTitle className="text-2xl">Recuperar Password</CardTitle>
             <CardDescription>
@@ -169,12 +170,12 @@ export default function Auth() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-hero p-4">
       <Card className="w-full max-w-md animate-scale-in">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent">
-            <Wallet className="h-7 w-7 text-accent-foreground" />
+          <div className="mx-auto mb-4">
+            <NivaLogo size="xl" />
           </div>
-          <CardTitle className="text-2xl">Bolso Inteligente</CardTitle>
+          <CardTitle className="text-2xl">Bem-vindo ao NIVA</CardTitle>
           <CardDescription>
-            O seu gestor financeiro pessoal
+            O seu sistema pessoal de decisão financeira
           </CardDescription>
         </CardHeader>
         <CardContent>

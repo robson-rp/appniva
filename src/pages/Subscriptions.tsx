@@ -48,7 +48,7 @@ export default function SubscriptionsPage() {
   return (
     <>
       <Helmet>
-        <title>Subscrições | Bolso Inteligente</title>
+        <title>Subscrições | NIVA</title>
         <meta
           name="description"
           content="Gerencie suas subscrições e serviços recorrentes"
