@@ -1,4 +1,4 @@
-import nivaLogoFull from '@/assets/niva-logo-full.png';
+import nivaLogoFull from '@/assets/niva-logo-new.png';
 
 interface NivaLogoProps {
   variant?: 'full' | 'symbol';
