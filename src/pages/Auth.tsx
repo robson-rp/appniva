@@ -171,7 +171,7 @@ export default function Auth() {
       <Card className="w-full max-w-md animate-scale-in">
         <CardHeader className="text-center pt-8 pb-4">
           <div className="mx-auto mb-4">
-            <NivaLogo size="12xl" />
+            <NivaLogo size="14xl" />
           </div>
           <CardDescription>
             O seu sistema pessoal de decisão financeira
