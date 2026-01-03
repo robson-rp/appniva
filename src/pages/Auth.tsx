@@ -171,9 +171,8 @@ export default function Auth() {
       <Card className="w-full max-w-md animate-scale-in">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
-            <NivaLogo size="xl" />
+            <NivaLogo size="12xl" />
           </div>
-          <CardTitle className="text-2xl">Bem-vindo ao NIVA</CardTitle>
           <CardDescription>
             O seu sistema pessoal de decisão financeira
           </CardDescription>
