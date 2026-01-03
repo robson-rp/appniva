@@ -45,6 +45,7 @@ import AutomaticTransactions from "@/pages/AutomaticTransactions";
 import FinancialScore from "@/pages/FinancialScore";
 import Security from "@/pages/Security";
 import NotFound from "./pages/NotFound";
+import Landing from "@/pages/Landing";
 import { ResponsiveRouteWrapper } from "@/components/layout/ResponsiveRouteWrapper";
 
 const queryClient = new QueryClient();
@@ -58,7 +59,8 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<ResponsiveRouteWrapper />} />
+              <Route path="/" element={<Landing />} />
+              <Route path="/app" element={<ResponsiveRouteWrapper />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
               
