@@ -261,7 +261,7 @@ export default function AppLayout() {
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-6">
+        <div className="flex h-56 items-center justify-between px-6 py-4">
           <Link to={isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2">
             <NivaLogo size="10xl" className="brightness-0 invert" />
           </Link>
