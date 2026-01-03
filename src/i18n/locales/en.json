@@ -101,7 +101,7 @@
     "sending": "Sending...",
     "enterEmailForReset": "Enter your email to receive a reset link",
     "yourName": "Your name",
-    "personalFinanceManager": "Your personal finance manager"
+    "personalFinanceManager": "Your personal financial decision system"
   },
   "home": {
     "greeting": "Hello, {{name}}",

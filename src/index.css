@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,176 +6,183 @@
 
 @layer base {
   :root {
-    /* Main colors - Deep navy and teal theme */
-    --background: 220 20% 97%;
-    --foreground: 222 47% 11%;
+    /* NIVA Brand Colors */
+    /* Primary - Deep Green #0F3D2E */
+    --primary: 158 61% 15%;
+    --primary-foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    /* Secondary - Petrol Blue #0B2A3C */
+    --secondary: 202 70% 14%;
+    --secondary-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    /* Primary - Deep Navy Blue */
-    --primary: 222 47% 20%;
-    --primary-foreground: 210 40% 98%;
-
-    /* Secondary - Soft Teal */
-    --secondary: 174 42% 94%;
-    --secondary-foreground: 174 42% 20%;
-
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-
-    /* Accent - Vibrant Teal */
-    --accent: 174 62% 47%;
+    /* Accent - Soft Green #2FBF71 */
+    --accent: 149 60% 47%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    /* Background - Light Gray #F4F6F8 */
+    --background: 210 20% 97%;
+    --foreground: 0 0% 11%;
 
+    /* Cards - White */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11%;
+
+    /* Muted */
+    --muted: 210 14% 96%;
+    --muted-foreground: 220 9% 42%;
+
+    /* Destructive - Soft (not aggressive red) */
+    --destructive: 15 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders - Soft gray #E5E7EB */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 222 47% 20%;
+    --ring: 158 61% 15%;
 
     --radius: 0.75rem;
 
     /* Semantic Colors */
-    --income: 142 76% 36%;
+    --income: 149 60% 40%;
     --income-foreground: 0 0% 100%;
-    --income-muted: 142 76% 95%;
+    --income-muted: 149 40% 94%;
 
-    --expense: 0 84% 60%;
+    --expense: 15 70% 55%;
     --expense-foreground: 0 0% 100%;
-    --expense-muted: 0 84% 96%;
+    --expense-muted: 15 50% 95%;
 
-    --transfer: 217 91% 60%;
+    --transfer: 202 70% 50%;
     --transfer-foreground: 0 0% 100%;
-    --transfer-muted: 217 91% 95%;
+    --transfer-muted: 202 50% 94%;
 
-    --warning: 38 92% 50%;
+    --warning: 38 70% 50%;
     --warning-foreground: 0 0% 100%;
-    --warning-muted: 38 92% 95%;
+    --warning-muted: 38 50% 95%;
 
-    /* Chart Colors */
-    --chart-1: 174 62% 47%;
-    --chart-2: 222 47% 35%;
-    --chart-3: 142 76% 36%;
-    --chart-4: 38 92% 50%;
-    --chart-5: 0 84% 60%;
-    --chart-6: 262 83% 58%;
+    /* Chart Colors - NIVA Palette */
+    --chart-1: 149 60% 47%;
+    --chart-2: 158 61% 25%;
+    --chart-3: 202 70% 40%;
+    --chart-4: 38 70% 50%;
+    --chart-5: 15 70% 55%;
+    --chart-6: 280 60% 50%;
 
-    /* Sidebar */
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 220 14% 96%;
-    --sidebar-primary: 174 62% 47%;
+    /* Sidebar - Petrol Blue */
+    --sidebar-background: 202 70% 14%;
+    --sidebar-foreground: 210 20% 96%;
+    --sidebar-primary: 149 60% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 47% 18%;
-    --sidebar-accent-foreground: 220 14% 96%;
-    --sidebar-border: 222 47% 18%;
-    --sidebar-ring: 174 62% 47%;
+    --sidebar-accent: 202 70% 20%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 202 70% 20%;
+    --sidebar-ring: 149 60% 47%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(222, 47%, 20%) 0%, hsl(222, 47%, 35%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(174, 62%, 47%) 0%, hsl(174, 62%, 35%) 100%);
-    --gradient-income: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(142, 76%, 28%) 100%);
-    --gradient-expense: linear-gradient(135deg, hsl(0, 84%, 60%) 0%, hsl(0, 84%, 50%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(220, 20%, 98%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222, 47%, 11%) 0%, hsl(222, 47%, 20%) 50%, hsl(174, 42%, 25%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(158, 61%, 15%) 0%, hsl(158, 61%, 25%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(149, 60%, 47%) 0%, hsl(149, 60%, 35%) 100%);
+    --gradient-income: linear-gradient(135deg, hsl(149, 60%, 40%) 0%, hsl(149, 60%, 30%) 100%);
+    --gradient-expense: linear-gradient(135deg, hsl(15, 70%, 55%) 0%, hsl(15, 70%, 45%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(210, 20%, 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(202, 70%, 14%) 0%, hsl(158, 61%, 15%) 50%, hsl(149, 50%, 25%) 100%);
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(222, 47%, 11%, 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(222, 47%, 11%, 0.1), 0 2px 4px -2px hsl(222, 47%, 11%, 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(222, 47%, 11%, 0.1), 0 4px 6px -4px hsl(222, 47%, 11%, 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(222, 47%, 11%, 0.1), 0 8px 10px -6px hsl(222, 47%, 11%, 0.1);
-    --shadow-glow: 0 0 20px hsl(174, 62%, 47%, 0.3);
+    --shadow-sm: 0 1px 2px 0 hsl(202, 70%, 14%, 0.04);
+    --shadow-md: 0 4px 6px -1px hsl(202, 70%, 14%, 0.08), 0 2px 4px -2px hsl(202, 70%, 14%, 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(202, 70%, 14%, 0.08), 0 4px 6px -4px hsl(202, 70%, 14%, 0.06);
+    --shadow-xl: 0 20px 25px -5px hsl(202, 70%, 14%, 0.08), 0 8px 10px -6px hsl(202, 70%, 14%, 0.06);
+    --shadow-glow: 0 0 20px hsl(149, 60%, 47%, 0.2);
   }
 
   .dark {
-    /* Enhanced dark theme - More vibrant for mobile */
-    --background: 222 47% 4%;
-    --foreground: 210 40% 98%;
+    /* NIVA Dark Mode - Petrol Blue Base */
+    /* Background - Petrol Blue #0B2A3C */
+    --background: 202 70% 10%;
+    --foreground: 210 20% 96%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
+    /* Cards - Darker Petrol */
+    --card: 202 70% 14%;
+    --card-foreground: 210 20% 96%;
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 202 70% 14%;
+    --popover-foreground: 210 20% 96%;
 
-    /* Primary - Vibrant Teal for dark mode */
-    --primary: 174 72% 50%;
-    --primary-foreground: 222 47% 6%;
+    /* Primary - Accent Green in dark mode */
+    --primary: 149 60% 47%;
+    --primary-foreground: 202 70% 10%;
 
-    /* Secondary - Deeper blue */
-    --secondary: 222 47% 14%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Deep Petrol */
+    --secondary: 202 70% 18%;
+    --secondary-foreground: 210 20% 96%;
 
-    --muted: 222 47% 12%;
-    --muted-foreground: 220 14% 70%;
+    --muted: 202 50% 18%;
+    --muted-foreground: 210 14% 65%;
 
-    /* Accent - Electric Teal */
-    --accent: 174 80% 55%;
-    --accent-foreground: 222 47% 6%;
+    /* Accent - Soft Green */
+    --accent: 149 65% 50%;
+    --accent-foreground: 202 70% 10%;
 
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 15 65% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 222 47% 15%;
-    --input: 222 47% 15%;
-    --ring: 174 72% 50%;
+    --border: 202 50% 20%;
+    --input: 202 50% 20%;
+    --ring: 149 60% 47%;
 
-    /* Enhanced semantic colors for dark - More vibrant */
-    --income: 142 80% 45%;
+    /* Semantic colors for dark */
+    --income: 149 65% 50%;
     --income-foreground: 0 0% 100%;
-    --income-muted: 142 50% 12%;
+    --income-muted: 149 40% 15%;
 
-    --expense: 0 80% 55%;
+    --expense: 15 65% 55%;
     --expense-foreground: 0 0% 100%;
-    --expense-muted: 0 50% 12%;
+    --expense-muted: 15 40% 15%;
 
-    --transfer: 217 95% 65%;
+    --transfer: 202 70% 55%;
     --transfer-foreground: 0 0% 100%;
-    --transfer-muted: 217 50% 12%;
+    --transfer-muted: 202 40% 15%;
 
-    --warning: 38 95% 55%;
+    --warning: 38 70% 55%;
     --warning-foreground: 0 0% 100%;
-    --warning-muted: 38 50% 12%;
+    --warning-muted: 38 40% 15%;
 
     /* Chart colors - Brighter for dark mode */
-    --chart-1: 174 80% 55%;
-    --chart-2: 262 90% 65%;
-    --chart-3: 142 80% 50%;
-    --chart-4: 38 95% 55%;
-    --chart-5: 0 80% 60%;
-    --chart-6: 217 95% 65%;
+    --chart-1: 149 65% 50%;
+    --chart-2: 158 50% 40%;
+    --chart-3: 202 70% 55%;
+    --chart-4: 38 70% 55%;
+    --chart-5: 15 65% 55%;
+    --chart-6: 280 60% 60%;
 
-    /* Sidebar - Enhanced contrast */
-    --sidebar-background: 222 47% 4%;
-    --sidebar-foreground: 220 14% 96%;
-    --sidebar-primary: 174 80% 55%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 47% 10%;
-    --sidebar-accent-foreground: 220 14% 96%;
-    --sidebar-border: 222 47% 12%;
-    --sidebar-ring: 174 80% 55%;
+    /* Sidebar - Deep Petrol */
+    --sidebar-background: 202 70% 8%;
+    --sidebar-foreground: 210 20% 96%;
+    --sidebar-primary: 149 65% 50%;
+    --sidebar-primary-foreground: 202 70% 10%;
+    --sidebar-accent: 202 70% 14%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 202 50% 16%;
+    --sidebar-ring: 149 65% 50%;
 
     /* Enhanced gradients for dark mode */
-    --gradient-hero: linear-gradient(135deg, hsl(222, 47%, 4%) 0%, hsl(222, 47%, 10%) 50%, hsl(174, 50%, 12%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(222, 47%, 10%) 0%, hsl(222, 47%, 6%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(174, 80%, 55%) 0%, hsl(174, 80%, 40%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(174, 80%, 55%) 0%, hsl(174, 60%, 40%) 100%);
-    --gradient-income: linear-gradient(135deg, hsl(142, 80%, 50%) 0%, hsl(142, 70%, 35%) 100%);
-    --gradient-expense: linear-gradient(135deg, hsl(0, 80%, 55%) 0%, hsl(0, 70%, 45%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(202, 70%, 8%) 0%, hsl(202, 70%, 14%) 50%, hsl(158, 50%, 18%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(202, 70%, 16%) 0%, hsl(202, 70%, 12%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(149, 65%, 50%) 0%, hsl(149, 60%, 40%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(149, 65%, 50%) 0%, hsl(149, 55%, 40%) 100%);
+    --gradient-income: linear-gradient(135deg, hsl(149, 65%, 50%) 0%, hsl(149, 55%, 35%) 100%);
+    --gradient-expense: linear-gradient(135deg, hsl(15, 65%, 55%) 0%, hsl(15, 55%, 45%) 100%);
 
-    /* Enhanced shadows with glow effect */
-    --shadow-sm: 0 1px 2px 0 hsl(0, 0%, 0%, 0.2);
-    --shadow-md: 0 4px 6px -1px hsl(0, 0%, 0%, 0.3), 0 2px 4px -2px hsl(0, 0%, 0%, 0.2);
-    --shadow-lg: 0 10px 15px -3px hsl(0, 0%, 0%, 0.3), 0 4px 6px -4px hsl(0, 0%, 0%, 0.2);
-    --shadow-xl: 0 20px 25px -5px hsl(0, 0%, 0%, 0.3), 0 8px 10px -6px hsl(0, 0%, 0%, 0.2);
-    --shadow-glow: 0 0 30px hsl(174, 80%, 55%, 0.25);
-    --shadow-glow-accent: 0 0 20px hsl(174, 80%, 55%, 0.3);
-    --shadow-glow-income: 0 0 20px hsl(142, 80%, 50%, 0.3);
-    --shadow-glow-expense: 0 0 20px hsl(0, 80%, 55%, 0.3);
+    /* Shadows with subtle glow */
+    --shadow-sm: 0 1px 2px 0 hsl(0, 0%, 0%, 0.15);
+    --shadow-md: 0 4px 6px -1px hsl(0, 0%, 0%, 0.2), 0 2px 4px -2px hsl(0, 0%, 0%, 0.15);
+    --shadow-lg: 0 10px 15px -3px hsl(0, 0%, 0%, 0.2), 0 4px 6px -4px hsl(0, 0%, 0%, 0.15);
+    --shadow-xl: 0 20px 25px -5px hsl(0, 0%, 0%, 0.2), 0 8px 10px -6px hsl(0, 0%, 0%, 0.15);
+    --shadow-glow: 0 0 25px hsl(149, 65%, 50%, 0.15);
+    --shadow-glow-accent: 0 0 20px hsl(149, 65%, 50%, 0.2);
+    --shadow-glow-income: 0 0 20px hsl(149, 65%, 50%, 0.2);
+    --shadow-glow-expense: 0 0 20px hsl(15, 65%, 55%, 0.2);
   }
 }
 
@@ -186,7 +193,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -230,6 +237,19 @@
 
   .input-focus {
     @apply focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background transition-all duration-200;
+  }
+  
+  /* NIVA Button Styles */
+  .niva-btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors;
+  }
+  
+  .niva-btn-secondary {
+    @apply bg-white text-primary border border-primary hover:bg-primary/5 transition-colors;
+  }
+  
+  .niva-btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90 transition-colors;
   }
 }
 

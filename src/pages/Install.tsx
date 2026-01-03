@@ -87,7 +87,7 @@ export default function Install() {
           <Smartphone className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Instalar Bolso Inteligente</h1>
+          <h1 className="text-2xl font-bold text-foreground">Instalar NIVA</h1>
           <p className="text-muted-foreground">Aceda rapidamente à app a partir do seu ecrã inicial</p>
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function Install() {
               Instalar a Aplicação
             </CardTitle>
             <CardDescription>
-              Instale o Bolso Inteligente no seu dispositivo para acesso rápido e funcionamento offline
+              Instale o NIVA no seu dispositivo para acesso rápido e funcionamento offline
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -220,7 +220,7 @@ export default function Install() {
               <div>
                 <h3 className="text-lg font-semibold">Aplicação Instalada!</h3>
                 <p className="text-muted-foreground">
-                  O Bolso Inteligente está instalado no seu dispositivo. Pode fechar esta janela do browser 
+                  O NIVA está instalado no seu dispositivo. Pode fechar esta janela do browser 
                   e usar a app directamente a partir do ecrã inicial.
                 </p>
               </div>
