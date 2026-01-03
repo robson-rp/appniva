@@ -3,7 +3,7 @@ import nivaLogoFull from '@/assets/niva-logo-full.png';
 interface NivaLogoProps {
   variant?: 'full' | 'symbol';
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 }
 
 const sizeClasses = {
@@ -11,6 +11,8 @@ const sizeClasses = {
   md: 'h-8',
   lg: 'h-10',
   xl: 'h-12',
+  '2xl': 'h-16',
+  '3xl': 'h-20',
 };
 
 export function NivaLogo({ variant = 'full', className = '', size = 'md' }: NivaLogoProps) {
