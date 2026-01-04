@@ -63,9 +63,9 @@ const ICON_MAP: Record<string, LucideIcon> = {
   DollarSign, Users, Send, Receipt, ScanText
 };
 
-// Quick action items
+// Quick action items with route for access check
 const QUICK_ACTIONS = [
-  { icon: Plus, labelKey: 'home.newTransaction', action: 'transaction' },
+  { icon: Plus, labelKey: 'home.newTransaction', action: 'transaction', route: undefined },
   { icon: Target, labelKey: 'home.newGoal', route: '/goals' },
   { icon: Wallet, labelKey: 'home.newAccount', route: '/accounts' },
   { icon: FileText, labelKey: 'home.import', route: '/reconciliation' },
@@ -439,7 +439,14 @@ export default function MobileHome() {
             {t('home.quickActions')}
           </h2>
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {QUICK_ACTIONS.map((action, index) => (
+            {QUICK_ACTIONS
+              .filter(action => {
+                // If no route (like transaction action), always show
+                if (!action.route) return true;
+                // Otherwise, check access level
+                return hasAccess(action.route);
+              })
+              .map((action, index) => (
               <button
                 key={index}
                 onClick={() => handleQuickAction(action.action, action.route)}
