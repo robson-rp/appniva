@@ -55,6 +55,9 @@ import {
   Monitor,
   Check,
   Lock,
+  CalendarDays,
+  BookOpen,
+  LineChart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -111,6 +114,7 @@ const navGroups = [
       { path: '/subscriptions', label: 'Subscrições', icon: Repeat },
       { path: '/recurring', label: 'Recorrentes', icon: RefreshCw },
       { path: '/school-fees', label: 'Propinas', icon: GraduationCap },
+      { path: '/calendar', label: 'Calendário', icon: CalendarDays },
     ],
   },
   {
@@ -118,6 +122,7 @@ const navGroups = [
     icon: BarChart3,
     items: [
       { path: '/score', label: 'Saúde Financeira', icon: TrendingUp },
+      { path: '/net-worth', label: 'Património', icon: LineChart },
       { path: '/assistant', label: 'Assistente IA', icon: MessageCircle },
       { path: '/insights', label: 'Insights', icon: Lightbulb, hasBadge: true },
       { path: '/simulator', label: 'Simulador', icon: Calculator },
@@ -145,6 +150,7 @@ const navGroups = [
       { path: '/tags', label: 'Tags', icon: Tags },
       { path: '/products', label: 'Produtos', icon: ShoppingBag },
       { path: '/ocr/upload', label: 'OCR Financeiro', icon: ScanText },
+      { path: '/education', label: 'Educação Financeira', icon: BookOpen },
       { path: '/security', label: 'Segurança', icon: Shield },
       { path: '/install', label: 'Instalar App', icon: Smartphone },
     ],
