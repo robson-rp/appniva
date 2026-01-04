@@ -4,10 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadInsightsCount } from '@/hooks/useInsights';
 import { useBudgetsAtRiskCount } from '@/hooks/useBudgets';
 import { useMenuPreferences } from '@/hooks/useMenuPreferences';
+import { useMaturityProfile, hasFeatureAccess, getRequiredLevel, getLevelDisplayName, MaturityLevel } from '@/hooks/useMaturityProfile';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { NivaLogo } from '@/components/brand/NivaLogo';
+import { UpgradeDialog } from './UpgradeDialog';
 import {
   LayoutDashboard,
   Wallet,
@@ -52,6 +54,7 @@ import {
   Moon,
   Monitor,
   Check,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -82,6 +85,11 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 // All available items for pinning (only Dashboard stays at top level)
 const allNavItems = [
@@ -152,6 +160,7 @@ export default function AppLayout() {
   const { data: unreadCount = 0 } = useUnreadInsightsCount();
   const budgetsAtRisk = useBudgetsAtRiskCount();
   const { pinnedItems, togglePin, isPinned, resetToDefault } = useMenuPreferences();
+  const { level: userLevel } = useMaturityProfile();
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
@@ -160,6 +169,11 @@ export default function AppLayout() {
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [upgradeDialog, setUpgradeDialog] = useState<{
+    open: boolean;
+    featureName: string;
+    requiredLevel: MaturityLevel;
+  }>({ open: false, featureName: '', requiredLevel: 'intermediate' });
   const [openGroups, setOpenGroups] = useState<string[]>(() => {
     // Auto-open group that contains current path
     const currentGroup = navGroups.find(g => g.items.some(i => i.path === location.pathname));
@@ -178,11 +192,33 @@ export default function AppLayout() {
     i18n.changeLanguage(langCode);
   };
 
-  // All searchable items
+  // Check if feature is accessible based on maturity level
+  const checkFeatureAccess = (path: string): boolean => {
+    return hasFeatureAccess(path, userLevel);
+  };
+
+  // Handle navigation with maturity check
+  const handleNavClick = (e: React.MouseEvent, path: string, label: string) => {
+    if (!checkFeatureAccess(path)) {
+      e.preventDefault();
+      const required = getRequiredLevel(path);
+      if (required) {
+        setUpgradeDialog({
+          open: true,
+          featureName: label,
+          requiredLevel: required,
+        });
+      }
+    } else {
+      setSidebarOpen(false);
+    }
+  };
+
+  // All searchable items (filtered by access)
   const searchableItems = [
     ...allNavItems,
     ...navGroups.flatMap(g => g.items),
-  ];
+  ].filter(item => checkFeatureAccess(item.path));
 
   const handleSearchSelect = (path: string) => {
     setSearchOpen(false);
@@ -295,24 +331,42 @@ export default function AppLayout() {
           {pinnedNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             const hasBadge = 'hasBadge' in item && item.hasBadge && unreadCount > 0;
+            const isLocked = !checkFeatureAccess(item.path);
+            const requiredLevel = getRequiredLevel(item.path);
+            
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={cn('sidebar-link relative', isActive && 'sidebar-link-active')}
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
-                {hasBadge && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+              <Tooltip key={item.path}>
+                <TooltipTrigger asChild>
+                  <Link
+                    to={isLocked ? '#' : item.path}
+                    onClick={(e) => handleNavClick(e, item.path, item.label)}
+                    className={cn(
+                      'sidebar-link relative',
+                      isActive && 'sidebar-link-active',
+                      isLocked && 'opacity-60'
+                    )}
                   >
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </Badge>
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                    {isLocked && (
+                      <Lock className="h-3 w-3 ml-auto text-sidebar-foreground/50" />
+                    )}
+                    {hasBadge && !isLocked && (
+                      <Badge 
+                        variant="destructive" 
+                        className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+                      >
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </Badge>
+                    )}
+                  </Link>
+                </TooltipTrigger>
+                {isLocked && requiredLevel && (
+                  <TooltipContent side="right">
+                    <p>Disponível no nível {getLevelDisplayName(requiredLevel)}</p>
+                  </TooltipContent>
                 )}
-              </Link>
+              </Tooltip>
             );
           })}
 
@@ -361,28 +415,42 @@ export default function AppLayout() {
                   {group.items.map((item) => {
                     const isActive = location.pathname === item.path;
                     const showBadge = item.hasBadge && unreadCount > 0;
+                    const isLocked = !checkFeatureAccess(item.path);
+                    const requiredLevel = getRequiredLevel(item.path);
                     
                     return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setSidebarOpen(false)}
-                        className={cn(
-                          'sidebar-link relative text-sm py-2',
-                          isActive && 'sidebar-link-active'
-                        )}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.label}</span>
-                        {showBadge && (
-                          <Badge 
-                            variant="destructive" 
-                            className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+                      <Tooltip key={item.path}>
+                        <TooltipTrigger asChild>
+                          <Link
+                            to={isLocked ? '#' : item.path}
+                            onClick={(e) => handleNavClick(e, item.path, item.label)}
+                            className={cn(
+                              'sidebar-link relative text-sm py-2',
+                              isActive && 'sidebar-link-active',
+                              isLocked && 'opacity-60'
+                            )}
                           >
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                          </Badge>
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.label}</span>
+                            {isLocked && (
+                              <Lock className="h-3 w-3 ml-auto text-sidebar-foreground/50" />
+                            )}
+                            {showBadge && !isLocked && (
+                              <Badge 
+                                variant="destructive" 
+                                className="absolute right-2 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
+                              >
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </Badge>
+                            )}
+                          </Link>
+                        </TooltipTrigger>
+                        {isLocked && requiredLevel && (
+                          <TooltipContent side="right">
+                            <p>Disponível no nível {getLevelDisplayName(requiredLevel)}</p>
+                          </TooltipContent>
                         )}
-                      </Link>
+                      </Tooltip>
                     );
                   })}
                 </CollapsibleContent>
@@ -583,6 +651,15 @@ export default function AppLayout() {
           </CommandGroup>
         </CommandList>
       </CommandDialog>
+
+      {/* Upgrade Dialog */}
+      <UpgradeDialog
+        open={upgradeDialog.open}
+        onOpenChange={(open) => setUpgradeDialog(prev => ({ ...prev, open }))}
+        featureName={upgradeDialog.featureName}
+        requiredLevel={upgradeDialog.requiredLevel}
+        currentLevel={userLevel}
+      />
     </div>
   );
 }
