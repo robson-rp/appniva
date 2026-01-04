@@ -8,7 +8,7 @@ import { ProductRequestForm } from '@/components/products/ProductRequestForm';
 import { ProductComparison } from '@/components/products/ProductComparison';
 import { MyRequests } from '@/components/products/MyRequests';
 import { useFinancialProducts, FinancialProduct, ProductType } from '@/hooks/useFinancialProducts';
-import { Loader2, Banknote, Shield, CreditCard, TrendingUp, LayoutGrid, Table, FileText } from 'lucide-react';
+import { Loader2, Banknote, Shield, CreditCard, TrendingUp, LayoutGrid, Table, FileText, Landmark } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ import { SecurityBadge } from '@/components/security/SecurityBadge';
 
 const productTypes: { type: ProductType; label: string; icon: React.ElementType }[] = [
   { type: 'term_deposit', label: 'Depósitos a Prazo', icon: Banknote },
+  { type: 'bond_otnr', label: 'OTNR', icon: Landmark },
   { type: 'insurance', label: 'Seguros', icon: Shield },
   { type: 'microcredit', label: 'Microcrédito', icon: CreditCard },
   { type: 'fund', label: 'Fundos', icon: TrendingUp },
@@ -136,7 +137,7 @@ export default function Products() {
                     key={product.id}
                     product={product}
                     onSimulate={
-                      product.product_type === 'term_deposit' || product.product_type === 'microcredit'
+                      product.product_type === 'term_deposit' || product.product_type === 'microcredit' || product.product_type === 'bond_otnr'
                         ? () => handleSimulate(product)
                         : undefined
                     }

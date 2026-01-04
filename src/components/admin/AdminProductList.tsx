@@ -27,6 +27,7 @@ const typeLabels: Record<ProductType, string> = {
   insurance: 'Seguro',
   microcredit: 'Microcrédito',
   fund: 'Fundo',
+  bond_otnr: 'OTNR',
 };
 
 export function AdminProductList() {

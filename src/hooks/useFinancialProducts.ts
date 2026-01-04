@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export type ProductType = 'term_deposit' | 'insurance' | 'microcredit' | 'fund';
+export type ProductType = 'term_deposit' | 'insurance' | 'microcredit' | 'fund' | 'bond_otnr';
 export type RequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 
 export interface FinancialProduct {
