@@ -134,7 +134,7 @@ export default function Auth() {
             <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary rounded-full blur-3xl" />
           </div>
           <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
-            <NivaLogo size="6xl" />
+            <NivaLogo size="10xl" color="white" />
             <p className="mt-6 text-xl text-white/80 max-w-md">
               O seu sistema pessoal de decisão financeira
             </p>
@@ -201,7 +201,7 @@ export default function Auth() {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between py-12 px-12 xl:px-20 h-full">
           <div>
-            <NivaLogo size="6xl" />
+            <NivaLogo size="10xl" color="white" />
           </div>
           
           <div className="space-y-8">

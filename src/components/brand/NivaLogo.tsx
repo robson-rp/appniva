@@ -2,6 +2,7 @@ import nivaLogoFull from '@/assets/niva-logo-new.png';
 
 interface NivaLogoProps {
   variant?: 'full' | 'symbol';
+  color?: 'default' | 'white';
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | '8xl' | '9xl' | '10xl' | '11xl' | '12xl' | '13xl' | '14xl' | '15xl' | '16xl';
 }
@@ -28,12 +29,14 @@ const sizeClasses = {
   '16xl': 'h-96',
 };
 
-export function NivaLogo({ variant = 'full', className = '', size = 'md' }: NivaLogoProps) {
+export function NivaLogo({ variant = 'full', color = 'default', className = '', size = 'md' }: NivaLogoProps) {
+  const colorClass = color === 'white' ? 'brightness-0 invert' : '';
+  
   return (
     <img 
       src={nivaLogoFull} 
       alt="NIVA" 
-      className={`${sizeClasses[size]} w-auto object-contain ${className}`}
+      className={`${sizeClasses[size]} w-auto object-contain ${colorClass} ${className}`}
     />
   );
 }
