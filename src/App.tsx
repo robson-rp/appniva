@@ -44,6 +44,9 @@ import InflationAlerts from "@/pages/InflationAlerts";
 import AutomaticTransactions from "@/pages/AutomaticTransactions";
 import FinancialScore from "@/pages/FinancialScore";
 import Security from "@/pages/Security";
+import NetWorthHistory from "@/pages/NetWorthHistory";
+import FinancialCalendar from "@/pages/FinancialCalendar";
+import FinancialEducation from "@/pages/FinancialEducation";
 import NotFound from "./pages/NotFound";
 import Landing from "@/pages/Landing";
 import { ResponsiveRouteWrapper } from "@/components/layout/ResponsiveRouteWrapper";
@@ -104,6 +107,9 @@ const App = () => (
                 <Route path="/automatic-transactions" element={<AutomaticTransactions />} />
                 <Route path="/score" element={<FinancialScore />} />
                 <Route path="/security" element={<Security />} />
+                <Route path="/net-worth" element={<NetWorthHistory />} />
+                <Route path="/calendar" element={<FinancialCalendar />} />
+                <Route path="/education" element={<FinancialEducation />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
