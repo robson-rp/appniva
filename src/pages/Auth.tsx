@@ -133,9 +133,9 @@ export default function Auth() {
             <div className="absolute top-20 left-20 w-72 h-72 bg-accent rounded-full blur-3xl" />
             <div className="absolute bottom-20 right-20 w-96 h-96 bg-primary rounded-full blur-3xl" />
           </div>
-          <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
-            <NivaLogo size="10xl" color="white" />
-            <p className="mt-6 text-xl text-white/80 max-w-md">
+          <div className="relative z-10 flex flex-col items-center justify-center w-full h-full px-12 xl:px-20">
+            <NivaLogo size="14xl" color="white" />
+            <p className="mt-8 text-xl text-white/80 text-center max-w-md">
               O seu sistema pessoal de decisão financeira
             </p>
           </div>
@@ -198,10 +198,9 @@ export default function Auth() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/10 rounded-full blur-2xl" />
         </div>
         
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-between py-12 px-12 xl:px-20 h-full">
-          <div>
-            <NivaLogo size="10xl" color="white" />
+        <div className="relative z-10 flex flex-col justify-center py-12 px-12 xl:px-20 h-full">
+          <div className="flex justify-center mb-12">
+            <NivaLogo size="14xl" color="white" />
           </div>
           
           <div className="space-y-8">
