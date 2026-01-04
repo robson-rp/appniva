@@ -31,8 +31,8 @@ export function ProductCard({ product, onSimulate, onRequest, isSelected }: Prod
   };
 
   const formatTerm = (days: number) => {
-    if (days >= 365) return `${Math.floor(days / 365)} ano${days >= 730 ? 's' : ''}`;
-    if (days >= 30) return `${Math.floor(days / 30)} mês${days >= 60 ? 'es' : ''}`;
+    const months = Math.floor(days / 30);
+    if (months >= 1) return `${months} ${months === 1 ? 'mês' : 'meses'}`;
     return `${days} dias`;
   };
 
