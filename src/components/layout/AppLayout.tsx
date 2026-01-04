@@ -484,6 +484,44 @@ export default function AppLayout() {
           )}
         </nav>
 
+        {/* Level Indicator */}
+        <div className="px-4 pb-2">
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-sidebar-accent/50">
+            <div className={cn(
+              "h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold",
+              userLevel === 'basic' && "bg-blue-500/20 text-blue-400",
+              userLevel === 'intermediate' && "bg-amber-500/20 text-amber-400",
+              userLevel === 'advanced' && "bg-emerald-500/20 text-emerald-400"
+            )}>
+              {userLevel === 'basic' && '1'}
+              {userLevel === 'intermediate' && '2'}
+              {userLevel === 'advanced' && '3'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-sidebar-foreground truncate">
+                Nível {getLevelDisplayName(userLevel)}
+              </p>
+              <p className="text-[10px] text-sidebar-foreground/60">
+                {userLevel === 'advanced' ? 'Todas as funcionalidades' : 'Clique para ver mais'}
+              </p>
+            </div>
+            {userLevel !== 'advanced' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-sidebar-foreground/60 hover:text-sidebar-foreground"
+                onClick={() => setUpgradeDialog({
+                  open: true,
+                  featureName: 'Funcionalidades Avançadas',
+                  requiredLevel: userLevel === 'basic' ? 'intermediate' : 'advanced',
+                })}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
         {/* User Section */}
         <div className="border-t border-sidebar-border p-4">
           <DropdownMenu>
