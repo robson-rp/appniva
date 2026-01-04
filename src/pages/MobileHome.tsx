@@ -52,10 +52,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useMobileHomePreferences } from '@/hooks/useMobileHomePreferences';
 import { MobileHomeCustomizer } from '@/components/mobile/MobileHomeCustomizer';
 import { FinancialProgressCard } from '@/components/onboarding/FinancialProgressCard';
-import { useMaturityProfile, getRequiredLevel, getLevelDisplayName } from '@/hooks/useMaturityProfile';
+import { useMaturityProfile, getRequiredLevel, getLevelDisplayName, MaturityLevel } from '@/hooks/useMaturityProfile';
 import { toast } from 'sonner';
 import { SecurityBadge } from '@/components/security/SecurityBadge';
 import { TodayCard } from '@/components/home/TodayCard';
+import { UpgradeDialog } from '@/components/layout/UpgradeDialog';
 // Icon map for dynamic rendering
 const ICON_MAP: Record<string, LucideIcon> = {
   Wallet, ArrowUpDown, PiggyBank, TrendingUp, Target, Calendar, RefreshCw, 
@@ -91,6 +92,11 @@ export default function MobileHome() {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [upgradeDialog, setUpgradeDialog] = useState<{
+    open: boolean;
+    featureName: string;
+    requiredLevel: MaturityLevel;
+  }>({ open: false, featureName: '', requiredLevel: 'intermediate' });
 
   // Get selected features with full data
   const selectedFeatures = getSelectedFeatureData();
@@ -331,7 +337,11 @@ export default function MobileHome() {
               const handleFeatureClick = (e: React.MouseEvent) => {
                 if (!canAccess) {
                   e.preventDefault();
-                  toast.info(`Disponível no nível ${getLevelDisplayName(requiredLevel || 'intermediate')}`);
+                  setUpgradeDialog({
+                    open: true,
+                    featureName: t(item.labelKey),
+                    requiredLevel: requiredLevel || 'intermediate',
+                  });
                 }
               };
               
@@ -385,7 +395,11 @@ export default function MobileHome() {
                 const handleFeatureClick = (e: React.MouseEvent) => {
                   if (!canAccess) {
                     e.preventDefault();
-                    toast.info(`Disponível no nível ${getLevelDisplayName(requiredLevel || 'intermediate')}`);
+                    setUpgradeDialog({
+                      open: true,
+                      featureName: t(item.labelKey),
+                      requiredLevel: requiredLevel || 'intermediate',
+                    });
                   }
                 };
                 
@@ -587,6 +601,15 @@ export default function MobileHome() {
 
       {/* Mobile Home Customizer */}
       <MobileHomeCustomizer open={showCustomizer} onOpenChange={setShowCustomizer} />
+
+      {/* Upgrade Dialog */}
+      <UpgradeDialog
+        open={upgradeDialog.open}
+        onOpenChange={(open) => setUpgradeDialog({ ...upgradeDialog, open })}
+        featureName={upgradeDialog.featureName}
+        requiredLevel={upgradeDialog.requiredLevel}
+        currentLevel={level}
+      />
     </div>
     </PullToRefresh>
   );
