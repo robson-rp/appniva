@@ -39,8 +39,8 @@ export default function Auth() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-hero">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-foreground border-t-transparent" />
+      <div className="flex h-screen items-center justify-center bg-background lg:bg-gradient-hero">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -241,72 +241,76 @@ export default function Auth() {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 bg-background">
-        <div className="w-full max-w-md animate-fade-in">
-          {/* Mobile Logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <NivaLogo size="5xl" />
-            <p className="mt-2 text-muted-foreground text-sm">
-              O seu sistema pessoal de decisão financeira
-            </p>
-          </div>
+      <div className="w-full lg:w-1/2 flex flex-col min-h-screen lg:min-h-0 bg-background safe-area-pt safe-area-pb">
+        {/* Mobile Header with gradient */}
+        <div className="lg:hidden bg-gradient-hero px-6 pt-12 pb-8 text-center">
+          <NivaLogo size="6xl" color="white" />
+          <p className="mt-3 text-white/80 text-sm">
+            O seu sistema pessoal de decisão financeira
+          </p>
+        </div>
+        
+        {/* Form Container */}
+        <div className="flex-1 flex items-start lg:items-center justify-center px-5 py-6 sm:p-8">
+          <div className="w-full max-w-md animate-fade-in">
+            {/* Desktop Form Header */}
+            <div className="mb-8 hidden lg:block">
+              <h1 className="text-3xl font-bold text-foreground">Bem-vindo</h1>
+              <p className="mt-2 text-muted-foreground">
+                Entre na sua conta ou crie uma nova
+              </p>
+            </div>
 
-          {/* Form Header */}
-          <div className="mb-8 hidden lg:block">
-            <h1 className="text-3xl font-bold text-foreground">Bem-vindo</h1>
-            <p className="mt-2 text-muted-foreground">
-              Entre na sua conta ou crie uma nova
-            </p>
-          </div>
-
-          {/* Tabs */}
-          <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-muted/50">
-              <TabsTrigger value="login" className="text-base data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                Entrar
-              </TabsTrigger>
-              <TabsTrigger value="signup" className="text-base data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                Criar Conta
-              </TabsTrigger>
-            </TabsList>
+            {/* Tabs */}
+            <Tabs defaultValue={defaultTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 h-11 sm:h-12 p-1 bg-muted/50 rounded-xl">
+                <TabsTrigger value="login" className="text-sm sm:text-base rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                  Entrar
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="text-sm sm:text-base rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                  Criar Conta
+                </TabsTrigger>
+              </TabsList>
             
-            <TabsContent value="login" className="mt-8">
-              <form onSubmit={handleLogin} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="text-sm font-medium">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      className="pl-12 h-12 text-base"
-                      value={loginForm.email}
-                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                      required
-                    />
+              <TabsContent value="login" className="mt-6 sm:mt-8">
+                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="login-email" className="text-sm font-medium">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="login-email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        className="pl-10 sm:pl-12 h-11 sm:h-12 text-base rounded-xl"
+                        value={loginForm.email}
+                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                        required
+                        autoComplete="email"
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-sm font-medium">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="login-password"
-                      type="password"
-                      placeholder="••••••••"
-                      className="pl-12 h-12 text-base"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      required
-                    />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="login-password" className="text-sm font-medium">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="login-password"
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-10 sm:pl-12 h-11 sm:h-12 text-base rounded-xl"
+                        value={loginForm.password}
+                        onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                        required
+                        autoComplete="current-password"
+                      />
+                    </div>
                   </div>
-                </div>
-                <Button type="submit" className="w-full h-12 text-base font-medium" disabled={isLoading}>
-                  {isLoading ? 'A entrar...' : 'Entrar'}
-                </Button>
+                  <Button type="submit" className="w-full h-11 sm:h-12 text-base font-medium rounded-xl" disabled={isLoading}>
+                    {isLoading ? 'A entrar...' : 'Entrar'}
+                  </Button>
                 
-                <div className="relative my-6">
+                <div className="relative my-5 sm:my-6">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
                   </div>
@@ -318,7 +322,7 @@ export default function Auth() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-12 text-base font-medium gap-3"
+                  className="w-full h-11 sm:h-12 text-base font-medium gap-3 rounded-xl"
                   onClick={async () => {
                     setIsLoading(true);
                     const { error } = await signInWithGoogle();
@@ -360,58 +364,61 @@ export default function Auth() {
               </form>
             </TabsContent>
             
-            <TabsContent value="signup" className="mt-8">
-              <form onSubmit={handleSignup} className="space-y-5">
-                <div className="space-y-2">
+            <TabsContent value="signup" className="mt-6 sm:mt-8">
+              <form onSubmit={handleSignup} className="space-y-4 sm:space-y-5">
+                <div className="space-y-1.5">
                   <Label htmlFor="signup-name" className="text-sm font-medium">Nome</Label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    <User className="absolute left-3.5 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="signup-name"
                       type="text"
                       placeholder="O seu nome"
-                      className="pl-12 h-12 text-base"
+                      className="pl-10 sm:pl-12 h-11 sm:h-12 text-base rounded-xl"
                       value={signupForm.name}
                       onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })}
                       required
+                      autoComplete="name"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label htmlFor="signup-email" className="text-sm font-medium">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    <Mail className="absolute left-3.5 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="signup-email"
                       type="email"
                       placeholder="seu@email.com"
-                      className="pl-12 h-12 text-base"
+                      className="pl-10 sm:pl-12 h-11 sm:h-12 text-base rounded-xl"
                       value={signupForm.email}
                       onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
                       required
+                      autoComplete="email"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label htmlFor="signup-password" className="text-sm font-medium">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    <Lock className="absolute left-3.5 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="signup-password"
                       type="password"
                       placeholder="••••••••"
-                      className="pl-12 h-12 text-base"
+                      className="pl-10 sm:pl-12 h-11 sm:h-12 text-base rounded-xl"
                       value={signupForm.password}
                       onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
                       required
+                      autoComplete="new-password"
                     />
                   </div>
                 </div>
-                <Button type="submit" className="w-full h-12 text-base font-medium" disabled={isLoading}>
+                <Button type="submit" className="w-full h-11 sm:h-12 text-base font-medium rounded-xl" disabled={isLoading}>
                   {isLoading ? 'A criar conta...' : 'Criar Conta'}
                 </Button>
                 
-                <div className="relative my-6">
+                <div className="relative my-5 sm:my-6">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
                   </div>
@@ -423,7 +430,7 @@ export default function Auth() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-12 text-base font-medium gap-3"
+                  className="w-full h-11 sm:h-12 text-base font-medium gap-3 rounded-xl"
                   onClick={async () => {
                     setIsLoading(true);
                     const { error } = await signInWithGoogle();
@@ -458,13 +465,14 @@ export default function Auth() {
             </TabsContent>
           </Tabs>
           
-          {/* Footer */}
-          <p className="mt-8 text-center text-xs text-muted-foreground">
-            Ao continuar, concorda com os nossos{' '}
-            <a href="#" className="text-primary hover:underline">Termos de Serviço</a>
-            {' '}e{' '}
-            <a href="#" className="text-primary hover:underline">Política de Privacidade</a>
-          </p>
+            {/* Footer */}
+            <p className="mt-6 sm:mt-8 text-center text-xs text-muted-foreground pb-4">
+              Ao continuar, concorda com os nossos{' '}
+              <a href="#" className="text-primary hover:underline">Termos de Serviço</a>
+              {' '}e{' '}
+              <a href="#" className="text-primary hover:underline">Política de Privacidade</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
