@@ -2,11 +2,10 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
-import { 
-  LineChart, 
+import { formatCompactCurrency } from '@/lib/constants';
+import {
   Line, 
   XAxis, 
   YAxis, 
@@ -237,34 +236,34 @@ export default function RetirementCalculator() {
 
           {/* Summary Cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-primary">
-                  {formatCurrency(calculations.realFutureValue)}
+            <Card className="min-w-0">
+              <CardContent className="pt-6 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold text-primary truncate" title={formatCurrency(calculations.realFutureValue)}>
+                  {formatCompactCurrency(calculations.realFutureValue)}
                 </div>
                 <p className="text-sm text-muted-foreground">Valor Real na Reforma</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-2xl font-bold">
-                  {formatCurrency(calculations.neededAtRetirement)}
+            <Card className="min-w-0">
+              <CardContent className="pt-6 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold truncate" title={formatCurrency(calculations.neededAtRetirement)}>
+                  {formatCompactCurrency(calculations.neededAtRetirement)}
                 </div>
                 <p className="text-sm text-muted-foreground">Meta Necessária (regra 4%)</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-2xl font-bold">
+            <Card className="min-w-0">
+              <CardContent className="pt-6 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold truncate">
                   {calculations.yearsOfIncome.toFixed(1)} anos
                 </div>
                 <p className="text-sm text-muted-foreground">Duração do Fundo</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-amber-500">
-                  {formatCurrency(calculations.requiredMonthly)}
+            <Card className="min-w-0">
+              <CardContent className="pt-6 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold text-amber-500 truncate" title={formatCurrency(calculations.requiredMonthly)}>
+                  {formatCompactCurrency(calculations.requiredMonthly)}
                 </div>
                 <p className="text-sm text-muted-foreground">Contribuição Recomendada</p>
               </CardContent>
