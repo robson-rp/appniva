@@ -9,6 +9,7 @@ const typeConfig: Record<ProductType, { label: string; icon: React.ElementType; 
   insurance: { label: 'Seguro', icon: Shield, color: 'bg-blue-500' },
   microcredit: { label: 'Microcrédito', icon: CreditCard, color: 'bg-amber-500' },
   fund: { label: 'Fundo', icon: TrendingUp, color: 'bg-purple-500' },
+  bond_otnr: { label: 'OTNR', icon: TrendingUp, color: 'bg-indigo-500' },
 };
 
 interface ProductCardProps {
@@ -104,7 +105,7 @@ export function ProductCard({ product, onSimulate, onRequest, isSelected }: Prod
         )}
 
         <div className="flex gap-2 pt-2">
-          {onSimulate && (product.product_type === 'term_deposit' || product.product_type === 'microcredit') && (
+          {onSimulate && (product.product_type === 'term_deposit' || product.product_type === 'microcredit' || product.product_type === 'bond_otnr') && (
             <Button variant="outline" size="sm" onClick={onSimulate} className="flex-1">
               Simular
             </Button>
