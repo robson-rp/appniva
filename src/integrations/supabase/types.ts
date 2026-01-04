@@ -2028,6 +2028,7 @@ export type Database = {
         | "insurance"
         | "microcredit"
         | "fund"
+        | "bond_otnr"
       goal_status: "in_progress" | "completed" | "cancelled"
       insight_type:
         | "high_expense"
@@ -2198,6 +2199,7 @@ export const Constants = {
         "insurance",
         "microcredit",
         "fund",
+        "bond_otnr",
       ],
       goal_status: ["in_progress", "completed", "cancelled"],
       insight_type: [
