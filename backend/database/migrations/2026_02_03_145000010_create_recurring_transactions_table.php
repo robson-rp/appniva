@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('recurring_transactions', function (Blueprint $table) {
             $table->id();
             $table->uuid('user_id');
-            $table->foreignId('account_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('account_id');
             $table->decimal('amount', 15, 2);
             $table->enum('type', ['income', 'expense']);
             $table->enum('frequency', ['daily', 'weekly', 'biweekly', 'monthly', 'quarterly', 'annual']);
@@ -27,8 +27,6 @@ return new class extends Migration
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('profiles')->onDelete('cascade');
-            $table->index(['user_id', 'next_execution_date', 'is_active'], 'idx_recurring_user_next_active');
         });
     }
 

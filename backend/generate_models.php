@@ -6,7 +6,7 @@ $models = [
     'UserRole',
     'UserMaturityProfile',
     'UserMobilePreference',
-    
+
     // Financial core (6)
     'Account',
     'Category',
@@ -14,50 +14,50 @@ $models = [
     'Transaction',
     'TransactionTag',
     'RecurringTransaction',
-    
+
     // Budgeting (3)
     'Budget',
     'CostCenter',
     'CostCenterBudget',
-    
+
     // Goals & Planning (3)
     'Goal',
     'GoalContribution',
     'Scenario',
-    
+
     // Debt management (2)
     'Debt',
     'DebtPayment',
-    
+
     // Investments (3)
     'Investment',
     'TermDeposit',
     'BondOtnr',
-    
+
     // Services (4)
     'Subscription',
     'SchoolFee',
     'SchoolFeeTemplate',
     'Remittance',
-    
+
     // Split expenses (5)
     'SplitExpense',
     'SplitExpenseParticipant',
     'SplitExpensePaymentHistory',
     'ParticipantGroup',
     'ParticipantGroupMember',
-    
+
     // Savings circles (3)
     'Kixikila',
     'KixikilaMembers',
     'KixikilaContribution',
-    
+
     // Analytics (4)
     'Insight',
     'DailyRecommendation',
     'FinancialScore',
     'CategoryPredictionLog',
-    
+
     // Advanced (9)
     'BankReconciliation',
     'FinancialProduct',
