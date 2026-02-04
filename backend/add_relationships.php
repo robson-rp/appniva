@@ -152,20 +152,20 @@ $updated = 0;
 
 foreach ($relationships as $modelName => $rels) {
     $filePath = $modelsDir . '/' . $modelName . '.php';
-    
+
     if (!file_exists($filePath)) {
         echo "⚠️  Model not found: $modelName\n";
         continue;
     }
-    
+
     $content = file_get_contents($filePath);
-    
+
     // Gerar métodos de relacionamento
     $relationshipMethods = '';
     $imports = "use Illuminate\Database\Eloquent\Relations\{";
     $relationTypes = array_unique(array_map(fn($r) => ucfirst($r['type']), $rels));
     $imports .= implode(', ', $relationTypes) . "};\n";
-    
+
     foreach ($rels as $rel) {
         $methodName = lcfirst(str_replace('_', '', ucwords($rel['model'], '_')));
         $methodName = str_replace('Recurringtransaction', 'RecurringTransaction', $methodName);
@@ -174,7 +174,7 @@ foreach ($relationships as $modelName => $rels) {
         $methodName = str_replace('Splitexpense', 'SplitExpense', $methodName);
         $methodName = str_replace('Participantgroup', 'ParticipantGroup', $methodName);
         $methodName = str_replace('Kixikila', 'Kixikila', $methodName);
-        
+
         // Pluralizar se for hasMany
         if ($rel['type'] === 'hasMany') {
             // Simples pluralização em inglês
@@ -182,13 +182,13 @@ foreach ($relationships as $modelName => $rels) {
                 $methodName .= 's';
             }
         }
-        
+
         $returnType = ucfirst($rel['type']);
         $fk = $rel['fk'] ?? null;
         $pivot = $rel['pivot'] ?? null;
-        
+
         $methodBody = "return \$this->";
-        
+
         if ($rel['type'] === 'belongsTo') {
             $methodBody .= "belongsTo(" . $rel['model'] . "::class";
             if ($fk) $methodBody .= ", '$fk'";
@@ -198,10 +198,10 @@ foreach ($relationships as $modelName => $rels) {
         } elseif ($rel['type'] === 'belongsToMany') {
             $methodBody .= "belongsToMany(" . $rel['model'] . "::class, '$pivot');\n";
         }
-        
+
         $relationshipMethods .= "    public function {$methodName}(): {$returnType}\n    {\n        {$methodBody}    }\n\n";
     }
-    
+
     // Atualizar arquivo
     if (strpos($content, 'use Illuminate\\Database\\Eloquent\\Relations') === false) {
         // Adicionar imports após namespace
@@ -211,7 +211,7 @@ foreach ($relationships as $modelName => $rels) {
             $content
         );
     }
-    
+
     // Adicionar métodos se não existirem
     if (strpos($content, 'public function') === false) {
         // Adicionar dentro da classe antes do fechamento
@@ -221,7 +221,7 @@ foreach ($relationships as $modelName => $rels) {
             $content
         );
     }
-    
+
     file_put_contents($filePath, $content);
     $updated++;
     echo "✓ Updated: $modelName\n";
