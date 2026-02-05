@@ -114,7 +114,7 @@
   - **Documents**: UploadedDocument, BankReconciliation, CategoryPredictionLog
   - **Security**: SecurityLog, AdminAuditLog
 - ✓ Authorization checks using policies
-- ✓ Pagination support (default 15 items/page, configurable via `per_page`)
+- ✓ Pagination support (default 15 items/page, configurable via `per_page
 - ✓ User_id auto-injection for multi-tenancy
 - ✓ Resource responses for consistent API output
 
