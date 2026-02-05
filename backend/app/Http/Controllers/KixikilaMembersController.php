@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\KixikilaMembers;
+use App\Http\Requests\StoreKixikilaMembersRequest;
+use App\Http\Requests\UpdateKixikilaMembersRequest;
+use App\Http\Resources\KixikilaMembersResource;
 use Illuminate\Http\Request;
 
 class KixikilaMembersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->kixikilaMembers();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return KixikilaMembersResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreKixikilaMembersRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $kixikilaMembers = KixikilaMembers::create($validated);
+        
+        return new KixikilaMembersResource($kixikilaMembers);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(KixikilaMembers $kixikilaMembers)
-    {
-        //
+    {        $this->authorize('view', $kixikilaMembers);
+                return new KixikilaMembersResource($kixikilaMembers);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(KixikilaMembers $kixikilaMembers)
-    {
-        //
+    public function update(UpdateKixikilaMembersRequest $request, KixikilaMembers $kixikilaMembers)
+    {        $this->authorize('update', $kixikilaMembers);
+                $kixikilaMembers->update($request->validated());
+        
+        return new KixikilaMembersResource($kixikilaMembers);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, KixikilaMembers $kixikilaMembers)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(KixikilaMembers $kixikilaMembers)
-    {
-        //
+    {        $this->authorize('delete', $kixikilaMembers);
+                $kixikilaMembers->delete();
+        
+        return response()->noContent();
     }
 }

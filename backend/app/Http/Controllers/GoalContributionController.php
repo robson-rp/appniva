@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\GoalContribution;
+use App\Http\Requests\StoreGoalContributionRequest;
+use App\Http\Requests\UpdateGoalContributionRequest;
+use App\Http\Resources\GoalContributionResource;
 use Illuminate\Http\Request;
 
 class GoalContributionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->goalContributions();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return GoalContributionResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreGoalContributionRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $goalContribution = GoalContribution::create($validated);
+        
+        return new GoalContributionResource($goalContribution);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(GoalContribution $goalContribution)
-    {
-        //
+    {        $this->authorize('view', $goalContribution);
+                return new GoalContributionResource($goalContribution);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(GoalContribution $goalContribution)
-    {
-        //
+    public function update(UpdateGoalContributionRequest $request, GoalContribution $goalContribution)
+    {        $this->authorize('update', $goalContribution);
+                $goalContribution->update($request->validated());
+        
+        return new GoalContributionResource($goalContribution);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, GoalContribution $goalContribution)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(GoalContribution $goalContribution)
-    {
-        //
+    {        $this->authorize('delete', $goalContribution);
+                $goalContribution->delete();
+        
+        return response()->noContent();
     }
 }

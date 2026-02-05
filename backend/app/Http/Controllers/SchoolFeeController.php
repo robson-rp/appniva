@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\SchoolFee;
+use App\Http\Requests\StoreSchoolFeeRequest;
+use App\Http\Requests\UpdateSchoolFeeRequest;
+use App\Http\Resources\SchoolFeeResource;
 use Illuminate\Http\Request;
 
 class SchoolFeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->schoolFees();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return SchoolFeeResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreSchoolFeeRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $schoolFee = SchoolFee::create($validated);
+        
+        return new SchoolFeeResource($schoolFee);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(SchoolFee $schoolFee)
-    {
-        //
+    {        $this->authorize('view', $schoolFee);
+                return new SchoolFeeResource($schoolFee);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SchoolFee $schoolFee)
-    {
-        //
+    public function update(UpdateSchoolFeeRequest $request, SchoolFee $schoolFee)
+    {        $this->authorize('update', $schoolFee);
+                $schoolFee->update($request->validated());
+        
+        return new SchoolFeeResource($schoolFee);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SchoolFee $schoolFee)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SchoolFee $schoolFee)
-    {
-        //
+    {        $this->authorize('delete', $schoolFee);
+                $schoolFee->delete();
+        
+        return response()->noContent();
     }
 }

@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\SplitExpensePaymentHistory;
+use App\Http\Requests\StoreSplitExpensePaymentHistoryRequest;
+use App\Http\Requests\UpdateSplitExpensePaymentHistoryRequest;
+use App\Http\Resources\SplitExpensePaymentHistoryResource;
 use Illuminate\Http\Request;
 
 class SplitExpensePaymentHistoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->splitExpensePaymentHistories();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return SplitExpensePaymentHistoryResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreSplitExpensePaymentHistoryRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $splitExpensePaymentHistory = SplitExpensePaymentHistory::create($validated);
+        
+        return new SplitExpensePaymentHistoryResource($splitExpensePaymentHistory);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(SplitExpensePaymentHistory $splitExpensePaymentHistory)
-    {
-        //
+    {        $this->authorize('view', $splitExpensePaymentHistory);
+                return new SplitExpensePaymentHistoryResource($splitExpensePaymentHistory);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SplitExpensePaymentHistory $splitExpensePaymentHistory)
-    {
-        //
+    public function update(UpdateSplitExpensePaymentHistoryRequest $request, SplitExpensePaymentHistory $splitExpensePaymentHistory)
+    {        $this->authorize('update', $splitExpensePaymentHistory);
+                $splitExpensePaymentHistory->update($request->validated());
+        
+        return new SplitExpensePaymentHistoryResource($splitExpensePaymentHistory);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SplitExpensePaymentHistory $splitExpensePaymentHistory)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SplitExpensePaymentHistory $splitExpensePaymentHistory)
-    {
-        //
+    {        $this->authorize('delete', $splitExpensePaymentHistory);
+                $splitExpensePaymentHistory->delete();
+        
+        return response()->noContent();
     }
 }

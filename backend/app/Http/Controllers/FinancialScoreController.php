@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\FinancialScore;
+use App\Http\Requests\StoreFinancialScoreRequest;
+use App\Http\Requests\UpdateFinancialScoreRequest;
+use App\Http\Resources\FinancialScoreResource;
 use Illuminate\Http\Request;
 
 class FinancialScoreController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->financialScores();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return FinancialScoreResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreFinancialScoreRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $financialScore = FinancialScore::create($validated);
+        
+        return new FinancialScoreResource($financialScore);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(FinancialScore $financialScore)
-    {
-        //
+    {        $this->authorize('view', $financialScore);
+                return new FinancialScoreResource($financialScore);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(FinancialScore $financialScore)
-    {
-        //
+    public function update(UpdateFinancialScoreRequest $request, FinancialScore $financialScore)
+    {        $this->authorize('update', $financialScore);
+                $financialScore->update($request->validated());
+        
+        return new FinancialScoreResource($financialScore);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, FinancialScore $financialScore)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(FinancialScore $financialScore)
-    {
-        //
+    {        $this->authorize('delete', $financialScore);
+                $financialScore->delete();
+        
+        return response()->noContent();
     }
 }

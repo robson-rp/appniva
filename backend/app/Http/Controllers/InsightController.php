@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\Insight;
+use App\Http\Requests\StoreInsightRequest;
+use App\Http\Requests\UpdateInsightRequest;
+use App\Http\Resources\InsightResource;
 use Illuminate\Http\Request;
 
 class InsightController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->insights();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return InsightResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreInsightRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $insight = Insight::create($validated);
+        
+        return new InsightResource($insight);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Insight $insight)
-    {
-        //
+    {        $this->authorize('view', $insight);
+                return new InsightResource($insight);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Insight $insight)
-    {
-        //
+    public function update(UpdateInsightRequest $request, Insight $insight)
+    {        $this->authorize('update', $insight);
+                $insight->update($request->validated());
+        
+        return new InsightResource($insight);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Insight $insight)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Insight $insight)
-    {
-        //
+    {        $this->authorize('delete', $insight);
+                $insight->delete();
+        
+        return response()->noContent();
     }
 }

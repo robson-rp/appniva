@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductRequest;
+use App\Http\Requests\StoreProductRequestRequest;
+use App\Http\Requests\UpdateProductRequestRequest;
+use App\Http\Resources\ProductRequestResource;
 use Illuminate\Http\Request;
 
 class ProductRequestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->productRequests();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return ProductRequestResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreProductRequestRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $productRequest = ProductRequest::create($validated);
+        
+        return new ProductRequestResource($productRequest);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(ProductRequest $productRequest)
-    {
-        //
+    {        $this->authorize('view', $productRequest);
+                return new ProductRequestResource($productRequest);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ProductRequest $productRequest)
-    {
-        //
+    public function update(UpdateProductRequestRequest $request, ProductRequest $productRequest)
+    {        $this->authorize('update', $productRequest);
+                $productRequest->update($request->validated());
+        
+        return new ProductRequestResource($productRequest);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ProductRequest $productRequest)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ProductRequest $productRequest)
-    {
-        //
+    {        $this->authorize('delete', $productRequest);
+                $productRequest->delete();
+        
+        return response()->noContent();
     }
 }

@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyRecommendation;
+use App\Http\Requests\StoreDailyRecommendationRequest;
+use App\Http\Requests\UpdateDailyRecommendationRequest;
+use App\Http\Resources\DailyRecommendationResource;
 use Illuminate\Http\Request;
 
 class DailyRecommendationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->dailyRecommendations();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return DailyRecommendationResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreDailyRecommendationRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $dailyRecommendation = DailyRecommendation::create($validated);
+        
+        return new DailyRecommendationResource($dailyRecommendation);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(DailyRecommendation $dailyRecommendation)
-    {
-        //
+    {        $this->authorize('view', $dailyRecommendation);
+                return new DailyRecommendationResource($dailyRecommendation);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(DailyRecommendation $dailyRecommendation)
-    {
-        //
+    public function update(UpdateDailyRecommendationRequest $request, DailyRecommendation $dailyRecommendation)
+    {        $this->authorize('update', $dailyRecommendation);
+                $dailyRecommendation->update($request->validated());
+        
+        return new DailyRecommendationResource($dailyRecommendation);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, DailyRecommendation $dailyRecommendation)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(DailyRecommendation $dailyRecommendation)
-    {
-        //
+    {        $this->authorize('delete', $dailyRecommendation);
+                $dailyRecommendation->delete();
+        
+        return response()->noContent();
     }
 }

@@ -13,14 +13,14 @@ $created = 0;
 
 foreach ($models as $modelName) {
     $policyFile = $policiesDir . '/' . $modelName . 'Policy.php';
-    
+
     if (file_exists($policyFile)) {
         echo "⚠️  Policy exists: {$modelName}Policy\n";
         continue;
     }
-    
+
     $modelVar = lcfirst($modelName);
-    
+
     $content = <<<PHP
 <?php
 
@@ -88,7 +88,7 @@ class {$modelName}Policy
     }
 }
 PHP;
-    
+
     file_put_contents($policyFile, $content);
     $created++;
     echo "✓ Created: {$modelName}Policy\n";

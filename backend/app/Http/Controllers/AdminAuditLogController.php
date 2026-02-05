@@ -3,63 +3,44 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminAuditLog;
+use App\Http\Requests\StoreAdminAuditLogRequest;
+use App\Http\Requests\UpdateAdminAuditLogRequest;
+use App\Http\Resources\AdminAuditLogResource;
 use Illuminate\Http\Request;
 
 class AdminAuditLogController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = AdminAuditLog::query();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return AdminAuditLogResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreAdminAuditLogRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $adminAuditLog = AdminAuditLog::create($validated);
+        
+        return new AdminAuditLogResource($adminAuditLog);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(AdminAuditLog $adminAuditLog)
-    {
-        //
+    {        return new AdminAuditLogResource($adminAuditLog);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AdminAuditLog $adminAuditLog)
-    {
-        //
+    public function update(UpdateAdminAuditLogRequest $request, AdminAuditLog $adminAuditLog)
+    {        $adminAuditLog->update($request->validated());
+        
+        return new AdminAuditLogResource($adminAuditLog);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, AdminAuditLog $adminAuditLog)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(AdminAuditLog $adminAuditLog)
-    {
-        //
+    {        $adminAuditLog->delete();
+        
+        return response()->noContent();
     }
 }

@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\SplitExpense;
+use App\Http\Requests\StoreSplitExpenseRequest;
+use App\Http\Requests\UpdateSplitExpenseRequest;
+use App\Http\Resources\SplitExpenseResource;
 use Illuminate\Http\Request;
 
 class SplitExpenseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->splitExpenses();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return SplitExpenseResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreSplitExpenseRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $splitExpense = SplitExpense::create($validated);
+        
+        return new SplitExpenseResource($splitExpense);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(SplitExpense $splitExpense)
-    {
-        //
+    {        $this->authorize('view', $splitExpense);
+                return new SplitExpenseResource($splitExpense);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SplitExpense $splitExpense)
-    {
-        //
+    public function update(UpdateSplitExpenseRequest $request, SplitExpense $splitExpense)
+    {        $this->authorize('update', $splitExpense);
+                $splitExpense->update($request->validated());
+        
+        return new SplitExpenseResource($splitExpense);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SplitExpense $splitExpense)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SplitExpense $splitExpense)
-    {
-        //
+    {        $this->authorize('delete', $splitExpense);
+                $splitExpense->delete();
+        
+        return response()->noContent();
     }
 }

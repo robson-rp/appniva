@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\SecurityLog;
+use App\Http\Requests\StoreSecurityLogRequest;
+use App\Http\Requests\UpdateSecurityLogRequest;
+use App\Http\Resources\SecurityLogResource;
 use Illuminate\Http\Request;
 
 class SecurityLogController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->securityLogs();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return SecurityLogResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreSecurityLogRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $securityLog = SecurityLog::create($validated);
+        
+        return new SecurityLogResource($securityLog);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(SecurityLog $securityLog)
-    {
-        //
+    {        $this->authorize('view', $securityLog);
+                return new SecurityLogResource($securityLog);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SecurityLog $securityLog)
-    {
-        //
+    public function update(UpdateSecurityLogRequest $request, SecurityLog $securityLog)
+    {        $this->authorize('update', $securityLog);
+                $securityLog->update($request->validated());
+        
+        return new SecurityLogResource($securityLog);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SecurityLog $securityLog)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SecurityLog $securityLog)
-    {
-        //
+    {        $this->authorize('delete', $securityLog);
+                $securityLog->delete();
+        
+        return response()->noContent();
     }
 }

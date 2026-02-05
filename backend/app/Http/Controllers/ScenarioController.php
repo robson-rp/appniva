@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\Scenario;
+use App\Http\Requests\StoreScenarioRequest;
+use App\Http\Requests\UpdateScenarioRequest;
+use App\Http\Resources\ScenarioResource;
 use Illuminate\Http\Request;
 
 class ScenarioController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->scenarios();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return ScenarioResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreScenarioRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $scenario = Scenario::create($validated);
+        
+        return new ScenarioResource($scenario);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Scenario $scenario)
-    {
-        //
+    {        $this->authorize('view', $scenario);
+                return new ScenarioResource($scenario);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Scenario $scenario)
-    {
-        //
+    public function update(UpdateScenarioRequest $request, Scenario $scenario)
+    {        $this->authorize('update', $scenario);
+                $scenario->update($request->validated());
+        
+        return new ScenarioResource($scenario);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Scenario $scenario)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Scenario $scenario)
-    {
-        //
+    {        $this->authorize('delete', $scenario);
+                $scenario->delete();
+        
+        return response()->noContent();
     }
 }

@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\CategoryPredictionLog;
+use App\Http\Requests\StoreCategoryPredictionLogRequest;
+use App\Http\Requests\UpdateCategoryPredictionLogRequest;
+use App\Http\Resources\CategoryPredictionLogResource;
 use Illuminate\Http\Request;
 
 class CategoryPredictionLogController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->categoryPredictionLogs();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return CategoryPredictionLogResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreCategoryPredictionLogRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $categoryPredictionLog = CategoryPredictionLog::create($validated);
+        
+        return new CategoryPredictionLogResource($categoryPredictionLog);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(CategoryPredictionLog $categoryPredictionLog)
-    {
-        //
+    {        $this->authorize('view', $categoryPredictionLog);
+                return new CategoryPredictionLogResource($categoryPredictionLog);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CategoryPredictionLog $categoryPredictionLog)
-    {
-        //
+    public function update(UpdateCategoryPredictionLogRequest $request, CategoryPredictionLog $categoryPredictionLog)
+    {        $this->authorize('update', $categoryPredictionLog);
+                $categoryPredictionLog->update($request->validated());
+        
+        return new CategoryPredictionLogResource($categoryPredictionLog);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CategoryPredictionLog $categoryPredictionLog)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(CategoryPredictionLog $categoryPredictionLog)
-    {
-        //
+    {        $this->authorize('delete', $categoryPredictionLog);
+                $categoryPredictionLog->delete();
+        
+        return response()->noContent();
     }
 }

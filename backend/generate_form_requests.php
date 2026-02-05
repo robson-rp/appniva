@@ -130,22 +130,22 @@ $created = 0;
 
 foreach ($validationRules as $requestName => $rules) {
     $requestFile = $requestsDir . '/' . $requestName . 'Request.php';
-    
+
     if (file_exists($requestFile)) {
         echo "⚠️  Request exists: {$requestName}Request\n";
         continue;
     }
-    
+
     // Gerar rules array formatado
     $rulesStr = "        return [\n";
     foreach ($rules as $field => $fieldRules) {
         $rulesStr .= "            '" . $field . "' => '" . $fieldRules . "',\n";
     }
     $rulesStr .= "        ];";
-    
+
     $isStore = str_contains($requestName, 'Store');
     $actionType = $isStore ? 'store' : 'update';
-    
+
     $content = <<<PHP
 <?php
 
@@ -172,7 +172,7 @@ class {$requestName}Request extends FormRequest
     {
 $rulesStr
     }
-    
+
     /**
      * Get the error messages for the defined validation rules.
      */
@@ -190,7 +190,7 @@ $rulesStr
     }
 }
 PHP;
-    
+
     file_put_contents($requestFile, $content);
     $created++;
     echo "✓ Created: {$requestName}Request\n";

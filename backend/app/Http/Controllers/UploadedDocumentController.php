@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\UploadedDocument;
+use App\Http\Requests\StoreUploadedDocumentRequest;
+use App\Http\Requests\UpdateUploadedDocumentRequest;
+use App\Http\Resources\UploadedDocumentResource;
 use Illuminate\Http\Request;
 
 class UploadedDocumentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->uploadedDocuments();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return UploadedDocumentResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreUploadedDocumentRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $uploadedDocument = UploadedDocument::create($validated);
+        
+        return new UploadedDocumentResource($uploadedDocument);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(UploadedDocument $uploadedDocument)
-    {
-        //
+    {        $this->authorize('view', $uploadedDocument);
+                return new UploadedDocumentResource($uploadedDocument);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UploadedDocument $uploadedDocument)
-    {
-        //
+    public function update(UpdateUploadedDocumentRequest $request, UploadedDocument $uploadedDocument)
+    {        $this->authorize('update', $uploadedDocument);
+                $uploadedDocument->update($request->validated());
+        
+        return new UploadedDocumentResource($uploadedDocument);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, UploadedDocument $uploadedDocument)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(UploadedDocument $uploadedDocument)
-    {
-        //
+    {        $this->authorize('delete', $uploadedDocument);
+                $uploadedDocument->delete();
+        
+        return response()->noContent();
     }
 }

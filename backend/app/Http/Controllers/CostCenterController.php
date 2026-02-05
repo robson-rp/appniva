@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\CostCenter;
+use App\Http\Requests\StoreCostCenterRequest;
+use App\Http\Requests\UpdateCostCenterRequest;
+use App\Http\Resources\CostCenterResource;
 use Illuminate\Http\Request;
 
 class CostCenterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->costCenters();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return CostCenterResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreCostCenterRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $costCenter = CostCenter::create($validated);
+        
+        return new CostCenterResource($costCenter);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(CostCenter $costCenter)
-    {
-        //
+    {        $this->authorize('view', $costCenter);
+                return new CostCenterResource($costCenter);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CostCenter $costCenter)
-    {
-        //
+    public function update(UpdateCostCenterRequest $request, CostCenter $costCenter)
+    {        $this->authorize('update', $costCenter);
+                $costCenter->update($request->validated());
+        
+        return new CostCenterResource($costCenter);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CostCenter $costCenter)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(CostCenter $costCenter)
-    {
-        //
+    {        $this->authorize('delete', $costCenter);
+                $costCenter->delete();
+        
+        return response()->noContent();
     }
 }

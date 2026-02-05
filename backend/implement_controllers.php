@@ -52,7 +52,7 @@ $updated = 0;
 
 foreach ($controllersConfig as $controllerName => $config) {
     $controllerFile = $controllersDir . '/' . $controllerName . '.php';
-    
+
     $code = <<<PHP
 <?php
 
@@ -72,11 +72,11 @@ class {$controllerName} extends Controller
     public function index(Request \$request)
     {
         \$query = auth()->user()->{$config['model']}s();
-        
+
         // Paginação
         \$perPage = \$request->input('per_page', 15);
         \$resources = \$query->paginate(\$perPage);
-        
+
         return {$config['resource']}::collection(\$resources);
     }
 
@@ -87,9 +87,9 @@ class {$controllerName} extends Controller
     {
         \$validated = \$request->validated();
         \$validated['user_id'] = auth()->id();
-        
+
         \${$config['model']} = {$config['model']}::create(\$validated);
-        
+
         return new {$config['resource']}(\${$config['model']});
     }
 
@@ -99,7 +99,7 @@ class {$controllerName} extends Controller
     public function show({$config['model']} \${$config['model']})
     {
         \$this->authorize('view', \${$config['model']});
-        
+
         return new {$config['resource']}(\${$config['model']});
     }
 
@@ -109,9 +109,9 @@ class {$controllerName} extends Controller
     public function update({$config['updateRequest']} \$request, {$config['model']} \${$config['model']})
     {
         \$this->authorize('update', \${$config['model']});
-        
+
         \${$config['model']}->update(\$request->validated());
-        
+
         return new {$config['resource']}(\${$config['model']});
     }
 
@@ -121,14 +121,14 @@ class {$controllerName} extends Controller
     public function destroy({$config['model']} \${$config['model']})
     {
         \$this->authorize('delete', \${$config['model']});
-        
+
         \${$config['model']}->delete();
-        
+
         return response()->noContent();
     }
 }
 PHP;
-    
+
     file_put_contents($controllerFile, $code);
     $updated++;
     echo "✓ Updated: {$controllerName}\n";

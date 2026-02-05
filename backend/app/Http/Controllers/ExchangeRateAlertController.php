@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExchangeRateAlert;
+use App\Http\Requests\StoreExchangeRateAlertRequest;
+use App\Http\Requests\UpdateExchangeRateAlertRequest;
+use App\Http\Resources\ExchangeRateAlertResource;
 use Illuminate\Http\Request;
 
 class ExchangeRateAlertController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->exchangeRateAlerts();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return ExchangeRateAlertResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreExchangeRateAlertRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $exchangeRateAlert = ExchangeRateAlert::create($validated);
+        
+        return new ExchangeRateAlertResource($exchangeRateAlert);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(ExchangeRateAlert $exchangeRateAlert)
-    {
-        //
+    {        $this->authorize('view', $exchangeRateAlert);
+                return new ExchangeRateAlertResource($exchangeRateAlert);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ExchangeRateAlert $exchangeRateAlert)
-    {
-        //
+    public function update(UpdateExchangeRateAlertRequest $request, ExchangeRateAlert $exchangeRateAlert)
+    {        $this->authorize('update', $exchangeRateAlert);
+                $exchangeRateAlert->update($request->validated());
+        
+        return new ExchangeRateAlertResource($exchangeRateAlert);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ExchangeRateAlert $exchangeRateAlert)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ExchangeRateAlert $exchangeRateAlert)
-    {
-        //
+    {        $this->authorize('delete', $exchangeRateAlert);
+                $exchangeRateAlert->delete();
+        
+        return response()->noContent();
     }
 }

@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExchangeRate;
+use App\Http\Requests\StoreExchangeRateRequest;
+use App\Http\Requests\UpdateExchangeRateRequest;
+use App\Http\Resources\ExchangeRateResource;
 use Illuminate\Http\Request;
 
 class ExchangeRateController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->exchangeRates();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return ExchangeRateResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreExchangeRateRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $exchangeRate = ExchangeRate::create($validated);
+        
+        return new ExchangeRateResource($exchangeRate);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(ExchangeRate $exchangeRate)
-    {
-        //
+    {        $this->authorize('view', $exchangeRate);
+                return new ExchangeRateResource($exchangeRate);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ExchangeRate $exchangeRate)
-    {
-        //
+    public function update(UpdateExchangeRateRequest $request, ExchangeRate $exchangeRate)
+    {        $this->authorize('update', $exchangeRate);
+                $exchangeRate->update($request->validated());
+        
+        return new ExchangeRateResource($exchangeRate);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ExchangeRate $exchangeRate)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ExchangeRate $exchangeRate)
-    {
-        //
+    {        $this->authorize('delete', $exchangeRate);
+                $exchangeRate->delete();
+        
+        return response()->noContent();
     }
 }

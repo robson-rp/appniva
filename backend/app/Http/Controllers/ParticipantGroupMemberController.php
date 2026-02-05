@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\ParticipantGroupMember;
+use App\Http\Requests\StoreParticipantGroupMemberRequest;
+use App\Http\Requests\UpdateParticipantGroupMemberRequest;
+use App\Http\Resources\ParticipantGroupMemberResource;
 use Illuminate\Http\Request;
 
 class ParticipantGroupMemberController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->participantGroupMembers();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return ParticipantGroupMemberResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreParticipantGroupMemberRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $participantGroupMember = ParticipantGroupMember::create($validated);
+        
+        return new ParticipantGroupMemberResource($participantGroupMember);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(ParticipantGroupMember $participantGroupMember)
-    {
-        //
+    {        $this->authorize('view', $participantGroupMember);
+                return new ParticipantGroupMemberResource($participantGroupMember);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ParticipantGroupMember $participantGroupMember)
-    {
-        //
+    public function update(UpdateParticipantGroupMemberRequest $request, ParticipantGroupMember $participantGroupMember)
+    {        $this->authorize('update', $participantGroupMember);
+                $participantGroupMember->update($request->validated());
+        
+        return new ParticipantGroupMemberResource($participantGroupMember);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ParticipantGroupMember $participantGroupMember)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ParticipantGroupMember $participantGroupMember)
-    {
-        //
+    {        $this->authorize('delete', $participantGroupMember);
+                $participantGroupMember->delete();
+        
+        return response()->noContent();
     }
 }

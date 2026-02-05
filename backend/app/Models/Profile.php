@@ -9,7 +9,9 @@ class Profile extends Model
 {
     protected $keyType = 'string';
     public $incrementing = false;
-    protected $guarded = [];\n\n    protected $fillable = [
+    protected $guarded = [];
+
+    protected $fillable = [
         'email',
         'name',
         'primary_currency',

@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\CostCenterBudget;
+use App\Http\Requests\StoreCostCenterBudgetRequest;
+use App\Http\Requests\UpdateCostCenterBudgetRequest;
+use App\Http\Resources\CostCenterBudgetResource;
 use Illuminate\Http\Request;
 
 class CostCenterBudgetController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->costCenterBudgets();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return CostCenterBudgetResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreCostCenterBudgetRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $costCenterBudget = CostCenterBudget::create($validated);
+        
+        return new CostCenterBudgetResource($costCenterBudget);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(CostCenterBudget $costCenterBudget)
-    {
-        //
+    {        $this->authorize('view', $costCenterBudget);
+                return new CostCenterBudgetResource($costCenterBudget);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CostCenterBudget $costCenterBudget)
-    {
-        //
+    public function update(UpdateCostCenterBudgetRequest $request, CostCenterBudget $costCenterBudget)
+    {        $this->authorize('update', $costCenterBudget);
+                $costCenterBudget->update($request->validated());
+        
+        return new CostCenterBudgetResource($costCenterBudget);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, CostCenterBudget $costCenterBudget)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(CostCenterBudget $costCenterBudget)
-    {
-        //
+    {        $this->authorize('delete', $costCenterBudget);
+                $costCenterBudget->delete();
+        
+        return response()->noContent();
     }
 }

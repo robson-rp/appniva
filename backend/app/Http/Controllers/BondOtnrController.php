@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\BondOtnr;
+use App\Http\Requests\StoreBondOtnrRequest;
+use App\Http\Requests\UpdateBondOtnrRequest;
+use App\Http\Resources\BondOtnrResource;
 use Illuminate\Http\Request;
 
 class BondOtnrController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->bondOtnrs();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return BondOtnrResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreBondOtnrRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $bondOtnr = BondOtnr::create($validated);
+        
+        return new BondOtnrResource($bondOtnr);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(BondOtnr $bondOtnr)
-    {
-        //
+    {        $this->authorize('view', $bondOtnr);
+                return new BondOtnrResource($bondOtnr);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(BondOtnr $bondOtnr)
-    {
-        //
+    public function update(UpdateBondOtnrRequest $request, BondOtnr $bondOtnr)
+    {        $this->authorize('update', $bondOtnr);
+                $bondOtnr->update($request->validated());
+        
+        return new BondOtnrResource($bondOtnr);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, BondOtnr $bondOtnr)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(BondOtnr $bondOtnr)
-    {
-        //
+    {        $this->authorize('delete', $bondOtnr);
+                $bondOtnr->delete();
+        
+        return response()->noContent();
     }
 }

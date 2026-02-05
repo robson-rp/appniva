@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TransactionTagController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\RecurringTransactionController;
 use App\Http\Controllers\BudgetController;
@@ -56,6 +57,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('accounts', AccountController::class);
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('tags', TagController::class);
+    Route::apiResource('transaction-tags', TransactionTagController::class);
     Route::apiResource('transactions', TransactionController::class);
     Route::apiResource('recurring-transactions', RecurringTransactionController::class);
     

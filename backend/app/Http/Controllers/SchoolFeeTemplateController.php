@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\SchoolFeeTemplate;
+use App\Http\Requests\StoreSchoolFeeTemplateRequest;
+use App\Http\Requests\UpdateSchoolFeeTemplateRequest;
+use App\Http\Resources\SchoolFeeTemplateResource;
 use Illuminate\Http\Request;
 
 class SchoolFeeTemplateController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->schoolFeeTemplates();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return SchoolFeeTemplateResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreSchoolFeeTemplateRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $schoolFeeTemplate = SchoolFeeTemplate::create($validated);
+        
+        return new SchoolFeeTemplateResource($schoolFeeTemplate);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(SchoolFeeTemplate $schoolFeeTemplate)
-    {
-        //
+    {        $this->authorize('view', $schoolFeeTemplate);
+                return new SchoolFeeTemplateResource($schoolFeeTemplate);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SchoolFeeTemplate $schoolFeeTemplate)
-    {
-        //
+    public function update(UpdateSchoolFeeTemplateRequest $request, SchoolFeeTemplate $schoolFeeTemplate)
+    {        $this->authorize('update', $schoolFeeTemplate);
+                $schoolFeeTemplate->update($request->validated());
+        
+        return new SchoolFeeTemplateResource($schoolFeeTemplate);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SchoolFeeTemplate $schoolFeeTemplate)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SchoolFeeTemplate $schoolFeeTemplate)
-    {
-        //
+    {        $this->authorize('delete', $schoolFeeTemplate);
+                $schoolFeeTemplate->delete();
+        
+        return response()->noContent();
     }
 }

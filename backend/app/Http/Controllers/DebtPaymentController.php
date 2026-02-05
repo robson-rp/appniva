@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\DebtPayment;
+use App\Http\Requests\StoreDebtPaymentRequest;
+use App\Http\Requests\UpdateDebtPaymentRequest;
+use App\Http\Resources\DebtPaymentResource;
 use Illuminate\Http\Request;
 
 class DebtPaymentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->debtPayments();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return DebtPaymentResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreDebtPaymentRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $debtPayment = DebtPayment::create($validated);
+        
+        return new DebtPaymentResource($debtPayment);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(DebtPayment $debtPayment)
-    {
-        //
+    {        $this->authorize('view', $debtPayment);
+                return new DebtPaymentResource($debtPayment);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(DebtPayment $debtPayment)
-    {
-        //
+    public function update(UpdateDebtPaymentRequest $request, DebtPayment $debtPayment)
+    {        $this->authorize('update', $debtPayment);
+                $debtPayment->update($request->validated());
+        
+        return new DebtPaymentResource($debtPayment);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, DebtPayment $debtPayment)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(DebtPayment $debtPayment)
-    {
-        //
+    {        $this->authorize('delete', $debtPayment);
+                $debtPayment->delete();
+        
+        return response()->noContent();
     }
 }

@@ -55,21 +55,21 @@ $updated = 0;
 
 foreach ($fillableMap as $modelName => $fields) {
     $filePath = $modelsDir . '/' . $modelName . '.php';
-    
+
     if (!file_exists($filePath)) {
         echo "⚠️  Model not found: $modelName\n";
         continue;
     }
-    
+
     $content = file_get_contents($filePath);
-    
+
     // Gerar string de fillable
     $fillableStr = "protected \$fillable = [\n";
     foreach ($fields as $field) {
         $fillableStr .= "        '" . $field . "',\n";
     }
     $fillableStr .= "    ];";
-    
+
     // Se já tem protected $fillable, substituir
     if (preg_match('/protected \$fillable = \[.*?\];/s', $content)) {
         $content = preg_replace(
@@ -94,7 +94,7 @@ foreach ($fillableMap as $modelName => $fields) {
             );
         }
     }
-    
+
     file_put_contents($filePath, $content);
     $updated++;
     echo "✓ Added fillable to: $modelName\n";

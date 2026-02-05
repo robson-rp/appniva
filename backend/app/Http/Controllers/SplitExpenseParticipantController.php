@@ -3,63 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\SplitExpenseParticipant;
+use App\Http\Requests\StoreSplitExpenseParticipantRequest;
+use App\Http\Requests\UpdateSplitExpenseParticipantRequest;
+use App\Http\Resources\SplitExpenseParticipantResource;
 use Illuminate\Http\Request;
 
 class SplitExpenseParticipantController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = auth()->user()->splitExpenseParticipants();
+        
+        $perPage = $request->input('per_page', 15);
+        $resources = $query->paginate($perPage);
+        
+        return SplitExpenseParticipantResource::collection($resources);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreSplitExpenseParticipantRequest $request)
     {
-        //
+        $validated = $request->validated();
+                $validated['user_id'] = auth()->id();
+                $splitExpenseParticipant = SplitExpenseParticipant::create($validated);
+        
+        return new SplitExpenseParticipantResource($splitExpenseParticipant);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(SplitExpenseParticipant $splitExpenseParticipant)
-    {
-        //
+    {        $this->authorize('view', $splitExpenseParticipant);
+                return new SplitExpenseParticipantResource($splitExpenseParticipant);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SplitExpenseParticipant $splitExpenseParticipant)
-    {
-        //
+    public function update(UpdateSplitExpenseParticipantRequest $request, SplitExpenseParticipant $splitExpenseParticipant)
+    {        $this->authorize('update', $splitExpenseParticipant);
+                $splitExpenseParticipant->update($request->validated());
+        
+        return new SplitExpenseParticipantResource($splitExpenseParticipant);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SplitExpenseParticipant $splitExpenseParticipant)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(SplitExpenseParticipant $splitExpenseParticipant)
-    {
-        //
+    {        $this->authorize('delete', $splitExpenseParticipant);
+                $splitExpenseParticipant->delete();
+        
+        return response()->noContent();
     }
 }
