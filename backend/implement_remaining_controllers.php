@@ -2,7 +2,7 @@
 
 /**
  * Script para implementar os 39 Controllers restantes
- * 
+ *
  * Gera: Controllers, Form Requests, e Policies para todas as entidades pendentes
  */
 
@@ -39,7 +39,7 @@ $controllersConfig = [
             'tag_id' => 'required|exists:tags,id',
         ],
     ],
-    
+
     // Centros de Custo
     'CostCenterController' => [
         'model' => 'CostCenter',
@@ -59,7 +59,7 @@ $controllersConfig = [
             'allocated_amount' => 'required|numeric|min:0',
         ],
     ],
-    
+
     // Metas & Contribuições
     'GoalContributionController' => [
         'model' => 'GoalContribution',
@@ -71,7 +71,7 @@ $controllersConfig = [
             'notes' => 'nullable|string',
         ],
     ],
-    
+
     // Cenários & Simulações
     'ScenarioController' => [
         'model' => 'Scenario',
@@ -84,7 +84,7 @@ $controllersConfig = [
             'result' => 'nullable|json',
         ],
     ],
-    
+
     // Dívidas
     'DebtPaymentController' => [
         'model' => 'DebtPayment',
@@ -98,7 +98,7 @@ $controllersConfig = [
             'notes' => 'nullable|string',
         ],
     ],
-    
+
     // Investimentos
     'InvestmentController' => [
         'model' => 'Investment',
@@ -136,7 +136,7 @@ $controllersConfig = [
             'face_value' => 'required|numeric|min:0',
         ],
     ],
-    
+
     // Assinaturas & Mensalidades
     'SubscriptionController' => [
         'model' => 'Subscription',
@@ -176,7 +176,7 @@ $controllersConfig = [
             'end_month' => 'required|integer|min:1|max:12',
         ],
     ],
-    
+
     // Remessas
     'RemittanceController' => [
         'model' => 'Remittance',
@@ -195,7 +195,7 @@ $controllersConfig = [
             'notes' => 'nullable|string',
         ],
     ],
-    
+
     // Despesas Compartilhadas
     'SplitExpenseController' => [
         'model' => 'SplitExpense',
@@ -247,7 +247,7 @@ $controllersConfig = [
             'member_email' => 'nullable|email|max:100',
         ],
     ],
-    
+
     // Kixikila (Poupança coletiva angolana)
     'KixikilaController' => [
         'model' => 'Kixikila',
@@ -284,7 +284,7 @@ $controllersConfig = [
             'notes' => 'nullable|string',
         ],
     ],
-    
+
     // Insights & Recomendações
     'InsightController' => [
         'model' => 'Insight',
@@ -322,7 +322,7 @@ $controllersConfig = [
             'goal_progress_score' => 'nullable|numeric|min:0|max:100',
         ],
     ],
-    
+
     // Taxas & Inflação
     'ExchangeRateController' => [
         'model' => 'ExchangeRate',
@@ -357,7 +357,7 @@ $controllersConfig = [
             'rate' => 'required|numeric',
         ],
     ],
-    
+
     // Produtos & Solicitações
     'FinancialProductController' => [
         'model' => 'FinancialProduct',
@@ -384,7 +384,7 @@ $controllersConfig = [
             'notes' => 'nullable|string',
         ],
     ],
-    
+
     // Documentos & Reconciliação
     'UploadedDocumentController' => [
         'model' => 'UploadedDocument',
@@ -423,7 +423,7 @@ $controllersConfig = [
             'feedback' => 'nullable|string',
         ],
     ],
-    
+
     // Admin & Segurança
     'AdminAuditLogController' => [
         'model' => 'AdminAuditLog',
@@ -463,19 +463,19 @@ foreach ($controllersConfig as $controllerName => $config) {
     $relation = $config['relation'];
     $validationRules = $config['validationRules'];
     $isAdmin = $config['isAdmin'] ?? false;
-    
+
     // 1. Gerar Form Requests (Store e Update)
     generateFormRequests($model, $validationRules, $requestsDir);
     $generated['requests'] += 2;
-    
+
     // 2. Gerar Policy
     generatePolicy($model, $isAdmin, $policiesDir);
     $generated['policies']++;
-    
+
     // 3. Gerar Controller
     generateController($controllerName, $model, $relation, $isAdmin, $controllersDir);
     $generated['controllers']++;
-    
+
     echo "✓ Gerado: {$controllerName}\n";
 }
 
@@ -492,30 +492,30 @@ function generateFormRequests($model, $validationRules, $requestsDir)
 {
     $storeRequestName = "Store{$model}Request";
     $updateRequestName = "Update{$model}Request";
-    
+
     // Store Request
     $storeRules = array_filter($validationRules, function($rule) {
         return strpos($rule, '{id}') === false; // Remove regras com {id}
     });
-    
+
     $storeContent = generateFormRequestContent($storeRequestName, $storeRules);
     file_put_contents("{$requestsDir}/{$storeRequestName}.php", $storeContent);
-    
+
     // Update Request
     $updateRules = array_map(function($rule) use ($model) {
         return str_replace('{id}', "' . \$this->" . strtolower($model) . "->id . '", $rule);
     }, $validationRules);
-    
+
     // Tornar campos opcionais no Update (exceto alguns críticos)
     $updateRules = array_map(function($rule) {
-        if (strpos($rule, 'required') !== false && 
+        if (strpos($rule, 'required') !== false &&
             strpos($rule, 'user_id') === false &&
             strpos($rule, 'id') === false) {
             return str_replace('required|', 'sometimes|', $rule);
         }
         return $rule;
     }, $updateRules);
-    
+
     $updateContent = generateFormRequestContent($updateRequestName, $updateRules);
     file_put_contents("{$requestsDir}/{$updateRequestName}.php", $updateContent);
 }
@@ -527,7 +527,7 @@ function generateFormRequestContent($className, $rules)
         $rulesArray[] = "            '{$field}' => '{$rule}',";
     }
     $rulesString = implode("\n", $rulesArray);
-    
+
     return <<<PHP
 <?php
 
@@ -576,7 +576,7 @@ PHP;
 function generatePolicy($model, $isAdmin, $policiesDir)
 {
     $policyName = "{$model}Policy";
-    
+
     if ($isAdmin) {
         // Policy para Admin (sem filtro de user_id)
         $content = <<<PHP
@@ -676,7 +676,7 @@ class {$policyName}
 
 PHP;
     }
-    
+
     file_put_contents("{$policiesDir}/{$policyName}.php", $content);
 }
 
@@ -686,11 +686,11 @@ function generateController($controllerName, $model, $relation, $isAdmin, $contr
     $resourceName = "{$model}Resource";
     $storeRequest = "Store{$model}Request";
     $updateRequest = "Update{$model}Request";
-    
-    $indexQuery = $isAdmin 
-        ? "{$model}::query()" 
+
+    $indexQuery = $isAdmin
+        ? "{$model}::query()"
         : "auth()->user()->{$relation}()";
-    
+
     $content = <<<PHP
 <?php
 
@@ -707,29 +707,29 @@ class {$controllerName} extends Controller
     public function index(Request \$request)
     {
         \$query = {$indexQuery};
-        
+
         \$perPage = \$request->input('per_page', 15);
         \$resources = \$query->paginate(\$perPage);
-        
+
         return {$resourceName}::collection(\$resources);
     }
 
     public function store({$storeRequest} \$request)
     {
         \$validated = \$request->validated();
-        
+
 PHP;
 
     if (!$isAdmin) {
         $content .= <<<PHP
         \$validated['user_id'] = auth()->id();
-        
+
 PHP;
     }
 
     $content .= <<<PHP
         \${$modelVar} = {$model}::create(\$validated);
-        
+
         return new {$resourceName}(\${$modelVar});
     }
 
@@ -740,7 +740,7 @@ PHP;
     if (!$isAdmin) {
         $content .= <<<PHP
         \$this->authorize('view', \${$modelVar});
-        
+
 PHP;
     }
 
@@ -755,13 +755,13 @@ PHP;
     if (!$isAdmin) {
         $content .= <<<PHP
         \$this->authorize('update', \${$modelVar});
-        
+
 PHP;
     }
 
     $content .= <<<PHP
         \${$modelVar}->update(\$request->validated());
-        
+
         return new {$resourceName}(\${$modelVar});
     }
 
@@ -772,18 +772,18 @@ PHP;
     if (!$isAdmin) {
         $content .= <<<PHP
         \$this->authorize('delete', \${$modelVar});
-        
+
 PHP;
     }
 
     $content .= <<<PHP
         \${$modelVar}->delete();
-        
+
         return response()->noContent();
     }
 }
 
 PHP;
-    
+
     file_put_contents("{$controllersDir}/{$controllerName}.php", $content);
 }

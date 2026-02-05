@@ -48,11 +48,14 @@ use App\Http\Controllers\AdminAuditLogController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\UserMaturityProfileController;
 use App\Http\Controllers\UserMobilePreferenceController;
+use App\Http\Controllers\AssistantController;
+use App\Http\Controllers\OCRController;
+use App\Http\Controllers\CategorizationController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     // Profile
     Route::apiResource('profiles', ProfileController::class);
-    
+
     // Financial Management
     Route::apiResource('accounts', AccountController::class);
     Route::apiResource('categories', CategoryController::class);
@@ -60,51 +63,51 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('transaction-tags', TransactionTagController::class);
     Route::apiResource('transactions', TransactionController::class);
     Route::apiResource('recurring-transactions', RecurringTransactionController::class);
-    
+
     // Budgeting
     Route::apiResource('budgets', BudgetController::class);
     Route::apiResource('cost-centers', CostCenterController::class);
     Route::apiResource('cost-center-budgets', CostCenterBudgetController::class);
-    
+
     // Goals & Scenarios
     Route::apiResource('goals', GoalController::class);
     Route::apiResource('goal-contributions', GoalContributionController::class);
     Route::apiResource('scenarios', ScenarioController::class);
-    
+
     // Debt Management
     Route::apiResource('debts', DebtController::class);
     Route::apiResource('debt-payments', DebtPaymentController::class);
-    
+
     // Investments
     Route::apiResource('investments', InvestmentController::class);
     Route::apiResource('term-deposits', TermDepositController::class);
     Route::apiResource('bond-otnrs', BondOtnrController::class);
-    
+
     // Subscriptions & Services
     Route::apiResource('subscriptions', SubscriptionController::class);
     Route::apiResource('school-fee-templates', SchoolFeeTemplateController::class);
     Route::apiResource('school-fees', SchoolFeeController::class);
     Route::apiResource('remittances', RemittanceController::class);
-    
+
     // Shared Expenses
     Route::apiResource('split-expenses', SplitExpenseController::class);
     Route::apiResource('split-expense-participants', SplitExpenseParticipantController::class);
     Route::apiResource('split-expense-payment-histories', SplitExpensePaymentHistoryController::class);
     Route::apiResource('participant-groups', ParticipantGroupController::class);
     Route::apiResource('participant-group-members', ParticipantGroupMemberController::class);
-    
+
     // Savings Circles
     Route::apiResource('kixikilas', KixikilaController::class);
     Route::apiResource('kixikila-members', KixikilaMembersController::class);
     Route::apiResource('kixikila-contributions', KixikilaContributionController::class);
-    
+
     // Analytics & Insights
     Route::apiResource('insights', InsightController::class);
     Route::apiResource('category-prediction-logs', CategoryPredictionLogController::class);
     Route::apiResource('daily-recommendations', DailyRecommendationController::class);
     Route::apiResource('financial-scores', FinancialScoreController::class);
     Route::apiResource('bank-reconciliations', BankReconciliationController::class);
-    
+
     // Products & Documents
     Route::apiResource('financial-products', FinancialProductController::class);
     Route::apiResource('product-requests', ProductRequestController::class);
@@ -112,13 +115,33 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('exchange-rate-alerts', ExchangeRateAlertController::class);
     Route::apiResource('inflation-rates', InflationRateController::class);
     Route::apiResource('uploaded-documents', UploadedDocumentController::class);
-    
+
     // Security & Logging
     Route::apiResource('security-logs', SecurityLogController::class)->only(['index']);
     Route::apiResource('admin-audit-logs', AdminAuditLogController::class)->only(['index']);
-    
+
     // User Settings
     Route::apiResource('user-roles', UserRoleController::class);
     Route::apiResource('user-maturity-profiles', UserMaturityProfileController::class);
     Route::apiResource('user-mobile-preferences', UserMobilePreferenceController::class);
+    
+    // AI-Powered Features
+    Route::prefix('assistant')->group(function () {
+        Route::get('summary', [AssistantController::class, 'getSummary']);
+        Route::post('ask', [AssistantController::class, 'askQuestion']);
+        Route::get('recommendations', [AssistantController::class, 'getRecommendations']);
+    });
+    
+    Route::prefix('ocr')->group(function () {
+        Route::post('process-receipt', [OCRController::class, 'processReceipt']);
+        Route::post('parse-text', [OCRController::class, 'parseText']);
+    });
+    
+    Route::prefix('categorization')->group(function () {
+        Route::post('predict', [CategorizationController::class, 'predict']);
+        Route::post('transactions/{transaction}/categorize', [CategorizationController::class, 'categorize']);
+        Route::post('batch-categorize', [CategorizationController::class, 'batchCategorize']);
+        Route::post('feedback', [CategorizationController::class, 'feedback']);
+        Route::get('stats', [CategorizationController::class, 'stats']);
+    });
 });

@@ -61,7 +61,7 @@ FAILED=0
 
 for route in "${ROUTES[@]}"; do
     RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/$route" 2>/dev/null)
-    
+
     # Expecting 401 (Unauthorized) or 200/204 (with auth)
     # 404 would indicate route doesn't exist
     if [ "$RESPONSE" = "401" ] || [ "$RESPONSE" = "200" ]; then

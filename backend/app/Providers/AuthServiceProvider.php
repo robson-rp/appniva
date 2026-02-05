@@ -50,65 +50,65 @@ class AuthServiceProvider extends ServiceProvider
         Goal::class => GoalPolicy::class,
         Debt::class => DebtPolicy::class,
         Budget::class => BudgetPolicy::class,
-        
+
         // Transações
         RecurringTransaction::class => RecurringTransactionPolicy::class,
         Tag::class => TagPolicy::class,
         TransactionTag::class => TransactionTagPolicy::class,
-        
+
         // Centros de Custo
         CostCenter::class => CostCenterPolicy::class,
         CostCenterBudget::class => CostCenterBudgetPolicy::class,
-        
+
         // Metas
         GoalContribution::class => GoalContributionPolicy::class,
         Scenario::class => ScenarioPolicy::class,
-        
+
         // Dívidas
         DebtPayment::class => DebtPaymentPolicy::class,
-        
+
         // Investimentos
         Investment::class => InvestmentPolicy::class,
         TermDeposit::class => TermDepositPolicy::class,
         BondOtnr::class => BondOtnrPolicy::class,
-        
+
         // Assinaturas
         Subscription::class => SubscriptionPolicy::class,
         SchoolFee::class => SchoolFeePolicy::class,
         SchoolFeeTemplate::class => SchoolFeeTemplatePolicy::class,
         Remittance::class => RemittancePolicy::class,
-        
+
         // Despesas Compartilhadas
         SplitExpense::class => SplitExpensePolicy::class,
         SplitExpenseParticipant::class => SplitExpenseParticipantPolicy::class,
         SplitExpensePaymentHistory::class => SplitExpensePaymentHistoryPolicy::class,
         ParticipantGroup::class => ParticipantGroupPolicy::class,
         ParticipantGroupMember::class => ParticipantGroupMemberPolicy::class,
-        
+
         // Kixikila
         Kixikila::class => KixikilaPolicy::class,
         KixikilaMembers::class => KixikilaMembersPolicy::class,
         KixikilaContribution::class => KixikilaContributionPolicy::class,
-        
+
         // Insights
         Insight::class => InsightPolicy::class,
         DailyRecommendation::class => DailyRecommendationPolicy::class,
         FinancialScore::class => FinancialScorePolicy::class,
-        
+
         // Taxas
         ExchangeRate::class => ExchangeRatePolicy::class,
         ExchangeRateAlert::class => ExchangeRateAlertPolicy::class,
         InflationRate::class => InflationRatePolicy::class,
-        
+
         // Produtos
         FinancialProduct::class => FinancialProductPolicy::class,
         ProductRequest::class => ProductRequestPolicy::class,
-        
+
         // Documentos
         UploadedDocument::class => UploadedDocumentPolicy::class,
         BankReconciliation::class => BankReconciliationPolicy::class,
         CategoryPredictionLog::class => CategoryPredictionLogPolicy::class,
-        
+
         // Admin
         AdminAuditLog::class => AdminAuditLogPolicy::class,
         SecurityLog::class => SecurityLogPolicy::class,
