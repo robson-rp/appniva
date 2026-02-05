@@ -12,9 +12,9 @@ class ScenarioPolicy
         return true;
     }
 
-    public function view(User $user, Scenario ${strtolower(Scenario)}): bool
+    public function view(User $user, Scenario $scenario): bool
     {
-        return $user->id === ${strtolower(Scenario)}->user_id;
+        return $user->id === $scenario->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class ScenarioPolicy
         return true;
     }
 
-    public function update(User $user, Scenario ${strtolower(Scenario)}): bool
+    public function update(User $user, Scenario $scenario): bool
     {
-        return $user->id === ${strtolower(Scenario)}->user_id;
+        return $user->id === $scenario->user_id;
     }
 
-    public function delete(User $user, Scenario ${strtolower(Scenario)}): bool
+    public function delete(User $user, Scenario $scenario): bool
     {
-        return $user->id === ${strtolower(Scenario)}->user_id;
+        return $user->id === $scenario->user_id;
     }
 
-    public function restore(User $user, Scenario ${strtolower(Scenario)}): bool
+    public function restore(User $user, Scenario $scenario): bool
     {
-        return $user->id === ${strtolower(Scenario)}->user_id;
+        return $user->id === $scenario->user_id;
     }
 
-    public function forceDelete(User $user, Scenario ${strtolower(Scenario)}): bool
+    public function forceDelete(User $user, Scenario $scenario): bool
     {
-        return $user->id === ${strtolower(Scenario)}->user_id;
+        return $user->id === $scenario->user_id;
     }
 }

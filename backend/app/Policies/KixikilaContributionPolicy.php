@@ -12,9 +12,9 @@ class KixikilaContributionPolicy
         return true;
     }
 
-    public function view(User $user, KixikilaContribution ${strtolower(KixikilaContribution)}): bool
+    public function view(User $user, KixikilaContribution $kixikilaContribution): bool
     {
-        return $user->id === ${strtolower(KixikilaContribution)}->user_id;
+        return $user->id === $kixikilaContribution->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class KixikilaContributionPolicy
         return true;
     }
 
-    public function update(User $user, KixikilaContribution ${strtolower(KixikilaContribution)}): bool
+    public function update(User $user, KixikilaContribution $kixikilaContribution): bool
     {
-        return $user->id === ${strtolower(KixikilaContribution)}->user_id;
+        return $user->id === $kixikilaContribution->user_id;
     }
 
-    public function delete(User $user, KixikilaContribution ${strtolower(KixikilaContribution)}): bool
+    public function delete(User $user, KixikilaContribution $kixikilaContribution): bool
     {
-        return $user->id === ${strtolower(KixikilaContribution)}->user_id;
+        return $user->id === $kixikilaContribution->user_id;
     }
 
-    public function restore(User $user, KixikilaContribution ${strtolower(KixikilaContribution)}): bool
+    public function restore(User $user, KixikilaContribution $kixikilaContribution): bool
     {
-        return $user->id === ${strtolower(KixikilaContribution)}->user_id;
+        return $user->id === $kixikilaContribution->user_id;
     }
 
-    public function forceDelete(User $user, KixikilaContribution ${strtolower(KixikilaContribution)}): bool
+    public function forceDelete(User $user, KixikilaContribution $kixikilaContribution): bool
     {
-        return $user->id === ${strtolower(KixikilaContribution)}->user_id;
+        return $user->id === $kixikilaContribution->user_id;
     }
 }

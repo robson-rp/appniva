@@ -12,9 +12,9 @@ class BondOtnrPolicy
         return true;
     }
 
-    public function view(User $user, BondOtnr ${strtolower(BondOtnr)}): bool
+    public function view(User $user, BondOtnr $bondOtnr): bool
     {
-        return $user->id === ${strtolower(BondOtnr)}->user_id;
+        return $user->id === $bondOtnr->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class BondOtnrPolicy
         return true;
     }
 
-    public function update(User $user, BondOtnr ${strtolower(BondOtnr)}): bool
+    public function update(User $user, BondOtnr $bondOtnr): bool
     {
-        return $user->id === ${strtolower(BondOtnr)}->user_id;
+        return $user->id === $bondOtnr->user_id;
     }
 
-    public function delete(User $user, BondOtnr ${strtolower(BondOtnr)}): bool
+    public function delete(User $user, BondOtnr $bondOtnr): bool
     {
-        return $user->id === ${strtolower(BondOtnr)}->user_id;
+        return $user->id === $bondOtnr->user_id;
     }
 
-    public function restore(User $user, BondOtnr ${strtolower(BondOtnr)}): bool
+    public function restore(User $user, BondOtnr $bondOtnr): bool
     {
-        return $user->id === ${strtolower(BondOtnr)}->user_id;
+        return $user->id === $bondOtnr->user_id;
     }
 
-    public function forceDelete(User $user, BondOtnr ${strtolower(BondOtnr)}): bool
+    public function forceDelete(User $user, BondOtnr $bondOtnr): bool
     {
-        return $user->id === ${strtolower(BondOtnr)}->user_id;
+        return $user->id === $bondOtnr->user_id;
     }
 }

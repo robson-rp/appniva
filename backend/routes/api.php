@@ -52,17 +52,29 @@ use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\OCRController;
 use App\Http\Controllers\CategorizationController;
 
-Route::middleware(['auth:sanctum'])->group(function () {
+// API Version 1 - All current routes under /api/v1
+Route::prefix('v1')->group(function () {
+    // Global API rate limiting applied to all API routes
+    Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Profile
     Route::apiResource('profiles', ProfileController::class);
 
-    // Financial Management
-    Route::apiResource('accounts', AccountController::class);
+    // Financial Management - Critical operations with stricter limits
+    Route::middleware(['throttle:financial', 'audit'])->group(function () {
+        Route::apiResource('accounts', AccountController::class);
+        Route::apiResource('transactions', TransactionController::class);
+        Route::apiResource('recurring-transactions', RecurringTransactionController::class);
+        Route::apiResource('debts', DebtController::class);
+        Route::apiResource('debt-payments', DebtPaymentController::class);
+        Route::apiResource('investments', InvestmentController::class);
+        Route::apiResource('term-deposits', TermDepositController::class);
+        Route::apiResource('bond-otnrs', BondOtnrController::class);
+    });
+
+    // Categories & Tags
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('tags', TagController::class);
     Route::apiResource('transaction-tags', TransactionTagController::class);
-    Route::apiResource('transactions', TransactionController::class);
-    Route::apiResource('recurring-transactions', RecurringTransactionController::class);
 
     // Budgeting
     Route::apiResource('budgets', BudgetController::class);
@@ -74,14 +86,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('goal-contributions', GoalContributionController::class);
     Route::apiResource('scenarios', ScenarioController::class);
 
-    // Debt Management
-    Route::apiResource('debts', DebtController::class);
-    Route::apiResource('debt-payments', DebtPaymentController::class);
-
-    // Investments
-    Route::apiResource('investments', InvestmentController::class);
-    Route::apiResource('term-deposits', TermDepositController::class);
-    Route::apiResource('bond-otnrs', BondOtnrController::class);
+    // Goals & Scenarios
+    Route::apiResource('goals', GoalController::class);
+    Route::apiResource('goal-contributions', GoalContributionController::class);
+    Route::apiResource('scenarios', ScenarioController::class);
 
     // Subscriptions & Services
     Route::apiResource('subscriptions', SubscriptionController::class);
@@ -116,7 +124,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('inflation-rates', InflationRateController::class);
     Route::apiResource('uploaded-documents', UploadedDocumentController::class);
 
-    // Security & Logging
+    // Security & Logging (Read-only)
     Route::apiResource('security-logs', SecurityLogController::class)->only(['index']);
     Route::apiResource('admin-audit-logs', AdminAuditLogController::class)->only(['index']);
 
@@ -124,19 +132,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('user-roles', UserRoleController::class);
     Route::apiResource('user-maturity-profiles', UserMaturityProfileController::class);
     Route::apiResource('user-mobile-preferences', UserMobilePreferenceController::class);
-    
-    // AI-Powered Features
+});
+
+// AI-Powered Features - Stricter rate limiting (expensive operations)
+Route::middleware(['auth:sanctum', 'throttle:ai'])->group(function () {
     Route::prefix('assistant')->group(function () {
         Route::get('summary', [AssistantController::class, 'getSummary']);
         Route::post('ask', [AssistantController::class, 'askQuestion']);
         Route::get('recommendations', [AssistantController::class, 'getRecommendations']);
     });
-    
+
     Route::prefix('ocr')->group(function () {
         Route::post('process-receipt', [OCRController::class, 'processReceipt']);
         Route::post('parse-text', [OCRController::class, 'parseText']);
     });
-    
+
     Route::prefix('categorization')->group(function () {
         Route::post('predict', [CategorizationController::class, 'predict']);
         Route::post('transactions/{transaction}/categorize', [CategorizationController::class, 'categorize']);
@@ -144,4 +154,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('feedback', [CategorizationController::class, 'feedback']);
         Route::get('stats', [CategorizationController::class, 'stats']);
     });
+});
+
+// End of API v1
 });

@@ -12,9 +12,9 @@ class ParticipantGroupMemberPolicy
         return true;
     }
 
-    public function view(User $user, ParticipantGroupMember ${strtolower(ParticipantGroupMember)}): bool
+    public function view(User $user, ParticipantGroupMember $participantGroupMember): bool
     {
-        return $user->id === ${strtolower(ParticipantGroupMember)}->user_id;
+        return $user->id === $participantGroupMember->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class ParticipantGroupMemberPolicy
         return true;
     }
 
-    public function update(User $user, ParticipantGroupMember ${strtolower(ParticipantGroupMember)}): bool
+    public function update(User $user, ParticipantGroupMember $participantGroupMember): bool
     {
-        return $user->id === ${strtolower(ParticipantGroupMember)}->user_id;
+        return $user->id === $participantGroupMember->user_id;
     }
 
-    public function delete(User $user, ParticipantGroupMember ${strtolower(ParticipantGroupMember)}): bool
+    public function delete(User $user, ParticipantGroupMember $participantGroupMember): bool
     {
-        return $user->id === ${strtolower(ParticipantGroupMember)}->user_id;
+        return $user->id === $participantGroupMember->user_id;
     }
 
-    public function restore(User $user, ParticipantGroupMember ${strtolower(ParticipantGroupMember)}): bool
+    public function restore(User $user, ParticipantGroupMember $participantGroupMember): bool
     {
-        return $user->id === ${strtolower(ParticipantGroupMember)}->user_id;
+        return $user->id === $participantGroupMember->user_id;
     }
 
-    public function forceDelete(User $user, ParticipantGroupMember ${strtolower(ParticipantGroupMember)}): bool
+    public function forceDelete(User $user, ParticipantGroupMember $participantGroupMember): bool
     {
-        return $user->id === ${strtolower(ParticipantGroupMember)}->user_id;
+        return $user->id === $participantGroupMember->user_id;
     }
 }

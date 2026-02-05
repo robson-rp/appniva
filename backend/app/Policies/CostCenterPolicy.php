@@ -12,9 +12,9 @@ class CostCenterPolicy
         return true;
     }
 
-    public function view(User $user, CostCenter ${strtolower(CostCenter)}): bool
+    public function view(User $user, CostCenter $costCenter): bool
     {
-        return $user->id === ${strtolower(CostCenter)}->user_id;
+        return $user->id === $costCenter->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class CostCenterPolicy
         return true;
     }
 
-    public function update(User $user, CostCenter ${strtolower(CostCenter)}): bool
+    public function update(User $user, CostCenter $costCenter): bool
     {
-        return $user->id === ${strtolower(CostCenter)}->user_id;
+        return $user->id === $costCenter->user_id;
     }
 
-    public function delete(User $user, CostCenter ${strtolower(CostCenter)}): bool
+    public function delete(User $user, CostCenter $costCenter): bool
     {
-        return $user->id === ${strtolower(CostCenter)}->user_id;
+        return $user->id === $costCenter->user_id;
     }
 
-    public function restore(User $user, CostCenter ${strtolower(CostCenter)}): bool
+    public function restore(User $user, CostCenter $costCenter): bool
     {
-        return $user->id === ${strtolower(CostCenter)}->user_id;
+        return $user->id === $costCenter->user_id;
     }
 
-    public function forceDelete(User $user, CostCenter ${strtolower(CostCenter)}): bool
+    public function forceDelete(User $user, CostCenter $costCenter): bool
     {
-        return $user->id === ${strtolower(CostCenter)}->user_id;
+        return $user->id === $costCenter->user_id;
     }
 }

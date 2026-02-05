@@ -12,9 +12,9 @@ class DailyRecommendationPolicy
         return true;
     }
 
-    public function view(User $user, DailyRecommendation ${strtolower(DailyRecommendation)}): bool
+    public function view(User $user, DailyRecommendation $dailyRecommendation): bool
     {
-        return $user->id === ${strtolower(DailyRecommendation)}->user_id;
+        return $user->id === $dailyRecommendation->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class DailyRecommendationPolicy
         return true;
     }
 
-    public function update(User $user, DailyRecommendation ${strtolower(DailyRecommendation)}): bool
+    public function update(User $user, DailyRecommendation $dailyRecommendation): bool
     {
-        return $user->id === ${strtolower(DailyRecommendation)}->user_id;
+        return $user->id === $dailyRecommendation->user_id;
     }
 
-    public function delete(User $user, DailyRecommendation ${strtolower(DailyRecommendation)}): bool
+    public function delete(User $user, DailyRecommendation $dailyRecommendation): bool
     {
-        return $user->id === ${strtolower(DailyRecommendation)}->user_id;
+        return $user->id === $dailyRecommendation->user_id;
     }
 
-    public function restore(User $user, DailyRecommendation ${strtolower(DailyRecommendation)}): bool
+    public function restore(User $user, DailyRecommendation $dailyRecommendation): bool
     {
-        return $user->id === ${strtolower(DailyRecommendation)}->user_id;
+        return $user->id === $dailyRecommendation->user_id;
     }
 
-    public function forceDelete(User $user, DailyRecommendation ${strtolower(DailyRecommendation)}): bool
+    public function forceDelete(User $user, DailyRecommendation $dailyRecommendation): bool
     {
-        return $user->id === ${strtolower(DailyRecommendation)}->user_id;
+        return $user->id === $dailyRecommendation->user_id;
     }
 }

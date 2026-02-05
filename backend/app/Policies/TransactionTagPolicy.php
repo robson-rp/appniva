@@ -12,9 +12,9 @@ class TransactionTagPolicy
         return true;
     }
 
-    public function view(User $user, TransactionTag ${strtolower(TransactionTag)}): bool
+    public function view(User $user, TransactionTag $transactionTag): bool
     {
-        return $user->id === ${strtolower(TransactionTag)}->user_id;
+        return $user->id === $transactionTag->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class TransactionTagPolicy
         return true;
     }
 
-    public function update(User $user, TransactionTag ${strtolower(TransactionTag)}): bool
+    public function update(User $user, TransactionTag $transactionTag): bool
     {
-        return $user->id === ${strtolower(TransactionTag)}->user_id;
+        return $user->id === $transactionTag->user_id;
     }
 
-    public function delete(User $user, TransactionTag ${strtolower(TransactionTag)}): bool
+    public function delete(User $user, TransactionTag $transactionTag): bool
     {
-        return $user->id === ${strtolower(TransactionTag)}->user_id;
+        return $user->id === $transactionTag->user_id;
     }
 
-    public function restore(User $user, TransactionTag ${strtolower(TransactionTag)}): bool
+    public function restore(User $user, TransactionTag $transactionTag): bool
     {
-        return $user->id === ${strtolower(TransactionTag)}->user_id;
+        return $user->id === $transactionTag->user_id;
     }
 
-    public function forceDelete(User $user, TransactionTag ${strtolower(TransactionTag)}): bool
+    public function forceDelete(User $user, TransactionTag $transactionTag): bool
     {
-        return $user->id === ${strtolower(TransactionTag)}->user_id;
+        return $user->id === $transactionTag->user_id;
     }
 }

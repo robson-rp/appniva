@@ -12,9 +12,9 @@ class TagPolicy
         return true;
     }
 
-    public function view(User $user, Tag ${strtolower(Tag)}): bool
+    public function view(User $user, Tag $tag): bool
     {
-        return $user->id === ${strtolower(Tag)}->user_id;
+        return $user->id === $tag->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class TagPolicy
         return true;
     }
 
-    public function update(User $user, Tag ${strtolower(Tag)}): bool
+    public function update(User $user, Tag $tag): bool
     {
-        return $user->id === ${strtolower(Tag)}->user_id;
+        return $user->id === $tag->user_id;
     }
 
-    public function delete(User $user, Tag ${strtolower(Tag)}): bool
+    public function delete(User $user, Tag $tag): bool
     {
-        return $user->id === ${strtolower(Tag)}->user_id;
+        return $user->id === $tag->user_id;
     }
 
-    public function restore(User $user, Tag ${strtolower(Tag)}): bool
+    public function restore(User $user, Tag $tag): bool
     {
-        return $user->id === ${strtolower(Tag)}->user_id;
+        return $user->id === $tag->user_id;
     }
 
-    public function forceDelete(User $user, Tag ${strtolower(Tag)}): bool
+    public function forceDelete(User $user, Tag $tag): bool
     {
-        return $user->id === ${strtolower(Tag)}->user_id;
+        return $user->id === $tag->user_id;
     }
 }

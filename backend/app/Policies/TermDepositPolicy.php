@@ -12,9 +12,9 @@ class TermDepositPolicy
         return true;
     }
 
-    public function view(User $user, TermDeposit ${strtolower(TermDeposit)}): bool
+    public function view(User $user, TermDeposit $termDeposit): bool
     {
-        return $user->id === ${strtolower(TermDeposit)}->user_id;
+        return $user->id === $termDeposit->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class TermDepositPolicy
         return true;
     }
 
-    public function update(User $user, TermDeposit ${strtolower(TermDeposit)}): bool
+    public function update(User $user, TermDeposit $termDeposit): bool
     {
-        return $user->id === ${strtolower(TermDeposit)}->user_id;
+        return $user->id === $termDeposit->user_id;
     }
 
-    public function delete(User $user, TermDeposit ${strtolower(TermDeposit)}): bool
+    public function delete(User $user, TermDeposit $termDeposit): bool
     {
-        return $user->id === ${strtolower(TermDeposit)}->user_id;
+        return $user->id === $termDeposit->user_id;
     }
 
-    public function restore(User $user, TermDeposit ${strtolower(TermDeposit)}): bool
+    public function restore(User $user, TermDeposit $termDeposit): bool
     {
-        return $user->id === ${strtolower(TermDeposit)}->user_id;
+        return $user->id === $termDeposit->user_id;
     }
 
-    public function forceDelete(User $user, TermDeposit ${strtolower(TermDeposit)}): bool
+    public function forceDelete(User $user, TermDeposit $termDeposit): bool
     {
-        return $user->id === ${strtolower(TermDeposit)}->user_id;
+        return $user->id === $termDeposit->user_id;
     }
 }

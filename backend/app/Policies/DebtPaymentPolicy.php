@@ -12,9 +12,9 @@ class DebtPaymentPolicy
         return true;
     }
 
-    public function view(User $user, DebtPayment ${strtolower(DebtPayment)}): bool
+    public function view(User $user, DebtPayment $debtPayment): bool
     {
-        return $user->id === ${strtolower(DebtPayment)}->user_id;
+        return $user->id === $debtPayment->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class DebtPaymentPolicy
         return true;
     }
 
-    public function update(User $user, DebtPayment ${strtolower(DebtPayment)}): bool
+    public function update(User $user, DebtPayment $debtPayment): bool
     {
-        return $user->id === ${strtolower(DebtPayment)}->user_id;
+        return $user->id === $debtPayment->user_id;
     }
 
-    public function delete(User $user, DebtPayment ${strtolower(DebtPayment)}): bool
+    public function delete(User $user, DebtPayment $debtPayment): bool
     {
-        return $user->id === ${strtolower(DebtPayment)}->user_id;
+        return $user->id === $debtPayment->user_id;
     }
 
-    public function restore(User $user, DebtPayment ${strtolower(DebtPayment)}): bool
+    public function restore(User $user, DebtPayment $debtPayment): bool
     {
-        return $user->id === ${strtolower(DebtPayment)}->user_id;
+        return $user->id === $debtPayment->user_id;
     }
 
-    public function forceDelete(User $user, DebtPayment ${strtolower(DebtPayment)}): bool
+    public function forceDelete(User $user, DebtPayment $debtPayment): bool
     {
-        return $user->id === ${strtolower(DebtPayment)}->user_id;
+        return $user->id === $debtPayment->user_id;
     }
 }

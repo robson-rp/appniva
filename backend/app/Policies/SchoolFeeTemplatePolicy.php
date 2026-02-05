@@ -12,9 +12,9 @@ class SchoolFeeTemplatePolicy
         return true;
     }
 
-    public function view(User $user, SchoolFeeTemplate ${strtolower(SchoolFeeTemplate)}): bool
+    public function view(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
-        return $user->id === ${strtolower(SchoolFeeTemplate)}->user_id;
+        return $user->id === $schoolFeeTemplate->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class SchoolFeeTemplatePolicy
         return true;
     }
 
-    public function update(User $user, SchoolFeeTemplate ${strtolower(SchoolFeeTemplate)}): bool
+    public function update(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
-        return $user->id === ${strtolower(SchoolFeeTemplate)}->user_id;
+        return $user->id === $schoolFeeTemplate->user_id;
     }
 
-    public function delete(User $user, SchoolFeeTemplate ${strtolower(SchoolFeeTemplate)}): bool
+    public function delete(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
-        return $user->id === ${strtolower(SchoolFeeTemplate)}->user_id;
+        return $user->id === $schoolFeeTemplate->user_id;
     }
 
-    public function restore(User $user, SchoolFeeTemplate ${strtolower(SchoolFeeTemplate)}): bool
+    public function restore(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
-        return $user->id === ${strtolower(SchoolFeeTemplate)}->user_id;
+        return $user->id === $schoolFeeTemplate->user_id;
     }
 
-    public function forceDelete(User $user, SchoolFeeTemplate ${strtolower(SchoolFeeTemplate)}): bool
+    public function forceDelete(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
-        return $user->id === ${strtolower(SchoolFeeTemplate)}->user_id;
+        return $user->id === $schoolFeeTemplate->user_id;
     }
 }

@@ -12,9 +12,9 @@ class FinancialProductPolicy
         return true;
     }
 
-    public function view(User $user, FinancialProduct ${strtolower(FinancialProduct)}): bool
+    public function view(User $user, FinancialProduct $financialProduct): bool
     {
-        return $user->id === ${strtolower(FinancialProduct)}->user_id;
+        return $user->id === $financialProduct->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class FinancialProductPolicy
         return true;
     }
 
-    public function update(User $user, FinancialProduct ${strtolower(FinancialProduct)}): bool
+    public function update(User $user, FinancialProduct $financialProduct): bool
     {
-        return $user->id === ${strtolower(FinancialProduct)}->user_id;
+        return $user->id === $financialProduct->user_id;
     }
 
-    public function delete(User $user, FinancialProduct ${strtolower(FinancialProduct)}): bool
+    public function delete(User $user, FinancialProduct $financialProduct): bool
     {
-        return $user->id === ${strtolower(FinancialProduct)}->user_id;
+        return $user->id === $financialProduct->user_id;
     }
 
-    public function restore(User $user, FinancialProduct ${strtolower(FinancialProduct)}): bool
+    public function restore(User $user, FinancialProduct $financialProduct): bool
     {
-        return $user->id === ${strtolower(FinancialProduct)}->user_id;
+        return $user->id === $financialProduct->user_id;
     }
 
-    public function forceDelete(User $user, FinancialProduct ${strtolower(FinancialProduct)}): bool
+    public function forceDelete(User $user, FinancialProduct $financialProduct): bool
     {
-        return $user->id === ${strtolower(FinancialProduct)}->user_id;
+        return $user->id === $financialProduct->user_id;
     }
 }

@@ -12,9 +12,9 @@ class GoalContributionPolicy
         return true;
     }
 
-    public function view(User $user, GoalContribution ${strtolower(GoalContribution)}): bool
+    public function view(User $user, GoalContribution $goalContribution): bool
     {
-        return $user->id === ${strtolower(GoalContribution)}->user_id;
+        return $user->id === $goalContribution->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class GoalContributionPolicy
         return true;
     }
 
-    public function update(User $user, GoalContribution ${strtolower(GoalContribution)}): bool
+    public function update(User $user, GoalContribution $goalContribution): bool
     {
-        return $user->id === ${strtolower(GoalContribution)}->user_id;
+        return $user->id === $goalContribution->user_id;
     }
 
-    public function delete(User $user, GoalContribution ${strtolower(GoalContribution)}): bool
+    public function delete(User $user, GoalContribution $goalContribution): bool
     {
-        return $user->id === ${strtolower(GoalContribution)}->user_id;
+        return $user->id === $goalContribution->user_id;
     }
 
-    public function restore(User $user, GoalContribution ${strtolower(GoalContribution)}): bool
+    public function restore(User $user, GoalContribution $goalContribution): bool
     {
-        return $user->id === ${strtolower(GoalContribution)}->user_id;
+        return $user->id === $goalContribution->user_id;
     }
 
-    public function forceDelete(User $user, GoalContribution ${strtolower(GoalContribution)}): bool
+    public function forceDelete(User $user, GoalContribution $goalContribution): bool
     {
-        return $user->id === ${strtolower(GoalContribution)}->user_id;
+        return $user->id === $goalContribution->user_id;
     }
 }

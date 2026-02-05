@@ -12,9 +12,9 @@ class SplitExpensePolicy
         return true;
     }
 
-    public function view(User $user, SplitExpense ${strtolower(SplitExpense)}): bool
+    public function view(User $user, SplitExpense $splitExpense): bool
     {
-        return $user->id === ${strtolower(SplitExpense)}->user_id;
+        return $user->id === $splitExpense->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class SplitExpensePolicy
         return true;
     }
 
-    public function update(User $user, SplitExpense ${strtolower(SplitExpense)}): bool
+    public function update(User $user, SplitExpense $splitExpense): bool
     {
-        return $user->id === ${strtolower(SplitExpense)}->user_id;
+        return $user->id === $splitExpense->user_id;
     }
 
-    public function delete(User $user, SplitExpense ${strtolower(SplitExpense)}): bool
+    public function delete(User $user, SplitExpense $splitExpense): bool
     {
-        return $user->id === ${strtolower(SplitExpense)}->user_id;
+        return $user->id === $splitExpense->user_id;
     }
 
-    public function restore(User $user, SplitExpense ${strtolower(SplitExpense)}): bool
+    public function restore(User $user, SplitExpense $splitExpense): bool
     {
-        return $user->id === ${strtolower(SplitExpense)}->user_id;
+        return $user->id === $splitExpense->user_id;
     }
 
-    public function forceDelete(User $user, SplitExpense ${strtolower(SplitExpense)}): bool
+    public function forceDelete(User $user, SplitExpense $splitExpense): bool
     {
-        return $user->id === ${strtolower(SplitExpense)}->user_id;
+        return $user->id === $splitExpense->user_id;
     }
 }

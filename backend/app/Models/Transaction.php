@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany};
-
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'account_id',
         'amount',

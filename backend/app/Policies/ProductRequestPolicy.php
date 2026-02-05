@@ -12,9 +12,9 @@ class ProductRequestPolicy
         return true;
     }
 
-    public function view(User $user, ProductRequest ${strtolower(ProductRequest)}): bool
+    public function view(User $user, ProductRequest $productRequest): bool
     {
-        return $user->id === ${strtolower(ProductRequest)}->user_id;
+        return $user->id === $productRequest->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class ProductRequestPolicy
         return true;
     }
 
-    public function update(User $user, ProductRequest ${strtolower(ProductRequest)}): bool
+    public function update(User $user, ProductRequest $productRequest): bool
     {
-        return $user->id === ${strtolower(ProductRequest)}->user_id;
+        return $user->id === $productRequest->user_id;
     }
 
-    public function delete(User $user, ProductRequest ${strtolower(ProductRequest)}): bool
+    public function delete(User $user, ProductRequest $productRequest): bool
     {
-        return $user->id === ${strtolower(ProductRequest)}->user_id;
+        return $user->id === $productRequest->user_id;
     }
 
-    public function restore(User $user, ProductRequest ${strtolower(ProductRequest)}): bool
+    public function restore(User $user, ProductRequest $productRequest): bool
     {
-        return $user->id === ${strtolower(ProductRequest)}->user_id;
+        return $user->id === $productRequest->user_id;
     }
 
-    public function forceDelete(User $user, ProductRequest ${strtolower(ProductRequest)}): bool
+    public function forceDelete(User $user, ProductRequest $productRequest): bool
     {
-        return $user->id === ${strtolower(ProductRequest)}->user_id;
+        return $user->id === $productRequest->user_id;
     }
 }

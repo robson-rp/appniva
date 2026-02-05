@@ -12,9 +12,9 @@ class SplitExpenseParticipantPolicy
         return true;
     }
 
-    public function view(User $user, SplitExpenseParticipant ${strtolower(SplitExpenseParticipant)}): bool
+    public function view(User $user, SplitExpenseParticipant $splitExpenseParticipant): bool
     {
-        return $user->id === ${strtolower(SplitExpenseParticipant)}->user_id;
+        return $user->id === $splitExpenseParticipant->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class SplitExpenseParticipantPolicy
         return true;
     }
 
-    public function update(User $user, SplitExpenseParticipant ${strtolower(SplitExpenseParticipant)}): bool
+    public function update(User $user, SplitExpenseParticipant $splitExpenseParticipant): bool
     {
-        return $user->id === ${strtolower(SplitExpenseParticipant)}->user_id;
+        return $user->id === $splitExpenseParticipant->user_id;
     }
 
-    public function delete(User $user, SplitExpenseParticipant ${strtolower(SplitExpenseParticipant)}): bool
+    public function delete(User $user, SplitExpenseParticipant $splitExpenseParticipant): bool
     {
-        return $user->id === ${strtolower(SplitExpenseParticipant)}->user_id;
+        return $user->id === $splitExpenseParticipant->user_id;
     }
 
-    public function restore(User $user, SplitExpenseParticipant ${strtolower(SplitExpenseParticipant)}): bool
+    public function restore(User $user, SplitExpenseParticipant $splitExpenseParticipant): bool
     {
-        return $user->id === ${strtolower(SplitExpenseParticipant)}->user_id;
+        return $user->id === $splitExpenseParticipant->user_id;
     }
 
-    public function forceDelete(User $user, SplitExpenseParticipant ${strtolower(SplitExpenseParticipant)}): bool
+    public function forceDelete(User $user, SplitExpenseParticipant $splitExpenseParticipant): bool
     {
-        return $user->id === ${strtolower(SplitExpenseParticipant)}->user_id;
+        return $user->id === $splitExpenseParticipant->user_id;
     }
 }

@@ -12,9 +12,9 @@ class FinancialScorePolicy
         return true;
     }
 
-    public function view(User $user, FinancialScore ${strtolower(FinancialScore)}): bool
+    public function view(User $user, FinancialScore $financialScore): bool
     {
-        return $user->id === ${strtolower(FinancialScore)}->user_id;
+        return $user->id === $financialScore->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class FinancialScorePolicy
         return true;
     }
 
-    public function update(User $user, FinancialScore ${strtolower(FinancialScore)}): bool
+    public function update(User $user, FinancialScore $financialScore): bool
     {
-        return $user->id === ${strtolower(FinancialScore)}->user_id;
+        return $user->id === $financialScore->user_id;
     }
 
-    public function delete(User $user, FinancialScore ${strtolower(FinancialScore)}): bool
+    public function delete(User $user, FinancialScore $financialScore): bool
     {
-        return $user->id === ${strtolower(FinancialScore)}->user_id;
+        return $user->id === $financialScore->user_id;
     }
 
-    public function restore(User $user, FinancialScore ${strtolower(FinancialScore)}): bool
+    public function restore(User $user, FinancialScore $financialScore): bool
     {
-        return $user->id === ${strtolower(FinancialScore)}->user_id;
+        return $user->id === $financialScore->user_id;
     }
 
-    public function forceDelete(User $user, FinancialScore ${strtolower(FinancialScore)}): bool
+    public function forceDelete(User $user, FinancialScore $financialScore): bool
     {
-        return $user->id === ${strtolower(FinancialScore)}->user_id;
+        return $user->id === $financialScore->user_id;
     }
 }

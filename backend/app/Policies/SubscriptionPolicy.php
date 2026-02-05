@@ -12,9 +12,9 @@ class SubscriptionPolicy
         return true;
     }
 
-    public function view(User $user, Subscription ${strtolower(Subscription)}): bool
+    public function view(User $user, Subscription $subscription): bool
     {
-        return $user->id === ${strtolower(Subscription)}->user_id;
+        return $user->id === $subscription->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class SubscriptionPolicy
         return true;
     }
 
-    public function update(User $user, Subscription ${strtolower(Subscription)}): bool
+    public function update(User $user, Subscription $subscription): bool
     {
-        return $user->id === ${strtolower(Subscription)}->user_id;
+        return $user->id === $subscription->user_id;
     }
 
-    public function delete(User $user, Subscription ${strtolower(Subscription)}): bool
+    public function delete(User $user, Subscription $subscription): bool
     {
-        return $user->id === ${strtolower(Subscription)}->user_id;
+        return $user->id === $subscription->user_id;
     }
 
-    public function restore(User $user, Subscription ${strtolower(Subscription)}): bool
+    public function restore(User $user, Subscription $subscription): bool
     {
-        return $user->id === ${strtolower(Subscription)}->user_id;
+        return $user->id === $subscription->user_id;
     }
 
-    public function forceDelete(User $user, Subscription ${strtolower(Subscription)}): bool
+    public function forceDelete(User $user, Subscription $subscription): bool
     {
-        return $user->id === ${strtolower(Subscription)}->user_id;
+        return $user->id === $subscription->user_id;
     }
 }

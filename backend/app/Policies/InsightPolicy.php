@@ -12,9 +12,9 @@ class InsightPolicy
         return true;
     }
 
-    public function view(User $user, Insight ${strtolower(Insight)}): bool
+    public function view(User $user, Insight $insight): bool
     {
-        return $user->id === ${strtolower(Insight)}->user_id;
+        return $user->id === $insight->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class InsightPolicy
         return true;
     }
 
-    public function update(User $user, Insight ${strtolower(Insight)}): bool
+    public function update(User $user, Insight $insight): bool
     {
-        return $user->id === ${strtolower(Insight)}->user_id;
+        return $user->id === $insight->user_id;
     }
 
-    public function delete(User $user, Insight ${strtolower(Insight)}): bool
+    public function delete(User $user, Insight $insight): bool
     {
-        return $user->id === ${strtolower(Insight)}->user_id;
+        return $user->id === $insight->user_id;
     }
 
-    public function restore(User $user, Insight ${strtolower(Insight)}): bool
+    public function restore(User $user, Insight $insight): bool
     {
-        return $user->id === ${strtolower(Insight)}->user_id;
+        return $user->id === $insight->user_id;
     }
 
-    public function forceDelete(User $user, Insight ${strtolower(Insight)}): bool
+    public function forceDelete(User $user, Insight $insight): bool
     {
-        return $user->id === ${strtolower(Insight)}->user_id;
+        return $user->id === $insight->user_id;
     }
 }

@@ -12,9 +12,9 @@ class CostCenterBudgetPolicy
         return true;
     }
 
-    public function view(User $user, CostCenterBudget ${strtolower(CostCenterBudget)}): bool
+    public function view(User $user, CostCenterBudget $costCenterBudget): bool
     {
-        return $user->id === ${strtolower(CostCenterBudget)}->user_id;
+        return $user->id === $costCenterBudget->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class CostCenterBudgetPolicy
         return true;
     }
 
-    public function update(User $user, CostCenterBudget ${strtolower(CostCenterBudget)}): bool
+    public function update(User $user, CostCenterBudget $costCenterBudget): bool
     {
-        return $user->id === ${strtolower(CostCenterBudget)}->user_id;
+        return $user->id === $costCenterBudget->user_id;
     }
 
-    public function delete(User $user, CostCenterBudget ${strtolower(CostCenterBudget)}): bool
+    public function delete(User $user, CostCenterBudget $costCenterBudget): bool
     {
-        return $user->id === ${strtolower(CostCenterBudget)}->user_id;
+        return $user->id === $costCenterBudget->user_id;
     }
 
-    public function restore(User $user, CostCenterBudget ${strtolower(CostCenterBudget)}): bool
+    public function restore(User $user, CostCenterBudget $costCenterBudget): bool
     {
-        return $user->id === ${strtolower(CostCenterBudget)}->user_id;
+        return $user->id === $costCenterBudget->user_id;
     }
 
-    public function forceDelete(User $user, CostCenterBudget ${strtolower(CostCenterBudget)}): bool
+    public function forceDelete(User $user, CostCenterBudget $costCenterBudget): bool
     {
-        return $user->id === ${strtolower(CostCenterBudget)}->user_id;
+        return $user->id === $costCenterBudget->user_id;
     }
 }

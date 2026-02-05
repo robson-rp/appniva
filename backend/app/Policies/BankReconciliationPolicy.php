@@ -12,9 +12,9 @@ class BankReconciliationPolicy
         return true;
     }
 
-    public function view(User $user, BankReconciliation ${strtolower(BankReconciliation)}): bool
+    public function view(User $user, BankReconciliation $bankReconciliation): bool
     {
-        return $user->id === ${strtolower(BankReconciliation)}->user_id;
+        return $user->id === $bankReconciliation->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class BankReconciliationPolicy
         return true;
     }
 
-    public function update(User $user, BankReconciliation ${strtolower(BankReconciliation)}): bool
+    public function update(User $user, BankReconciliation $bankReconciliation): bool
     {
-        return $user->id === ${strtolower(BankReconciliation)}->user_id;
+        return $user->id === $bankReconciliation->user_id;
     }
 
-    public function delete(User $user, BankReconciliation ${strtolower(BankReconciliation)}): bool
+    public function delete(User $user, BankReconciliation $bankReconciliation): bool
     {
-        return $user->id === ${strtolower(BankReconciliation)}->user_id;
+        return $user->id === $bankReconciliation->user_id;
     }
 
-    public function restore(User $user, BankReconciliation ${strtolower(BankReconciliation)}): bool
+    public function restore(User $user, BankReconciliation $bankReconciliation): bool
     {
-        return $user->id === ${strtolower(BankReconciliation)}->user_id;
+        return $user->id === $bankReconciliation->user_id;
     }
 
-    public function forceDelete(User $user, BankReconciliation ${strtolower(BankReconciliation)}): bool
+    public function forceDelete(User $user, BankReconciliation $bankReconciliation): bool
     {
-        return $user->id === ${strtolower(BankReconciliation)}->user_id;
+        return $user->id === $bankReconciliation->user_id;
     }
 }

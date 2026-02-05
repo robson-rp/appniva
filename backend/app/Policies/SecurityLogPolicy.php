@@ -12,9 +12,9 @@ class SecurityLogPolicy
         return true;
     }
 
-    public function view(User $user, SecurityLog ${strtolower(SecurityLog)}): bool
+    public function view(User $user, SecurityLog $securityLog): bool
     {
-        return $user->id === ${strtolower(SecurityLog)}->user_id;
+        return $user->id === $securityLog->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class SecurityLogPolicy
         return true;
     }
 
-    public function update(User $user, SecurityLog ${strtolower(SecurityLog)}): bool
+    public function update(User $user, SecurityLog $securityLog): bool
     {
-        return $user->id === ${strtolower(SecurityLog)}->user_id;
+        return $user->id === $securityLog->user_id;
     }
 
-    public function delete(User $user, SecurityLog ${strtolower(SecurityLog)}): bool
+    public function delete(User $user, SecurityLog $securityLog): bool
     {
-        return $user->id === ${strtolower(SecurityLog)}->user_id;
+        return $user->id === $securityLog->user_id;
     }
 
-    public function restore(User $user, SecurityLog ${strtolower(SecurityLog)}): bool
+    public function restore(User $user, SecurityLog $securityLog): bool
     {
-        return $user->id === ${strtolower(SecurityLog)}->user_id;
+        return $user->id === $securityLog->user_id;
     }
 
-    public function forceDelete(User $user, SecurityLog ${strtolower(SecurityLog)}): bool
+    public function forceDelete(User $user, SecurityLog $securityLog): bool
     {
-        return $user->id === ${strtolower(SecurityLog)}->user_id;
+        return $user->id === $securityLog->user_id;
     }
 }

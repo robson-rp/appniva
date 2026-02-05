@@ -12,9 +12,9 @@ class RecurringTransactionPolicy
         return true;
     }
 
-    public function view(User $user, RecurringTransaction ${strtolower(RecurringTransaction)}): bool
+    public function view(User $user, RecurringTransaction $recurringTransaction): bool
     {
-        return $user->id === ${strtolower(RecurringTransaction)}->user_id;
+        return $user->id === $recurringTransaction->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class RecurringTransactionPolicy
         return true;
     }
 
-    public function update(User $user, RecurringTransaction ${strtolower(RecurringTransaction)}): bool
+    public function update(User $user, RecurringTransaction $recurringTransaction): bool
     {
-        return $user->id === ${strtolower(RecurringTransaction)}->user_id;
+        return $user->id === $recurringTransaction->user_id;
     }
 
-    public function delete(User $user, RecurringTransaction ${strtolower(RecurringTransaction)}): bool
+    public function delete(User $user, RecurringTransaction $recurringTransaction): bool
     {
-        return $user->id === ${strtolower(RecurringTransaction)}->user_id;
+        return $user->id === $recurringTransaction->user_id;
     }
 
-    public function restore(User $user, RecurringTransaction ${strtolower(RecurringTransaction)}): bool
+    public function restore(User $user, RecurringTransaction $recurringTransaction): bool
     {
-        return $user->id === ${strtolower(RecurringTransaction)}->user_id;
+        return $user->id === $recurringTransaction->user_id;
     }
 
-    public function forceDelete(User $user, RecurringTransaction ${strtolower(RecurringTransaction)}): bool
+    public function forceDelete(User $user, RecurringTransaction $recurringTransaction): bool
     {
-        return $user->id === ${strtolower(RecurringTransaction)}->user_id;
+        return $user->id === $recurringTransaction->user_id;
     }
 }

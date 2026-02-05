@@ -12,9 +12,9 @@ class SplitExpensePaymentHistoryPolicy
         return true;
     }
 
-    public function view(User $user, SplitExpensePaymentHistory ${strtolower(SplitExpensePaymentHistory)}): bool
+    public function view(User $user, SplitExpensePaymentHistory $splitExpensePaymentHistory): bool
     {
-        return $user->id === ${strtolower(SplitExpensePaymentHistory)}->user_id;
+        return $user->id === $splitExpensePaymentHistory->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class SplitExpensePaymentHistoryPolicy
         return true;
     }
 
-    public function update(User $user, SplitExpensePaymentHistory ${strtolower(SplitExpensePaymentHistory)}): bool
+    public function update(User $user, SplitExpensePaymentHistory $splitExpensePaymentHistory): bool
     {
-        return $user->id === ${strtolower(SplitExpensePaymentHistory)}->user_id;
+        return $user->id === $splitExpensePaymentHistory->user_id;
     }
 
-    public function delete(User $user, SplitExpensePaymentHistory ${strtolower(SplitExpensePaymentHistory)}): bool
+    public function delete(User $user, SplitExpensePaymentHistory $splitExpensePaymentHistory): bool
     {
-        return $user->id === ${strtolower(SplitExpensePaymentHistory)}->user_id;
+        return $user->id === $splitExpensePaymentHistory->user_id;
     }
 
-    public function restore(User $user, SplitExpensePaymentHistory ${strtolower(SplitExpensePaymentHistory)}): bool
+    public function restore(User $user, SplitExpensePaymentHistory $splitExpensePaymentHistory): bool
     {
-        return $user->id === ${strtolower(SplitExpensePaymentHistory)}->user_id;
+        return $user->id === $splitExpensePaymentHistory->user_id;
     }
 
-    public function forceDelete(User $user, SplitExpensePaymentHistory ${strtolower(SplitExpensePaymentHistory)}): bool
+    public function forceDelete(User $user, SplitExpensePaymentHistory $splitExpensePaymentHistory): bool
     {
-        return $user->id === ${strtolower(SplitExpensePaymentHistory)}->user_id;
+        return $user->id === $splitExpensePaymentHistory->user_id;
     }
 }

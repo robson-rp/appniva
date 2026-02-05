@@ -12,9 +12,9 @@ class ExchangeRatePolicy
         return true;
     }
 
-    public function view(User $user, ExchangeRate ${strtolower(ExchangeRate)}): bool
+    public function view(User $user, ExchangeRate $exchangeRate): bool
     {
-        return $user->id === ${strtolower(ExchangeRate)}->user_id;
+        return $user->id === $exchangeRate->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class ExchangeRatePolicy
         return true;
     }
 
-    public function update(User $user, ExchangeRate ${strtolower(ExchangeRate)}): bool
+    public function update(User $user, ExchangeRate $exchangeRate): bool
     {
-        return $user->id === ${strtolower(ExchangeRate)}->user_id;
+        return $user->id === $exchangeRate->user_id;
     }
 
-    public function delete(User $user, ExchangeRate ${strtolower(ExchangeRate)}): bool
+    public function delete(User $user, ExchangeRate $exchangeRate): bool
     {
-        return $user->id === ${strtolower(ExchangeRate)}->user_id;
+        return $user->id === $exchangeRate->user_id;
     }
 
-    public function restore(User $user, ExchangeRate ${strtolower(ExchangeRate)}): bool
+    public function restore(User $user, ExchangeRate $exchangeRate): bool
     {
-        return $user->id === ${strtolower(ExchangeRate)}->user_id;
+        return $user->id === $exchangeRate->user_id;
     }
 
-    public function forceDelete(User $user, ExchangeRate ${strtolower(ExchangeRate)}): bool
+    public function forceDelete(User $user, ExchangeRate $exchangeRate): bool
     {
-        return $user->id === ${strtolower(ExchangeRate)}->user_id;
+        return $user->id === $exchangeRate->user_id;
     }
 }

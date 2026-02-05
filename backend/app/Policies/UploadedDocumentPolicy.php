@@ -12,9 +12,9 @@ class UploadedDocumentPolicy
         return true;
     }
 
-    public function view(User $user, UploadedDocument ${strtolower(UploadedDocument)}): bool
+    public function view(User $user, UploadedDocument $uploadedDocument): bool
     {
-        return $user->id === ${strtolower(UploadedDocument)}->user_id;
+        return $user->id === $uploadedDocument->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class UploadedDocumentPolicy
         return true;
     }
 
-    public function update(User $user, UploadedDocument ${strtolower(UploadedDocument)}): bool
+    public function update(User $user, UploadedDocument $uploadedDocument): bool
     {
-        return $user->id === ${strtolower(UploadedDocument)}->user_id;
+        return $user->id === $uploadedDocument->user_id;
     }
 
-    public function delete(User $user, UploadedDocument ${strtolower(UploadedDocument)}): bool
+    public function delete(User $user, UploadedDocument $uploadedDocument): bool
     {
-        return $user->id === ${strtolower(UploadedDocument)}->user_id;
+        return $user->id === $uploadedDocument->user_id;
     }
 
-    public function restore(User $user, UploadedDocument ${strtolower(UploadedDocument)}): bool
+    public function restore(User $user, UploadedDocument $uploadedDocument): bool
     {
-        return $user->id === ${strtolower(UploadedDocument)}->user_id;
+        return $user->id === $uploadedDocument->user_id;
     }
 
-    public function forceDelete(User $user, UploadedDocument ${strtolower(UploadedDocument)}): bool
+    public function forceDelete(User $user, UploadedDocument $uploadedDocument): bool
     {
-        return $user->id === ${strtolower(UploadedDocument)}->user_id;
+        return $user->id === $uploadedDocument->user_id;
     }
 }

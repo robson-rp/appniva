@@ -12,7 +12,7 @@ class AdminAuditLogPolicy
         return $user->is_admin; // Apenas admins
     }
 
-    public function view(User $user, AdminAuditLog ${strtolower(AdminAuditLog)}): bool
+    public function view(User $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
@@ -22,22 +22,22 @@ class AdminAuditLogPolicy
         return $user->is_admin;
     }
 
-    public function update(User $user, AdminAuditLog ${strtolower(AdminAuditLog)}): bool
+    public function update(User $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
 
-    public function delete(User $user, AdminAuditLog ${strtolower(AdminAuditLog)}): bool
+    public function delete(User $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
 
-    public function restore(User $user, AdminAuditLog ${strtolower(AdminAuditLog)}): bool
+    public function restore(User $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
 
-    public function forceDelete(User $user, AdminAuditLog ${strtolower(AdminAuditLog)}): bool
+    public function forceDelete(User $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }

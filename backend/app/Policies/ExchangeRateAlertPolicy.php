@@ -12,9 +12,9 @@ class ExchangeRateAlertPolicy
         return true;
     }
 
-    public function view(User $user, ExchangeRateAlert ${strtolower(ExchangeRateAlert)}): bool
+    public function view(User $user, ExchangeRateAlert $exchangeRateAlert): bool
     {
-        return $user->id === ${strtolower(ExchangeRateAlert)}->user_id;
+        return $user->id === $exchangeRateAlert->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class ExchangeRateAlertPolicy
         return true;
     }
 
-    public function update(User $user, ExchangeRateAlert ${strtolower(ExchangeRateAlert)}): bool
+    public function update(User $user, ExchangeRateAlert $exchangeRateAlert): bool
     {
-        return $user->id === ${strtolower(ExchangeRateAlert)}->user_id;
+        return $user->id === $exchangeRateAlert->user_id;
     }
 
-    public function delete(User $user, ExchangeRateAlert ${strtolower(ExchangeRateAlert)}): bool
+    public function delete(User $user, ExchangeRateAlert $exchangeRateAlert): bool
     {
-        return $user->id === ${strtolower(ExchangeRateAlert)}->user_id;
+        return $user->id === $exchangeRateAlert->user_id;
     }
 
-    public function restore(User $user, ExchangeRateAlert ${strtolower(ExchangeRateAlert)}): bool
+    public function restore(User $user, ExchangeRateAlert $exchangeRateAlert): bool
     {
-        return $user->id === ${strtolower(ExchangeRateAlert)}->user_id;
+        return $user->id === $exchangeRateAlert->user_id;
     }
 
-    public function forceDelete(User $user, ExchangeRateAlert ${strtolower(ExchangeRateAlert)}): bool
+    public function forceDelete(User $user, ExchangeRateAlert $exchangeRateAlert): bool
     {
-        return $user->id === ${strtolower(ExchangeRateAlert)}->user_id;
+        return $user->id === $exchangeRateAlert->user_id;
     }
 }

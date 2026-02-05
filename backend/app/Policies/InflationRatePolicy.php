@@ -12,9 +12,9 @@ class InflationRatePolicy
         return true;
     }
 
-    public function view(User $user, InflationRate ${strtolower(InflationRate)}): bool
+    public function view(User $user, InflationRate $inflationRate): bool
     {
-        return $user->id === ${strtolower(InflationRate)}->user_id;
+        return $user->id === $inflationRate->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class InflationRatePolicy
         return true;
     }
 
-    public function update(User $user, InflationRate ${strtolower(InflationRate)}): bool
+    public function update(User $user, InflationRate $inflationRate): bool
     {
-        return $user->id === ${strtolower(InflationRate)}->user_id;
+        return $user->id === $inflationRate->user_id;
     }
 
-    public function delete(User $user, InflationRate ${strtolower(InflationRate)}): bool
+    public function delete(User $user, InflationRate $inflationRate): bool
     {
-        return $user->id === ${strtolower(InflationRate)}->user_id;
+        return $user->id === $inflationRate->user_id;
     }
 
-    public function restore(User $user, InflationRate ${strtolower(InflationRate)}): bool
+    public function restore(User $user, InflationRate $inflationRate): bool
     {
-        return $user->id === ${strtolower(InflationRate)}->user_id;
+        return $user->id === $inflationRate->user_id;
     }
 
-    public function forceDelete(User $user, InflationRate ${strtolower(InflationRate)}): bool
+    public function forceDelete(User $user, InflationRate $inflationRate): bool
     {
-        return $user->id === ${strtolower(InflationRate)}->user_id;
+        return $user->id === $inflationRate->user_id;
     }
 }

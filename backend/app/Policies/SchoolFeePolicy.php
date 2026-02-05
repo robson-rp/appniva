@@ -12,9 +12,9 @@ class SchoolFeePolicy
         return true;
     }
 
-    public function view(User $user, SchoolFee ${strtolower(SchoolFee)}): bool
+    public function view(User $user, SchoolFee $schoolFee): bool
     {
-        return $user->id === ${strtolower(SchoolFee)}->user_id;
+        return $user->id === $schoolFee->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class SchoolFeePolicy
         return true;
     }
 
-    public function update(User $user, SchoolFee ${strtolower(SchoolFee)}): bool
+    public function update(User $user, SchoolFee $schoolFee): bool
     {
-        return $user->id === ${strtolower(SchoolFee)}->user_id;
+        return $user->id === $schoolFee->user_id;
     }
 
-    public function delete(User $user, SchoolFee ${strtolower(SchoolFee)}): bool
+    public function delete(User $user, SchoolFee $schoolFee): bool
     {
-        return $user->id === ${strtolower(SchoolFee)}->user_id;
+        return $user->id === $schoolFee->user_id;
     }
 
-    public function restore(User $user, SchoolFee ${strtolower(SchoolFee)}): bool
+    public function restore(User $user, SchoolFee $schoolFee): bool
     {
-        return $user->id === ${strtolower(SchoolFee)}->user_id;
+        return $user->id === $schoolFee->user_id;
     }
 
-    public function forceDelete(User $user, SchoolFee ${strtolower(SchoolFee)}): bool
+    public function forceDelete(User $user, SchoolFee $schoolFee): bool
     {
-        return $user->id === ${strtolower(SchoolFee)}->user_id;
+        return $user->id === $schoolFee->user_id;
     }
 }

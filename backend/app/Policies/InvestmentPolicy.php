@@ -12,9 +12,9 @@ class InvestmentPolicy
         return true;
     }
 
-    public function view(User $user, Investment ${strtolower(Investment)}): bool
+    public function view(User $user, Investment $investment): bool
     {
-        return $user->id === ${strtolower(Investment)}->user_id;
+        return $user->id === $investment->user_id;
     }
 
     public function create(User $user): bool
@@ -22,23 +22,23 @@ class InvestmentPolicy
         return true;
     }
 
-    public function update(User $user, Investment ${strtolower(Investment)}): bool
+    public function update(User $user, Investment $investment): bool
     {
-        return $user->id === ${strtolower(Investment)}->user_id;
+        return $user->id === $investment->user_id;
     }
 
-    public function delete(User $user, Investment ${strtolower(Investment)}): bool
+    public function delete(User $user, Investment $investment): bool
     {
-        return $user->id === ${strtolower(Investment)}->user_id;
+        return $user->id === $investment->user_id;
     }
 
-    public function restore(User $user, Investment ${strtolower(Investment)}): bool
+    public function restore(User $user, Investment $investment): bool
     {
-        return $user->id === ${strtolower(Investment)}->user_id;
+        return $user->id === $investment->user_id;
     }
 
-    public function forceDelete(User $user, Investment ${strtolower(Investment)}): bool
+    public function forceDelete(User $user, Investment $investment): bool
     {
-        return $user->id === ${strtolower(Investment)}->user_id;
+        return $user->id === $investment->user_id;
     }
 }
