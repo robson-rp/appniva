@@ -9,6 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class FinancialScore extends Model
 {
+    protected $fillable = [
+        'score',
+        'income_health',
+        'expense_health',
+        'savings_rate',
+        'debt_ratio',
+        'assessment_date',
+    ];
+
     //
     public function profile(): BelongsTo
     {

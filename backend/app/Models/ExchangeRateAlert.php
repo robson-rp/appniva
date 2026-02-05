@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExchangeRateAlert extends Model
 {
+    protected $fillable = [
+        'from_currency',
+        'to_currency',
+        'threshold_rate',
+        'alert_type',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Investment extends Model
 {
+    protected $fillable = [
+        'name',
+        'type',
+        'initial_amount',
+        'current_amount',
+        'start_date',
+        'expected_return',
+        'risk_level',
+    ];
+
     //
     public function profile(): BelongsTo
     {

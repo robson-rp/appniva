@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class DailyRecommendation extends Model
 {
+    protected $fillable = [
+        'title',
+        'description',
+        'type',
+        'priority',
+        'action_url',
+    ];
+
     //
     public function profile(): BelongsTo
     {

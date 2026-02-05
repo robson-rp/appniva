@@ -9,6 +9,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
+    protected $fillable = [
+        'account_id',
+        'amount',
+        'type',
+        'date',
+        'description',
+        'category_id',
+        'cost_center_id',
+        'related_account_id',
+    ];
+
     //
     public function profile(): BelongsTo
     {

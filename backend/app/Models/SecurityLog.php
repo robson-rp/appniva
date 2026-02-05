@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class SecurityLog extends Model
 {
+    protected $fillable = [
+        'action',
+        'ip_address',
+        'user_agent',
+        'details',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

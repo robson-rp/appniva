@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class SplitExpenseParticipant extends Model
 {
+    protected $fillable = [
+        'split_expense_id',
+        'name',
+        'share_amount',
+    ];
+
     //
     public function splitExpense(): BelongsTo
     {

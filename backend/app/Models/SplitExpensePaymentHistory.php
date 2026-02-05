@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class SplitExpensePaymentHistory extends Model
 {
+    protected $fillable = [
+        'split_expense_participant_id',
+        'amount',
+        'payment_date',
+        'notes',
+    ];
+
     //
     public function splitExpenseParticipant(): BelongsTo
     {

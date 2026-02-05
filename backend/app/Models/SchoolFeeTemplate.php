@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class SchoolFeeTemplate extends Model
 {
+    protected $fillable = [
+        'name',
+        'amount',
+        'frequency',
+        'description',
+    ];
+
     //
     public function profile(): BelongsTo
     {

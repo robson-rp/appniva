@@ -9,6 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class BankReconciliation extends Model
 {
+    protected $fillable = [
+        'account_id',
+        'statement_date',
+        'statement_balance',
+        'reconciled_balance',
+        'notes',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class TermDeposit extends Model
 {
+    protected $fillable = [
+        'investment_id',
+        'bank',
+        'amount',
+        'rate',
+        'start_date',
+        'maturity_date',
+        'currency',
+    ];
+
     //
     public function investment(): BelongsTo
     {

@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ParticipantGroup extends Model
 {
+    protected $fillable = [
+        'name',
+        'description',
+        'type',
+    ];
+
     //
     public function profile(): BelongsTo
     {

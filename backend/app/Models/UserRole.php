@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserRole extends Model
 {
+    protected $fillable = [
+        'name',
+        'description',
+        'permissions',
+    ];
+
     //
     public function profile(): BelongsTo
     {

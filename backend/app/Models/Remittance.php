@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Remittance extends Model
 {
+    protected $fillable = [
+        'recipient_name',
+        'amount',
+        'currency',
+        'destination_country',
+        'purpose',
+        'send_date',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

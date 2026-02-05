@@ -9,6 +9,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class RecurringTransaction extends Model
 {
+    protected $fillable = [
+        'account_id',
+        'amount',
+        'type',
+        'frequency',
+        'description',
+        'is_active',
+        'start_date',
+        'end_date',
+        'next_execution_date',
+        'category_id',
+    ];
+
     //
     public function profile(): BelongsTo
     {

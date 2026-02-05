@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserMobilePreference extends Model
 {
+    protected $fillable = [
+        'home_layout',
+        'widgets_enabled',
+        'theme',
+        'notifications_enabled',
+    ];
+
     //
     public function profile(): BelongsTo
     {

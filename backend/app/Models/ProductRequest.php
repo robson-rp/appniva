@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductRequest extends Model
 {
+    protected $fillable = [
+        'product_name',
+        'description',
+        'requested_date',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

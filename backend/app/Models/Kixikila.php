@@ -9,6 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kixikila extends Model
 {
+    protected $fillable = [
+        'name',
+        'description',
+        'contribution_amount',
+        'frequency',
+        'target_members',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

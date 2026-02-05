@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Budget extends Model
 {
+    protected $fillable = [
+        'category_id',
+        'month',
+        'amount_limit',
+    ];
+
     //
     public function profile(): BelongsTo
     {

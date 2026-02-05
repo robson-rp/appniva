@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdminAuditLog extends Model
 {
+    protected $fillable = [
+        'action',
+        'entity_type',
+        'entity_id',
+        'changes',
+        'timestamp',
+    ];
+
     //
     public function profile(): BelongsTo
     {

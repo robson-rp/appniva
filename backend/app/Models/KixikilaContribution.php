@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class KixikilaContribution extends Model
 {
+    protected $fillable = [
+        'kixikila_id',
+        'amount',
+        'contribution_date',
+        'notes',
+    ];
+
     //
     public function kixikila(): BelongsTo
     {

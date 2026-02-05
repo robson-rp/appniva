@@ -9,7 +9,14 @@ class Profile extends Model
 {
     protected $keyType = 'string';
     public $incrementing = false;
-    protected $guarded = [];
+    protected $guarded = [];\n\n    protected $fillable = [
+        'email',
+        'name',
+        'primary_currency',
+        'monthly_income',
+        'onboarding_completed',
+        'is_suspended',
+    ];
 
     public function accounts(): HasMany
     {

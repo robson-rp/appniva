@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Scenario extends Model
 {
+    protected $fillable = [
+        'name',
+        'description',
+        'initial_balance',
+        'monthly_savings',
+        'investment_return',
+        'inflation_rate',
+        'end_date',
+    ];
+
     //
     public function profile(): BelongsTo
     {

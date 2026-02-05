@@ -9,6 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subscription extends Model
 {
+    protected $fillable = [
+        'name',
+        'amount',
+        'currency',
+        'renewal_date',
+        'type',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserMaturityProfile extends Model
 {
+    protected $fillable = [
+        'level',
+        'description',
+        'required_score',
+        'features_enabled',
+    ];
+
     //
     public function profile(): BelongsTo
     {

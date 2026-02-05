@@ -9,6 +9,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Debt extends Model
 {
+    protected $fillable = [
+        'name',
+        'creditor',
+        'amount',
+        'interest_rate',
+        'start_date',
+        'end_date',
+        'type',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

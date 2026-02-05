@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class UploadedDocument extends Model
 {
+    protected $fillable = [
+        'file_name',
+        'file_path',
+        'file_type',
+        'document_type',
+        'upload_date',
+    ];
+
     //
     public function profile(): BelongsTo
     {

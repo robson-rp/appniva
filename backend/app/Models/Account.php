@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Account extends Model
 {
-    protected $guarded = [];
+    protected $guarded = [];\n\n    protected $fillable = [
+        'name',
+        'type',
+        'currency',
+        'current_balance',
+        'initial_balance',
+        'institution_name',
+        'is_active',
+    ];
 
     public function profile(): BelongsTo
     {

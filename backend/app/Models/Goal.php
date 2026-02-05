@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Goal extends Model
 {
+    protected $fillable = [
+        'name',
+        'target_amount',
+        'current_amount',
+        'deadline',
+        'category',
+        'priority',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {

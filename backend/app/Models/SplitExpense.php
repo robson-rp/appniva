@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class SplitExpense extends Model
 {
+    protected $fillable = [
+        'description',
+        'total_amount',
+        'currency',
+        'date',
+        'status',
+    ];
+
     //
     public function profile(): BelongsTo
     {
