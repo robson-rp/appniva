@@ -14,9 +14,10 @@ class StoreCostCenterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:income,expense',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 

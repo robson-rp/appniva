@@ -1,12 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Database } from '@/integrations/supabase/types';
 
-type Goal = Database['public']['Tables']['goals']['Row'];
-type GoalInsert = Database['public']['Tables']['goals']['Insert'];
-type GoalUpdate = Database['public']['Tables']['goals']['Update'];
+export interface Goal {
+  id: string;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  deadline?: string;
+  category?: string;
+  icon?: string;
+  color?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  percentage: number;
+}
+
+export type GoalInsert = Omit<Goal, 'id' | 'percentage' | 'current_amount'>;
 
 export function useGoals() {
   const { user } = useAuth();
@@ -14,69 +24,31 @@ export function useGoals() {
   return useQuery({
     queryKey: ['goals', user?.id],
     queryFn: async () => {
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Goal[];
-    },
-    enabled: !!user,
-  });
-}
-
-export function useActiveGoals() {
-  const { user } = useAuth();
-
-  return useQuery({
-    queryKey: ['goals', 'active', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'in_progress')
-        .order('target_date', { ascending: true });
-
-      if (error) throw error;
-      return data as Goal[];
+      const response = await api.get('goals');
+      return response.data as Goal[];
     },
     enabled: !!user,
   });
 }
 
 export function useCreateGoal() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (goal: Omit<GoalInsert, 'user_id'>) => {
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('goals')
-        .insert({
-          ...goal,
-          user_id: user.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+    mutationFn: async (goal: GoalInsert) => {
+      const response = await api.post('goals', {
+        ...goal,
+        current_amount: 0,
+        status: 'in_progress',
+      });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] });
-      toast.success('Meta criada');
+      toast.success('Objectivo criado com sucesso');
     },
-    onError: () => {
-      toast.error('Erro ao criar meta');
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao criar objectivo');
     },
   });
 }
@@ -85,83 +57,16 @@ export function useUpdateGoal() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...goal }: GoalUpdate & { id: string }) => {
-      const { data, error } = await supabase
-        .from('goals')
-        .update(goal)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+    mutationFn: async ({ id, ...goal }: Partial<Goal> & { id: string }) => {
+      const response = await api.put(`goals/${id}`, goal);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] });
-      toast.success('Meta actualizada');
+      toast.success('Objectivo actualizado');
     },
-    onError: () => {
-      toast.error('Erro ao actualizar meta');
-    },
-  });
-}
-
-export function useAddContribution() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ goalId, amount, accountId }: { goalId: string; amount: number; accountId?: string }) => {
-      if (!user) throw new Error('Não autenticado');
-
-      // Get goal details for the description
-      const { data: goal, error: goalError } = await supabase
-        .from('goals')
-        .select('name, currency')
-        .eq('id', goalId)
-        .single();
-
-      if (goalError) throw goalError;
-
-      const { data, error } = await supabase
-        .from('goal_contributions')
-        .insert({
-          goal_id: goalId,
-          amount,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Create transaction if account is provided
-      if (accountId) {
-        const { error: txError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: user.id,
-            account_id: accountId,
-            amount,
-            type: 'expense',
-            description: `Contribuição para meta: ${goal.name}`,
-            date: new Date().toISOString().split('T')[0],
-            currency: goal.currency,
-            source: 'goal_contribution',
-          });
-
-        if (txError) throw txError;
-      }
-
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['goals'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      toast.success('Contribuição adicionada');
-    },
-    onError: () => {
-      toast.error('Erro ao adicionar contribuição');
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao actualizar objectivo');
     },
   });
 }
@@ -171,19 +76,33 @@ export function useDeleteGoal() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('goals')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`goals/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goals'] });
-      toast.success('Meta eliminada');
+      toast.success('Objectivo eliminado');
     },
-    onError: () => {
-      toast.error('Erro ao eliminar meta');
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao eliminar objectivo');
+    },
+  });
+}
+
+export function useAddGoalContribution() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ goalId, amount }: { goalId: string; amount: number }) => {
+      // Assuming a nested or dedicated endpoint for contributions
+      const response = await api.post(`goals/${goalId}/contributions`, { amount });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['goals'] });
+      toast.success('Contribuição registada');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao registar contribuição');
     },
   });
 }

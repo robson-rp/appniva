@@ -54,14 +54,37 @@ use App\Http\Controllers\CategorizationController;
 
 // API Version 1 - All current routes under /api/v1
 Route::prefix('v1')->group(function () {
+
+    Route::get('health', function () {
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'API is running',
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    });
+
+    // Public Auth Routes
+    Route::post('register', [\App\Http\Controllers\AuthController::class, 'register']);
+    Route::post('login', [\App\Http\Controllers\AuthController::class, 'login']);
+    Route::post('forgot-password', [\App\Http\Controllers\AuthController::class, 'forgotPassword']);
+    Route::post('reset-password', [\App\Http\Controllers\AuthController::class, 'resetPassword']);
+
     // Global API rate limiting applied to all API routes
     Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+    
+    // Auth Protected Routes
+    Route::post('logout', [\App\Http\Controllers\AuthController::class, 'logout']);
+    Route::get('me', [\App\Http\Controllers\AuthController::class, 'me']);
+
     // Profile
     Route::apiResource('profiles', ProfileController::class);
 
     // Financial Management - Critical operations with stricter limits
     Route::middleware(['throttle:financial', 'audit'])->group(function () {
         Route::apiResource('accounts', AccountController::class);
+        Route::get('transactions/stats', [TransactionController::class, 'stats']);
+        Route::get('transactions/stats/by-category', [TransactionController::class, 'statsByCategory']);
+        Route::get('transactions/stats/trends', [TransactionController::class, 'trends']);
         Route::apiResource('transactions', TransactionController::class);
         Route::apiResource('recurring-transactions', RecurringTransactionController::class);
         Route::apiResource('debts', DebtController::class);
@@ -73,7 +96,15 @@ Route::prefix('v1')->group(function () {
 
     // Categories & Tags
     Route::apiResource('categories', CategoryController::class);
+    
+    Route::get('tags/stats', [TagController::class, 'stats']);
+    Route::post('tags/{tag}/merge', [TagController::class, 'merge']);
     Route::apiResource('tags', TagController::class);
+    
+    Route::get('transactions/{transaction}/tags', [TransactionController::class, 'getTags']);
+    Route::post('transactions/{transaction}/tags', [TransactionController::class, 'addTag']);
+    Route::delete('transactions/{transaction}/tags/{tag}', [TransactionController::class, 'removeTag']);
+    
     Route::apiResource('transaction-tags', TransactionTagController::class);
 
     // Budgeting

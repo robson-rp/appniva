@@ -17,6 +17,7 @@ class CostCenterFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => \App\Models\Profile::factory(),
             'name' => $this->faker->words(2, true) . ' Center',
             'type' => $this->faker->randomElement(['income', 'expense']),
             'description' => $this->faker->optional()->sentence(),

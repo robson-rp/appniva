@@ -14,15 +14,16 @@ class UpdateRecurringTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'account_id' => 'required|exists:accounts,id',
-            'amount' => 'sometimes|numeric',
+            'account_id' => 'sometimes|exists:accounts,id',
+            'amount' => 'sometimes|numeric|min:0.01',
             'type' => 'sometimes|in:income,expense',
+            'frequency' => 'sometimes|in:daily,weekly,biweekly,monthly,quarterly,annual',
             'description' => 'sometimes|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'frequency' => 'sometimes|in:daily,weekly,monthly,yearly',
+            'is_active' => 'sometimes|boolean',
             'start_date' => 'sometimes|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'is_active' => 'boolean',
+            'end_date' => 'sometimes|nullable|date|after_or_equal:start_date',
+            'next_execution_date' => 'sometimes|date|after_or_equal:start_date',
+            'category_id' => 'sometimes|nullable|exists:categories,id',
         ];
     }
 

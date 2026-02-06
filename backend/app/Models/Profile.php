@@ -16,6 +16,7 @@ class Profile extends Authenticatable
     protected $guarded = [];
 
     protected $fillable = [
+        'id',
         'email',
         'name',
         'primary_currency',

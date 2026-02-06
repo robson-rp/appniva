@@ -15,13 +15,19 @@ class GoalController extends Controller
      */
     public function index(Request $request)
     {
-        $query = auth()->user()->goals();
+        $goals = auth()->user()->goals()->get();
         
-        // Paginação
-        $perPage = $request->input('per_page', 15);
-        $resources = $query->paginate($perPage);
+        $goals->each(function($goal) {
+            // In Appniva, goals can have contributions or be linked to transactions.
+            // Let's assume current_amount is tracked in the model or via contributions.
+            // For now, we'll use the model value if exists, or calculate if we had a contributions table.
+            
+            $goal->percentage = $goal->target_amount > 0 
+                ? round(($goal->current_amount / $goal->target_amount) * 100)
+                : 0;
+        });
         
-        return GoalResource::collection($resources);
+        return GoalResource::collection($goals);
     }
 
     /**

@@ -1,11 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Database } from '@/integrations/supabase/types';
 
-type Transaction = Database['public']['Tables']['transactions']['Row'];
-type TransactionInsert = Database['public']['Tables']['transactions']['Insert'];
+export interface Transaction {
+  id: string;
+  account_id: string;
+  category_id?: string;
+  related_account_id?: string;
+  cost_center_id?: string;
+  amount: number;
+  date: string;
+  description: string;
+  type: 'income' | 'expense' | 'transfer';
+  status: 'pending' | 'completed' | 'cancelled';
+  account?: { id: string; name: string; currency: string };
+  category?: { id: string; name: string; icon: string; color: string; type: string };
+  related_account?: { id: string; name: string };
+  cost_center?: { id: string; name: string; type: string };
+}
+
+export type TransactionInsert = Omit<Transaction, 'id' | 'account' | 'category' | 'related_account' | 'cost_center'>;
 
 interface TransactionFilters {
   startDate?: string;
@@ -23,58 +38,17 @@ export function useTransactions(filters?: TransactionFilters) {
   return useQuery({
     queryKey: ['transactions', user?.id, filters],
     queryFn: async () => {
-      if (!user) return [];
+      const params = new URLSearchParams();
+      if (filters?.startDate) params.append('start_date', filters.startDate);
+      if (filters?.endDate) params.append('end_date', filters.endDate);
+      if (filters?.accountId) params.append('account_id', filters.accountId);
+      if (filters?.type) params.append('type', filters.type);
+      if (filters?.categoryId) params.append('category_id', filters.categoryId);
+      if (filters?.costCenterId) params.append('cost_center_id', filters.costCenterId);
+      if (filters?.tagId) params.append('tag_id', filters.tagId);
 
-      let query = supabase
-        .from('transactions')
-        .select(`
-          *,
-          account:accounts!transactions_account_id_fkey(id, name, currency),
-          category:categories(id, name, icon, color, type),
-          related_account:accounts!transactions_related_account_id_fkey(id, name),
-          cost_center:cost_centers(id, name, type)
-        `)
-        .eq('user_id', user.id)
-        .order('date', { ascending: false })
-        .order('created_at', { ascending: false });
-
-      if (filters?.startDate) {
-        query = query.gte('date', filters.startDate);
-      }
-      if (filters?.endDate) {
-        query = query.lte('date', filters.endDate);
-      }
-      if (filters?.accountId) {
-        query = query.eq('account_id', filters.accountId);
-      }
-      if (filters?.type) {
-        query = query.eq('type', filters.type);
-      }
-      if (filters?.categoryId) {
-        query = query.eq('category_id', filters.categoryId);
-      }
-      if (filters?.costCenterId) {
-        query = query.eq('cost_center_id', filters.costCenterId);
-      }
-
-      let { data, error } = await query.limit(500);
-
-      if (error) throw error;
-
-      // Filter by tag if specified (needs post-processing due to N:N relationship)
-      if (filters?.tagId && data) {
-        const { data: taggedTransactions, error: tagError } = await supabase
-          .from('transaction_tags')
-          .select('transaction_id')
-          .eq('tag_id', filters.tagId);
-
-        if (tagError) throw tagError;
-
-        const taggedIds = new Set(taggedTransactions?.map((tt) => tt.transaction_id) || []);
-        data = data.filter((t: any) => taggedIds.has(t.id));
-      }
-
-      return data;
+      const response = await api.get(`transactions?${params.toString()}`);
+      return response.data as Transaction[];
     },
     enabled: !!user,
   });
@@ -86,22 +60,8 @@ export function useRecentTransactions(limit: number = 5) {
   return useQuery({
     queryKey: ['transactions', 'recent', user?.id, limit],
     queryFn: async () => {
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          *,
-          account:accounts!transactions_account_id_fkey(id, name, currency),
-          category:categories(id, name, icon, color, type)
-        `)
-        .eq('user_id', user.id)
-        .order('date', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-      return data;
+      const response = await api.get(`transactions?limit=${limit}&order_by=date&order_direction=desc`);
+      return response.data as Transaction[];
     },
     enabled: !!user,
   });
@@ -114,33 +74,26 @@ export function useMonthlyStats(month?: string) {
   return useQuery({
     queryKey: ['transactions', 'stats', user?.id, currentMonth],
     queryFn: async () => {
-      if (!user) return { income: 0, expense: 0, balance: 0 };
-
-      const startDate = `${currentMonth}-01`;
-      const [year, monthNum] = currentMonth.split('-').map(Number);
-      const lastDay = new Date(year, monthNum, 0).getDate();
-      const endDate = `${currentMonth}-${lastDay}`;
-
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('type, amount')
-        .eq('user_id', user.id)
-        .gte('date', startDate)
-        .lte('date', endDate);
-
-      if (error) throw error;
-
-      const stats = (data || []).reduce(
-        (acc, t) => {
-          if (t.type === 'income') acc.income += Number(t.amount);
-          if (t.type === 'expense') acc.expense += Number(t.amount);
-          return acc;
-        },
-        { income: 0, expense: 0, balance: 0 }
-      );
-
-      stats.balance = stats.income - stats.expense;
-      return stats;
+      // The backend should ideally have a stats endpoint, for now we fetch and aggregate if needed, 
+      // but a dedicated route is better. Let's assume a stats endpoint for better performance.
+      try {
+        const response = await api.get(`transactions/stats?month=${currentMonth}`);
+        return response.data;
+      } catch (e) {
+        // Fallback or handle differently if endpoint doesn't exist yet
+        const response = await api.get(`transactions?month=${currentMonth}`);
+        const data = response.data as Transaction[];
+        const stats = data.reduce(
+          (acc, t) => {
+            if (t.type === 'income') acc.income += Number(t.amount);
+            if (t.type === 'expense') acc.expense += Number(t.amount);
+            return acc;
+          },
+          { income: 0, expense: 0, balance: 0 }
+        );
+        stats.balance = stats.income - stats.expense;
+        return stats;
+      }
     },
     enabled: !!user,
   });
@@ -153,69 +106,29 @@ export function useExpensesByCategory(month?: string) {
   return useQuery({
     queryKey: ['transactions', 'expenses-by-category', user?.id, currentMonth],
     queryFn: async () => {
-      if (!user) return [];
-
-      const startDate = `${currentMonth}-01`;
-      const [year, monthNum] = currentMonth.split('-').map(Number);
-      const lastDay = new Date(year, monthNum, 0).getDate();
-      const endDate = `${currentMonth}-${lastDay}`;
-
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          amount,
-          category:categories(id, name, color)
-        `)
-        .eq('user_id', user.id)
-        .eq('type', 'expense')
-        .gte('date', startDate)
-        .lte('date', endDate);
-
-      if (error) throw error;
-
-      const byCategory = (data || []).reduce((acc, t) => {
-        const categoryName = t.category?.name || 'Sem categoria';
-        const color = t.category?.color || '#6b7280';
-        if (!acc[categoryName]) {
-          acc[categoryName] = { name: categoryName, value: 0, color };
-        }
-        acc[categoryName].value += Number(t.amount);
-        return acc;
-      }, {} as Record<string, { name: string; value: number; color: string }>);
-
-      return Object.values(byCategory).sort((a, b) => b.value - a.value);
+      // Again, a dedicated endpoint is better
+      const response = await api.get(`transactions/stats/by-category?month=${currentMonth}&type=expense`);
+      return response.data;
     },
     enabled: !!user,
   });
 }
 
 export function useCreateTransaction() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (transaction: Omit<TransactionInsert, 'user_id'>) => {
-      if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert({
-          ...transaction,
-          user_id: user.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+    mutationFn: async (transaction: TransactionInsert) => {
+      const response = await api.post('transactions', transaction);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       toast.success('Transacção registada');
     },
-    onError: () => {
-      toast.error('Erro ao registar transacção');
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao registar transacção');
     },
   });
 }
@@ -225,20 +138,15 @@ export function useDeleteTransaction() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('transactions')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`transactions/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       toast.success('Transacção eliminada');
     },
-    onError: () => {
-      toast.error('Erro ao eliminar transacção');
+    onError: (error: any) => {
+      toast.error(error.message || 'Erro ao eliminar transacção');
     },
   });
 }
@@ -249,51 +157,8 @@ export function useMonthlyTrends(months: number = 6) {
   return useQuery({
     queryKey: ['transactions', 'monthly-trends', user?.id, months],
     queryFn: async () => {
-      if (!user) return [];
-
-      const trends: { month: string; monthLabel: string; income: number; expense: number; balance: number }[] = [];
-      const today = new Date();
-
-      for (let i = months - 1; i >= 0; i--) {
-        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const monthKey = `${year}-${month}`;
-        
-        const startDate = `${monthKey}-01`;
-        const lastDay = new Date(year, date.getMonth() + 1, 0).getDate();
-        const endDate = `${monthKey}-${lastDay}`;
-
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('type, amount')
-          .eq('user_id', user.id)
-          .gte('date', startDate)
-          .lte('date', endDate);
-
-        if (error) throw error;
-
-        const stats = (data || []).reduce(
-          (acc, t) => {
-            if (t.type === 'income') acc.income += Number(t.amount);
-            if (t.type === 'expense') acc.expense += Number(t.amount);
-            return acc;
-          },
-          { income: 0, expense: 0 }
-        );
-
-        const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        
-        trends.push({
-          month: monthKey,
-          monthLabel: monthNames[date.getMonth()],
-          income: stats.income,
-          expense: stats.expense,
-          balance: stats.income - stats.expense,
-        });
-      }
-
-      return trends;
+      const response = await api.get(`transactions/stats/trends?months=${months}`);
+      return response.data;
     },
     enabled: !!user,
   });

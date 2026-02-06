@@ -32,11 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
 
         // Allow frontend domain in production
-        if (app()->environment('production')) {
-            $middleware->validateCsrfTokens(except: [
-                'api/*', // Sanctum uses token auth, not CSRF
-            ]);
-        }
+        $middleware->validateCsrfTokens(except: [
+            'api/*', // Sanctum uses token auth, not CSRF
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

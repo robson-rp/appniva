@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -65,13 +65,8 @@ export function useDebts() {
   return useQuery({
     queryKey: ['debts', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('debts')
-        .select('*')
-        .order('next_payment_date', { ascending: true, nullsFirst: false });
-
-      if (error) throw error;
-      return data as Debt[];
+      const response = await api.get('debts?order_by=next_payment_date&order_direction=asc');
+      return response.data as Debt[];
     },
     enabled: !!user,
   });
@@ -83,14 +78,8 @@ export function useDebt(id: string) {
   return useQuery({
     queryKey: ['debts', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('debts')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as Debt;
+      const response = await api.get(`debts/${id}`);
+      return response.data as Debt;
     },
     enabled: !!user && !!id,
   });
@@ -102,14 +91,8 @@ export function useDebtPayments(debtId: string) {
   return useQuery({
     queryKey: ['debt-payments', debtId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('debt_payments')
-        .select('*')
-        .eq('debt_id', debtId)
-        .order('payment_date', { ascending: false });
-
-      if (error) throw error;
-      return data as DebtPayment[];
+      const response = await api.get(`debt-payments?debt_id=${debtId}&order_by=payment_date&order_direction=desc`);
+      return response.data as DebtPayment[];
     },
     enabled: !!user && !!debtId,
   });
@@ -121,13 +104,8 @@ export function useAllDebtPayments() {
   return useQuery({
     queryKey: ['all-debt-payments', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('debt_payments')
-        .select('*')
-        .order('payment_date', { ascending: true });
-
-      if (error) throw error;
-      return data as DebtPayment[];
+      const response = await api.get('debt-payments?order_by=payment_date&order_direction=asc');
+      return response.data as DebtPayment[];
     },
     enabled: !!user,
   });
@@ -135,28 +113,18 @@ export function useAllDebtPayments() {
 
 export function useCreateDebt() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: CreateDebtInput) => {
-      const { data, error } = await supabase
-        .from('debts')
-        .insert({
-          ...input,
-          user_id: user!.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data as Debt;
+      const response = await api.post('debts', input);
+      return response.data as Debt;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['debts'] });
       toast.success('Dívida criada com sucesso');
     },
-    onError: (error) => {
-      toast.error('Erro ao criar dívida: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Erro ao criar dívida: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
@@ -166,22 +134,15 @@ export function useUpdateDebt() {
 
   return useMutation({
     mutationFn: async ({ id, ...input }: Partial<Debt> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('debts')
-        .update(input)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data as Debt;
+      const response = await api.put(`debts/${id}`, input);
+      return response.data as Debt;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['debts'] });
       toast.success('Dívida actualizada com sucesso');
     },
-    onError: (error) => {
-      toast.error('Erro ao actualizar dívida: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Erro ao actualizar dívida: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
@@ -191,72 +152,25 @@ export function useDeleteDebt() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('debts')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`debts/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['debts'] });
       toast.success('Dívida eliminada com sucesso');
     },
-    onError: (error) => {
-      toast.error('Erro ao eliminar dívida: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Erro ao eliminar dívida: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useCreatePayment() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (input: CreatePaymentInput) => {
-      // Get debt info for transaction description
-      const { data: debt, error: debtError } = await supabase
-        .from('debts')
-        .select('name, currency')
-        .eq('id', input.debt_id)
-        .single();
-      
-      if (debtError) throw debtError;
-      
-      const { data, error } = await supabase
-        .from('debt_payments')
-        .insert({
-          debt_id: input.debt_id,
-          amount: input.amount,
-          payment_date: input.payment_date,
-          notes: input.notes,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      // Create expense transaction if account is provided
-      if (input.account_id && user) {
-        const { error: transactionError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: user.id,
-            account_id: input.account_id,
-            type: 'expense',
-            amount: input.amount,
-            currency: debt.currency,
-            date: input.payment_date || new Date().toISOString().split('T')[0],
-            description: `Pagamento de dívida: ${debt.name}`,
-            source: 'debt_payment',
-          });
-        
-        if (transactionError) {
-          console.error('Failed to create transaction:', transactionError);
-        }
-      }
-      
-      return data as DebtPayment;
+      const response = await api.post('debt-payments', input);
+      return response.data as DebtPayment;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['debts'] });
@@ -264,8 +178,8 @@ export function useCreatePayment() {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       toast.success('Pagamento registado com sucesso');
     },
-    onError: (error) => {
-      toast.error('Erro ao registar pagamento: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Erro ao registar pagamento: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
@@ -275,12 +189,7 @@ export function useDeletePayment() {
 
   return useMutation({
     mutationFn: async ({ id, debtId }: { id: string; debtId: string }) => {
-      const { error } = await supabase
-        .from('debt_payments')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`debt-payments/${id}`);
       return debtId;
     },
     onSuccess: (debtId) => {
@@ -288,8 +197,8 @@ export function useDeletePayment() {
       queryClient.invalidateQueries({ queryKey: ['debt-payments', debtId] });
       toast.success('Pagamento eliminado com sucesso');
     },
-    onError: (error) => {
-      toast.error('Erro ao eliminar pagamento: ' + error.message);
+    onError: (error: any) => {
+      toast.error('Erro ao eliminar pagamento: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }

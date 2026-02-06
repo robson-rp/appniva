@@ -12,13 +12,17 @@ import { NivaLogo } from '@/components/brand/NivaLogo';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'A password deve ter pelo menos 6 caracteres'),
+  password: z.string().min(8, 'A password deve ter pelo menos 8 caracteres'),
 });
 
 const signupSchema = z.object({
   name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres').max(100),
   email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'A password deve ter pelo menos 6 caracteres'),
+  password: z.string().min(8, 'A password deve ter pelo menos 8 caracteres'),
+  password_confirmation: z.string().min(8, 'A confirmação deve ter pelo menos 8 caracteres'),
+}).refine((data) => data.password === data.password_confirmation, {
+  message: "As passwords não coincidem",
+  path: ["password_confirmation"],
 });
 
 const resetSchema = z.object({
@@ -34,7 +38,7 @@ export default function Auth() {
   const [showResetForm, setShowResetForm] = useState(false);
   
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [signupForm, setSignupForm] = useState({ name: '', email: '', password: '' });
+  const [signupForm, setSignupForm] = useState({ name: '', email: '', password: '', password_confirmation: '' });
   const [resetForm, setResetForm] = useState({ email: '' });
 
   if (loading) {
@@ -83,7 +87,7 @@ export default function Auth() {
     }
 
     setIsLoading(true);
-    const { error } = await signUp(signupForm.email, signupForm.password, signupForm.name);
+    const { error } = await signUp(signupForm.email, signupForm.password, signupForm.name, signupForm.password_confirmation);
     setIsLoading(false);
 
     if (error) {
@@ -409,6 +413,22 @@ export default function Auth() {
                       className="pl-10 sm:pl-12 h-11 sm:h-12 text-base rounded-xl"
                       value={signupForm.password}
                       onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
+                      required
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-confirm-password" title="Confirmar Password" className="text-sm font-medium">Confirmar Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="signup-confirm-password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="pl-10 sm:pl-12 h-11 sm:h-12 text-base rounded-xl"
+                      value={signupForm.password_confirmation}
+                      onChange={(e) => setSignupForm({ ...signupForm, password_confirmation: e.target.value })}
                       required
                       autoComplete="new-password"
                     />

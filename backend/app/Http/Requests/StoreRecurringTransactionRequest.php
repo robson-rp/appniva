@@ -15,14 +15,15 @@ class StoreRecurringTransactionRequest extends FormRequest
     {
         return [
             'account_id' => 'required|exists:accounts,id',
-            'amount' => 'required|numeric',
+            'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:income,expense',
+            'frequency' => 'required|in:daily,weekly,biweekly,monthly,quarterly,annual',
             'description' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'frequency' => 'required|in:daily,weekly,monthly,yearly',
+            'is_active' => 'sometimes|boolean',
             'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'is_active' => 'boolean',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'next_execution_date' => 'required|date|after_or_equal:start_date',
+            'category_id' => 'sometimes|nullable|exists:categories,id',
         ];
     }
 

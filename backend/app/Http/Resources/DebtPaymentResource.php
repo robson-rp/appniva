@@ -14,6 +14,15 @@ class DebtPaymentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'debt_id' => $this->debt_id,
+            'amount' => (float) $this->amount,
+            'payment_date' => $this->payment_date,
+            'transaction_id' => $this->transaction_id,
+            'notes' => $this->notes,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

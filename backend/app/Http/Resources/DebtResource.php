@@ -26,6 +26,9 @@ class DebtResource extends JsonResource
             'installment_frequency' => $this->installment_frequency,
             'installment_amount' => (float) $this->installment_amount,
             'next_payment_date' => $this->next_payment_date,
+            'institution' => $this->institution,
+            'currency' => $this->currency ?? 'AOA',
+            'notes' => $this->notes,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

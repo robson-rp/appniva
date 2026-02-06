@@ -15,8 +15,9 @@ class StoreCostCenterBudgetRequest extends FormRequest
     {
         return [
             'cost_center_id' => 'required|exists:cost_centers,id',
-            'budget_id' => 'required|exists:budgets,id',
-            'allocated_amount' => 'required|numeric|min:0',
+            'month' => 'required|string|size:7', // YYYY-MM
+            'amount_limit' => 'required|numeric|min:0.01',
+            'alert_threshold' => 'sometimes|integer|min:1|max:100',
         ];
     }
 

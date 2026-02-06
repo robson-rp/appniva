@@ -14,9 +14,10 @@ class UpdateCostCenterBudgetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cost_center_id' => 'required|exists:cost_centers,id',
-            'budget_id' => 'required|exists:budgets,id',
-            'allocated_amount' => 'sometimes|numeric|min:0',
+            'cost_center_id' => 'sometimes|exists:cost_centers,id',
+            'month' => 'sometimes|string|size:7',
+            'amount_limit' => 'sometimes|numeric|min:0.01',
+            'alert_threshold' => 'sometimes|integer|min:1|max:100',
         ];
     }
 

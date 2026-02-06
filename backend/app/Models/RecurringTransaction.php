@@ -10,6 +10,7 @@ class RecurringTransaction extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'user_id',
         'account_id',
         'amount',
         'type',

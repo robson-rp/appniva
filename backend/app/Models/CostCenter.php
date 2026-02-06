@@ -10,8 +10,11 @@ class CostCenter extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'user_id',
         'name',
+        'type',
         'description',
+        'is_active',
     ];
 
     //

@@ -14,6 +14,15 @@ class CostCenterBudgetResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'cost_center_id' => $this->cost_center_id,
+            'month' => $this->month,
+            'amount_limit' => (float) $this->amount_limit,
+            'alert_threshold' => (int) $this->alert_threshold,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

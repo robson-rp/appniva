@@ -14,9 +14,10 @@ class UpdateCostCenterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:100',
-            'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'name' => 'sometimes|string|max:255',
+            'type' => 'sometimes|in:income,expense',
+            'description' => 'sometimes|nullable|string',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 

@@ -21,6 +21,7 @@ class RecurringTransactionFactory extends Factory
         $frequency = $this->faker->randomElement($frequencies);
 
         return [
+            'user_id' => \App\Models\Profile::factory(),
             'account_id' => \App\Models\Account::factory(),
             'amount' => $this->faker->randomFloat(2, 50, 5000),
             'type' => $this->faker->randomElement(['income', 'expense']),
