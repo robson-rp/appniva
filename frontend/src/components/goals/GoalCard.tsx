@@ -9,11 +9,11 @@ import { differenceInDays, isPast } from 'date-fns';
 interface Goal {
   id: string;
   name: string;
-  description: string | null;
+  description?: string;
   target_amount: number;
-  current_saved_amount: number;
-  target_date: string | null;
-  currency: string;
+  current_amount: number;
+  deadline: string | null;
+  currency?: string;
   status: string;
 }
 
@@ -43,16 +43,16 @@ function getStatusConfig(status: string, progress: number, targetDate: string | 
 }
 
 export function GoalCard({ goal, onEdit, onDelete, onContribute }: GoalCardProps) {
-  const current = Number(goal.current_saved_amount);
+  const current = Number(goal.current_amount);
   const target = Number(goal.target_amount);
   const progress = target > 0 ? Math.min((current / target) * 100, 100) : 0;
   const remaining = Math.max(target - current, 0);
   
-  const statusConfig = getStatusConfig(goal.status, progress, goal.target_date);
+  const statusConfig = getStatusConfig(goal.status, progress, goal.deadline);
   const StatusIcon = statusConfig.icon;
   
-  const daysRemaining = goal.target_date
-    ? differenceInDays(new Date(goal.target_date), new Date())
+  const daysRemaining = goal.deadline
+    ? differenceInDays(new Date(goal.deadline), new Date())
     : null;
 
   const isActive = goal.status === 'in_progress';
@@ -116,11 +116,11 @@ export function GoalCard({ goal, onEdit, onDelete, onContribute }: GoalCardProps
               {formatCurrency(remaining, goal.currency)}
             </p>
           </div>
-          {goal.target_date && (
+          {goal.deadline && (
             <div className="text-center p-2 bg-muted/50 rounded-lg">
               <p className="text-xs text-muted-foreground">Data Alvo</p>
               <p className="font-semibold text-foreground">
-                {formatDate(goal.target_date)}
+                {formatDate(goal.deadline)}
               </p>
               {daysRemaining !== null && isActive && (
                 <p className={`text-xs ${daysRemaining < 0 ? 'text-destructive' : daysRemaining < 30 ? 'text-warning' : 'text-muted-foreground'}`}>

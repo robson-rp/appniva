@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGoals, useCreateGoal, useUpdateGoal, useAddContribution, useDeleteGoal } from '@/hooks/useGoals';
+import { useGoals, useCreateGoal, useUpdateGoal, useAddGoalContribution, useDeleteGoal } from '@/hooks/useGoals';
 import { GoalForm } from '@/components/goals/GoalForm';
 import { GoalCard } from '@/components/goals/GoalCard';
 import { ContributionForm } from '@/components/goals/ContributionForm';
@@ -21,7 +21,7 @@ export default function Goals() {
   const { data: goals, isLoading } = useGoals();
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
-  const addContribution = useAddContribution();
+  const addContribution = useAddGoalContribution();
   const deleteGoal = useDeleteGoal();
 
   const inProgressGoals = goals?.filter((g) => g.status === 'in_progress') || [];
@@ -30,8 +30,8 @@ export default function Goals() {
 
   // Calculate stats
   const totalTarget = inProgressGoals.reduce((sum, g) => sum + Number(g.target_amount), 0);
-  const totalSaved = inProgressGoals.reduce((sum, g) => sum + Number(g.current_saved_amount), 0);
-  const overallProgress = totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0;
+  const totalSavings = inProgressGoals.reduce((acc, goal) => acc + (goal.current_amount || 0), 0);
+  const overallProgress = totalTarget > 0 ? (totalSavings / totalTarget) * 100 : 0;
 
   const handleCreate = (data: any) => {
     createGoal.mutate(data, {
@@ -109,7 +109,7 @@ export default function Goals() {
               <Skeleton className="h-7 w-32" />
             ) : (
               <div className="text-2xl font-bold text-primary">
-                {formatCurrency(totalSaved, 'AOA')}
+                {formatCurrency(totalSavings, 'AOA')}
               </div>
             )}
             <p className="text-xs text-muted-foreground mt-1">
@@ -293,7 +293,7 @@ export default function Goals() {
           {contributingGoal && (
             <ContributionForm
               goalName={contributingGoal.name}
-              currentAmount={Number(contributingGoal.current_saved_amount)}
+              currentAmount={Number(contributingGoal.current_amount)}
               targetAmount={Number(contributingGoal.target_amount)}
               currency={contributingGoal.currency}
               onSubmit={handleContribute}

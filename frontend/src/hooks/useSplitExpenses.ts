@@ -3,6 +3,15 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
+export const SPLIT_EXPENSE_CATEGORIES = [
+  'Refeição',
+  'Transporte',
+  'Alojamento',
+  'Supermercado',
+  'Entretenimento',
+  'Outro'
+];
+
 export interface SplitExpense {
   id: string;
   creator_id: string;

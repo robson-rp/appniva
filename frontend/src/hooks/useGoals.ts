@@ -6,9 +6,10 @@ import { toast } from 'sonner';
 export interface Goal {
   id: string;
   name: string;
+  description: string | null;
   target_amount: number;
   current_amount: number;
-  deadline?: string;
+  deadline: string | null;
   category?: string;
   icon?: string;
   color?: string;
@@ -29,6 +30,12 @@ export function useGoals() {
     },
     enabled: !!user,
   });
+}
+
+export function useActiveGoals() {
+  const { data: goals = [], ...rest } = useGoals();
+  const activeGoals = goals.filter(g => g.status === 'in_progress');
+  return { goals: activeGoals, ...rest };
 }
 
 export function useCreateGoal() {
@@ -93,7 +100,6 @@ export function useAddGoalContribution() {
 
   return useMutation({
     mutationFn: async ({ goalId, amount }: { goalId: string; amount: number }) => {
-      // Assuming a nested or dedicated endpoint for contributions
       const response = await api.post(`goals/${goalId}/contributions`, { amount });
       return response.data;
     },
