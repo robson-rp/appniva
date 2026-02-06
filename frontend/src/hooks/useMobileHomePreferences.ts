@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 // All available feature items for the mobile home
@@ -27,7 +27,7 @@ export const ALL_MOBILE_FEATURES = [
 // Default 12 features for mobile home
 const DEFAULT_FEATURES = [
   'accounts',
-  'transactions', 
+  'transactions',
   'budgets',
   'investments',
   'goals',
@@ -53,42 +53,32 @@ export function useMobileHomePreferences() {
   useEffect(() => {
     const loadPreferences = async () => {
       setIsLoading(true);
-      
+
       if (user) {
-        // Try to load from database for authenticated users
-        const { data, error } = await supabase
-          .from('user_mobile_preferences')
-          .select('selected_features')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        if (!error && data?.selected_features) {
-          setSelectedFeatures(data.selected_features.slice(0, MAX_FEATURES));
-        } else {
-          // If no DB data, try localStorage and sync to DB
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored) {
-            try {
+        try {
+          // Try to load from database for authenticated users
+          const response = await api.get('user-mobile-preferences');
+          const data = response.data;
+
+          if (data?.selected_features) {
+            setSelectedFeatures(data.selected_features.slice(0, MAX_FEATURES));
+          } else {
+            // If no DB data, try localStorage and sync to DB
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
               const parsed = JSON.parse(stored);
               if (Array.isArray(parsed) && parsed.length > 0) {
                 const features = parsed.slice(0, MAX_FEATURES);
                 setSelectedFeatures(features);
-                // Sync localStorage preferences to database
-                await supabase.from('user_mobile_preferences').upsert({
-                  user_id: user.id,
-                  selected_features: features,
-                });
+                await api.post('user-mobile-preferences', { selected_features: features });
               }
-            } catch (e) {
-              console.error('Failed to parse stored preferences:', e);
+            } else {
+              // No preferences anywhere, create default in DB
+              await api.post('user-mobile-preferences', { selected_features: DEFAULT_FEATURES });
             }
-          } else {
-            // No preferences anywhere, create default in DB
-            await supabase.from('user_mobile_preferences').upsert({
-              user_id: user.id,
-              selected_features: DEFAULT_FEATURES,
-            });
           }
+        } catch (error) {
+          console.error('Failed to load preferences from API:', error);
         }
       } else {
         // Load from localStorage for unauthenticated users
@@ -104,7 +94,7 @@ export function useMobileHomePreferences() {
           console.error('Failed to load mobile home preferences:', e);
         }
       }
-      
+
       setIsLoading(false);
     };
 
@@ -115,17 +105,18 @@ export function useMobileHomePreferences() {
   const saveFeatures = useCallback(async (features: string[]) => {
     const trimmed = features.slice(0, MAX_FEATURES);
     setSelectedFeatures(trimmed);
-    
+
     // Always save to localStorage as backup
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
-    
+
     // Save to database if authenticated
     if (user) {
       setIsSyncing(true);
-      await supabase.from('user_mobile_preferences').upsert({
-        user_id: user.id,
-        selected_features: trimmed,
-      });
+      try {
+        await api.post('user-mobile-preferences', { selected_features: trimmed });
+      } catch (error) {
+        console.error('Failed to sync preferences:', error);
+      }
       setIsSyncing(false);
     }
   }, [user]);
@@ -141,7 +132,7 @@ export function useMobileHomePreferences() {
       } else {
         return current;
       }
-      
+
       // Save asynchronously
       saveFeatures(newFeatures);
       return newFeatures;
@@ -153,13 +144,13 @@ export function useMobileHomePreferences() {
     setSelectedFeatures(current => {
       const index = current.indexOf(featureId);
       if (index === -1) return current;
-      
+
       const newIndex = direction === 'up' ? index - 1 : index + 1;
       if (newIndex < 0 || newIndex >= current.length) return current;
-      
+
       const newFeatures = [...current];
       [newFeatures[index], newFeatures[newIndex]] = [newFeatures[newIndex], newFeatures[index]];
-      
+
       // Save asynchronously
       saveFeatures(newFeatures);
       return newFeatures;

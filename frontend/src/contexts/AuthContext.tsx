@@ -72,7 +72,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.post('login', { email, password });
       localStorage.setItem('auth_token', response.access_token);
       
-      const profileData = response.user.data;
+      const profileData = response.user?.data || response.user;
+      if (!profileData) throw new Error('Dados do usuário não encontrados');
+
       setProfile(profileData);
       setUser({
         id: profileData.id,
@@ -98,7 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       localStorage.setItem('auth_token', response.access_token);
       
-      const profileData = response.user.data;
+      const profileData = response.user?.data || response.user;
+      if (!profileData) throw new Error('Dados do usuário não encontrados');
+
       setProfile(profileData);
       setUser({
         id: profileData.id,

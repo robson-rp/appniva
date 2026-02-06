@@ -150,7 +150,8 @@ Route::prefix('v1')->group(function () {
     // Analytics & Insights
     Route::apiResource('insights', InsightController::class);
     Route::apiResource('category-prediction-logs', CategoryPredictionLogController::class);
-    Route::apiResource('daily-recommendations', DailyRecommendationController::class);
+    Route::get('daily-recommendations', [DailyRecommendationController::class, 'index']);
+    Route::post('daily-recommendations/refresh', [DailyRecommendationController::class, 'generate']);
     Route::apiResource('financial-scores', FinancialScoreController::class);
     Route::apiResource('bank-reconciliations', BankReconciliationController::class);
 

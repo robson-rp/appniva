@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { addDays, differenceInDays } from 'date-fns';
@@ -50,18 +50,9 @@ export function useSubscriptions() {
   return useQuery({
     queryKey: ['subscriptions', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select(`
-          *,
-          category:categories(name, color),
-          account:accounts(name)
-        `)
-        .eq('user_id', user!.id)
-        .order('next_renewal_date', { ascending: true });
-
-      if (error) throw error;
-      return data as Subscription[];
+      if (!user) return [];
+      const response = await api.get('subscriptions');
+      return response.data as Subscription[];
     },
     enabled: !!user,
   });
@@ -69,10 +60,10 @@ export function useSubscriptions() {
 
 export function useUpcomingRenewals(daysAhead: number = 7) {
   const { data: subscriptions } = useSubscriptions();
-  
+
   const today = new Date();
   const futureDate = addDays(today, daysAhead);
-  
+
   return subscriptions?.filter((sub) => {
     if (!sub.is_active) return false;
     const renewalDate = new Date(sub.next_renewal_date);
@@ -82,9 +73,9 @@ export function useUpcomingRenewals(daysAhead: number = 7) {
 
 export function useSubscriptionStats() {
   const { data: subscriptions } = useSubscriptions();
-  
+
   const activeSubscriptions = subscriptions?.filter((s) => s.is_active) || [];
-  
+
   const monthlyTotal = activeSubscriptions.reduce((sum, sub) => {
     let monthlyAmount = sub.amount;
     switch (sub.billing_cycle) {
@@ -111,22 +102,12 @@ export function useSubscriptionStats() {
 }
 
 export function useCreateSubscription() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (input: SubscriptionInput) => {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .insert({
-          ...input,
-          user_id: user!.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const response = await api.post('subscriptions', input);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
@@ -144,15 +125,8 @@ export function useUpdateSubscription() {
 
   return useMutation({
     mutationFn: async ({ id, ...input }: Partial<SubscriptionInput> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .update(input)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const response = await api.put(`subscriptions/${id}`, input);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
@@ -170,12 +144,7 @@ export function useDeleteSubscription() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('subscriptions')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`subscriptions/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
@@ -193,15 +162,8 @@ export function useToggleSubscription() {
 
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .update({ is_active })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const response = await api.put(`subscriptions/${id}`, { is_active });
+      return response.data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
@@ -222,7 +184,7 @@ export function getDaysUntilRenewal(nextRenewalDate: string): number {
 // Calculate next renewal date after current one
 export function calculateNextRenewalDate(currentDate: string, billingCycle: BillingCycle): string {
   const date = new Date(currentDate);
-  
+
   switch (billingCycle) {
     case 'weekly':
       date.setDate(date.getDate() + 7);
@@ -237,6 +199,6 @@ export function calculateNextRenewalDate(currentDate: string, billingCycle: Bill
       date.setFullYear(date.getFullYear() + 1);
       break;
   }
-  
+
   return date.toISOString().split('T')[0];
 }

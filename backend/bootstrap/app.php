@@ -40,29 +40,29 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->booting(function () {
-        // Global API rate limit: 60 requests per minute per user
+        // Global API rate limit: 1000 requests per minute per user (Relaxed for dev)
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(1000)->by($request->user()?->id ?: $request->ip());
         });
 
-        // Auth routes: 5 login attempts per minute
+        // Auth routes: 100 login attempts per minute
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
+            return Limit::perMinute(100)->by($request->ip());
         });
 
-        // Mutation routes (POST/PUT/DELETE): 30 per minute to prevent abuse
+        // Mutation routes (POST/PUT/DELETE): 500 per minute to prevent abuse
         RateLimiter::for('mutations', function (Request $request) {
-            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(500)->by($request->user()?->id ?: $request->ip());
         });
 
-        // Financial operations: stricter limit (10 per minute)
+        // Financial operations: relaxed limit (500 per minute)
         RateLimiter::for('financial', function (Request $request) {
-            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(500)->by($request->user()?->id ?: $request->ip());
         });
 
-        // OCR/AI operations: very limited (5 per minute - expensive operations)
+        // OCR/AI operations: relaxed (100 per minute - expensive operations)
         RateLimiter::for('ai', function (Request $request) {
-            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(100)->by($request->user()?->id ?: $request->ip());
         });
     })
     ->create();

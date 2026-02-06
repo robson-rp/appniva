@@ -67,11 +67,7 @@ export default function Auth() {
     setIsLoading(false);
 
     if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        toast.error('Email ou password incorretos');
-      } else {
-        toast.error('Erro ao iniciar sessão');
-      }
+      toast.error(error.message || 'Erro ao iniciar sessão');
     } else {
       toast.success('Bem-vindo de volta!');
     }
@@ -91,11 +87,7 @@ export default function Auth() {
     setIsLoading(false);
 
     if (error) {
-      if (error.message.includes('already registered')) {
-        toast.error('Este email já está registado');
-      } else {
-        toast.error('Erro ao criar conta');
-      }
+      toast.error(error.message || 'Erro ao criar conta');
     } else {
       toast.success('Conta criada com sucesso!');
     }

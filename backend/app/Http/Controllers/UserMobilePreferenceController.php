@@ -10,17 +10,10 @@ class UserMobilePreferenceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $preference = UserMobilePreference::where('user_id', $request->user()->id)->first();
+        return response()->json(['data' => $preference]);
     }
 
     /**
@@ -28,7 +21,17 @@ class UserMobilePreferenceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'selected_features' => 'required|array',
+            'selected_features.*' => 'string',
+        ]);
+
+        $preference = UserMobilePreference::updateOrCreate(
+            ['user_id' => $request->user()->id],
+            ['selected_features' => $request->selected_features]
+        );
+
+        return response()->json(['data' => $preference]);
     }
 
     /**
@@ -36,15 +39,10 @@ class UserMobilePreferenceController extends Controller
      */
     public function show(UserMobilePreference $userMobilePreference)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UserMobilePreference $userMobilePreference)
-    {
-        //
+        if ($userMobilePreference->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        return response()->json(['data' => $userMobilePreference]);
     }
 
     /**
@@ -52,14 +50,17 @@ class UserMobilePreferenceController extends Controller
      */
     public function update(Request $request, UserMobilePreference $userMobilePreference)
     {
-        //
-    }
+        if ($userMobilePreference->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(UserMobilePreference $userMobilePreference)
-    {
-        //
+        $request->validate([
+            'selected_features' => 'sometimes|array',
+            'selected_features.*' => 'string',
+        ]);
+
+        $userMobilePreference->update($request->only('selected_features'));
+
+        return response()->json(['data' => $userMobilePreference]);
     }
 }

@@ -12,39 +12,79 @@ class DailyRecommendationController extends Controller
 {
     public function index(Request $request)
     {
-        $query = auth()->user()->dailyRecommendations();
-        
-        $perPage = $request->input('per_page', 15);
-        $resources = $query->paginate($perPage);
-        
-        return DailyRecommendationResource::collection($resources);
+        $today = now()->format('Y-m-d');
+        $recommendation = DailyRecommendation::where('user_id', $request->user()->id)
+            ->where('generated_at', $today)
+            ->first();
+
+        if (!$recommendation) {
+            $recommendation = $this->generateForUser($request->user());
+        }
+
+        return new DailyRecommendationResource($recommendation);
     }
 
-    public function store(StoreDailyRecommendationRequest $request)
+    public function generate(Request $request)
     {
-        $validated = $request->validated();
-                $validated['user_id'] = auth()->id();
-                $dailyRecommendation = DailyRecommendation::create($validated);
+        $today = now()->format('Y-m-d');
+        DailyRecommendation::where('user_id', $request->user()->id)
+            ->where('generated_at', $today)
+            ->delete();
+
+        $recommendation = $this->generateForUser($request->user());
         
-        return new DailyRecommendationResource($dailyRecommendation);
+        return new DailyRecommendationResource($recommendation);
     }
 
-    public function show(DailyRecommendation $dailyRecommendation)
-    {        $this->authorize('view', $dailyRecommendation);
-                return new DailyRecommendationResource($dailyRecommendation);
-    }
+    private function generateForUser($user)
+    {
+        $today = now();
+        $userId = $user->id;
 
-    public function update(UpdateDailyRecommendationRequest $request, DailyRecommendation $dailyRecommendation)
-    {        $this->authorize('update', $dailyRecommendation);
-                $dailyRecommendation->update($request->validated());
+        // Simplified generation logic for now (can be expanded)
+        $totalBalance = \App\Models\Account::where('user_id', $userId)->where('is_active', true)->sum('current_balance');
         
-        return new DailyRecommendationResource($dailyRecommendation);
-    }
+        if ($totalBalance < 0) {
+            return DailyRecommendation::create([
+                'user_id' => $userId,
+                'title' => 'Atenção Urgente',
+                'message' => 'O teu saldo total está negativo. Revê as tuas despesas.',
+                'action_label' => 'Ver Contas',
+                'action_route' => '/accounts',
+                'priority' => 'high',
+                'generated_at' => $today->format('Y-m-d'),
+            ]);
+        }
 
-    public function destroy(DailyRecommendation $dailyRecommendation)
-    {        $this->authorize('delete', $dailyRecommendation);
-                $dailyRecommendation->delete();
-        
-        return response()->noContent();
+        // Check for upcoming debts
+        $upcomingDebt = \App\Models\Debt::where('user_id', $userId)
+            ->where('status', 'active')
+            ->whereNotNull('next_payment_date')
+            ->whereDate('next_payment_date', '<=', $today->copy()->addDays(5))
+            ->whereDate('next_payment_date', '>=', $today)
+            ->first();
+
+        if ($upcomingDebt) {
+            return DailyRecommendation::create([
+                'user_id' => $userId,
+                'title' => 'Pagamento Próximo',
+                'message' => "A prestação de \"{$upcomingDebt->name}\" vence em breve.",
+                'action_label' => 'Ver Dívida',
+                'action_route' => '/debts',
+                'priority' => 'high',
+                'generated_at' => $today->format('Y-m-d'),
+            ]);
+        }
+
+        // Default
+        return DailyRecommendation::create([
+            'user_id' => $userId,
+            'title' => 'Vê o Teu Score',
+            'message' => 'Descobre como está a tua saúde financeira.',
+            'action_label' => 'Ver Score',
+            'action_route' => '/score',
+            'priority' => 'low',
+            'generated_at' => $today->format('Y-m-d'),
+        ]);
     }
 }

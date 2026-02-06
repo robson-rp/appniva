@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('recurring_transactions')) {
+            return;
+        }
+
         Schema::create('recurring_transactions', function (Blueprint $table) {
             $table->id();
             $table->uuid('user_id');

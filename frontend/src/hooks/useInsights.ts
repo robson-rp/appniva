@@ -1,10 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Database } from '@/integrations/supabase/types';
 
-type Insight = Database['public']['Tables']['insights']['Row'];
+export interface Insight {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: string;
+  is_read: boolean;
+  generated_at: string;
+  created_at: string;
+}
 
 export function useInsights() {
   const { user } = useAuth();
@@ -13,16 +21,8 @@ export function useInsights() {
     queryKey: ['insights', user?.id],
     queryFn: async () => {
       if (!user) return [];
-
-      const { data, error } = await supabase
-        .from('insights')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('generated_at', { ascending: false })
-        .limit(50);
-
-      if (error) throw error;
-      return data as Insight[];
+      const response = await api.get('insights');
+      return response.data as Insight[];
     },
     enabled: !!user,
   });
@@ -35,15 +35,8 @@ export function useUnreadInsightsCount() {
     queryKey: ['insights', 'unread-count', user?.id],
     queryFn: async () => {
       if (!user) return 0;
-
-      const { count, error } = await supabase
-        .from('insights')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-
-      if (error) throw error;
-      return count || 0;
+      const response = await api.get('insights/unread-count');
+      return response.count || 0;
     },
     enabled: !!user,
   });
@@ -54,12 +47,7 @@ export function useMarkInsightAsRead() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('insights')
-        .update({ is_read: true })
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.put(`insights/${id}`, { is_read: true });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['insights'] });
@@ -74,14 +62,7 @@ export function useMarkAllInsightsAsRead() {
   return useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Não autenticado');
-
-      const { error } = await supabase
-        .from('insights')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-
-      if (error) throw error;
+      await api.post('insights/mark-all-read', {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['insights'] });
@@ -97,20 +78,10 @@ export function useGenerateInsights() {
   return useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Não autenticado');
-
-      const { data, error } = await supabase.functions.invoke('generate-insights');
-
-      if (error) {
-        throw new Error(error.message || 'Erro ao gerar insights');
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      return data;
+      const response = await api.post('insights/generate', {});
+      return response;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['insights'] });
       if (data?.count > 0) {
         toast.success(`${data.count} novo(s) insight(s) gerado(s) com IA`);
@@ -135,12 +106,7 @@ export function useDeleteInsight() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('insights')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`insights/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['insights'] });
