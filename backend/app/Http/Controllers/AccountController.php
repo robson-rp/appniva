@@ -15,7 +15,7 @@ class AccountController extends Controller
      */
     public function index(Request $request)
     {
-        $query = auth()->user()->Accounts();
+        $query = auth()->user()->accounts();
         
         // Paginação
         $perPage = $request->input('per_page', 15);

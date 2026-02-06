@@ -14,12 +14,12 @@ class UpdateSchoolFeeTemplateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'school_name' => 'sometimes|string|max:100',
-            'grade_level' => 'sometimes|string|max:50',
-            'monthly_amount' => 'sometimes|numeric|min:0',
-            'enrollment_fee' => 'nullable|numeric|min:0',
-            'start_month' => 'sometimes|integer|min:1|max:12',
-            'end_month' => 'sometimes|integer|min:1|max:12',
+            'name' => 'sometimes|string|max:255',
+            'school_name' => 'sometimes|string|max:255',
+            'amount' => 'sometimes|numeric|min:0.01',
+            'education_level' => 'sometimes|string|max:255',
+            'fee_type' => 'sometimes|string|max:255',
+            'is_recurring' => 'sometimes|boolean',
         ];
     }
 

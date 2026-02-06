@@ -20,7 +20,7 @@ class AccountFactory extends Factory
         return [
             'user_id' => Profile::factory(),
             'name' => $this->faker->words(2, true) . ' Account',
-            'type' => $this->faker->randomElement(['checking', 'savings', 'investment', 'cash']),
+            'type' => $this->faker->randomElement(['checking', 'savings', 'investment', 'credit_card']),
             'currency' => 'AOA',
             'current_balance' => $this->faker->randomFloat(2, 0, 1000000),
             'initial_balance' => $this->faker->randomFloat(2, 0, 100000),

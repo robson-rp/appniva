@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\Kixikila;
 
 class KixikilaPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Kixikila $kixikila): bool
+    public function view(Profile $user, Kixikila $kixikila): bool
     {
         return $user->id === $kixikila->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, Kixikila $kixikila): bool
+    public function update(Profile $user, Kixikila $kixikila): bool
     {
         return $user->id === $kixikila->user_id;
     }
 
-    public function delete(User $user, Kixikila $kixikila): bool
+    public function delete(Profile $user, Kixikila $kixikila): bool
     {
         return $user->id === $kixikila->user_id;
     }
 
-    public function restore(User $user, Kixikila $kixikila): bool
+    public function restore(Profile $user, Kixikila $kixikila): bool
     {
         return $user->id === $kixikila->user_id;
     }
 
-    public function forceDelete(User $user, Kixikila $kixikila): bool
+    public function forceDelete(Profile $user, Kixikila $kixikila): bool
     {
         return $user->id === $kixikila->user_id;
     }

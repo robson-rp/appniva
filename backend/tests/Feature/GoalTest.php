@@ -21,11 +21,10 @@ class GoalTest extends TestCase
         $goalData = [
             'name' => 'Emergency Fund',
             'target_amount' => 100000.00,
-            'current_amount' => 0,
-            'deadline' => '2027-12-31',
-            'category' => 'savings',
-            'priority' => 'high',
+            'current_saved_amount' => 0,
+            'target_date' => '2027-12-31',
             'status' => 'active',
+            'currency' => 'AOA',
         ];
 
         $response = $this->postJson('/api/v1/goals', $goalData);
@@ -60,14 +59,14 @@ class GoalTest extends TestCase
         Sanctum::actingAs($profile, ['*']);
 
         $response = $this->putJson("/api/v1/goals/{$goal->id}", [
-            'current_amount' => 50000.00,
+            'current_saved_amount' => 50000.00,
         ]);
 
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('goals', [
             'id' => $goal->id,
-            'current_amount' => 50000.00,
+            'current_saved_amount' => 50000.00,
         ]);
     }
 

@@ -15,7 +15,7 @@ class BudgetController extends Controller
      */
     public function index(Request $request)
     {
-        $query = auth()->user()->Budgets();
+        $query = auth()->user()->budgets();
         
         // Paginação
         $perPage = $request->input('per_page', 15);

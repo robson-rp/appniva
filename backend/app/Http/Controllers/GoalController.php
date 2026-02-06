@@ -15,7 +15,7 @@ class GoalController extends Controller
      */
     public function index(Request $request)
     {
-        $query = auth()->user()->Goals();
+        $query = auth()->user()->goals();
         
         // Paginação
         $perPage = $request->input('per_page', 15);

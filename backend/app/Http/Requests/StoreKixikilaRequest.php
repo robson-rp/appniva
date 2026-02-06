@@ -14,13 +14,13 @@ class StoreKixikilaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:100',
-            'description' => 'nullable|string',
-            'total_amount' => 'required|numeric|min:0',
-            'contribution_frequency' => 'required|in:weekly,monthly',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date',
-            'is_active' => 'boolean',
+            'name' => 'required|string|max:255',
+            'contribution_amount' => 'required|numeric|min:0.01',
+            'frequency' => 'required|in:weekly,biweekly,monthly',
+            'current_round' => 'sometimes|integer|min:1',
+            'total_members' => 'required|integer|min:2',
+            'status' => 'sometimes|in:active,completed,suspended',
+            'currency' => 'sometimes|string|size:3',
         ];
     }
 

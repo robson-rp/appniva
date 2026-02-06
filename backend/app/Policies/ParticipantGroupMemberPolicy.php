@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\ParticipantGroupMember;
 
 class ParticipantGroupMemberPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, ParticipantGroupMember $participantGroupMember): bool
+    public function view(Profile $user, ParticipantGroupMember $participantGroupMember): bool
     {
         return $user->id === $participantGroupMember->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, ParticipantGroupMember $participantGroupMember): bool
+    public function update(Profile $user, ParticipantGroupMember $participantGroupMember): bool
     {
         return $user->id === $participantGroupMember->user_id;
     }
 
-    public function delete(User $user, ParticipantGroupMember $participantGroupMember): bool
+    public function delete(Profile $user, ParticipantGroupMember $participantGroupMember): bool
     {
         return $user->id === $participantGroupMember->user_id;
     }
 
-    public function restore(User $user, ParticipantGroupMember $participantGroupMember): bool
+    public function restore(Profile $user, ParticipantGroupMember $participantGroupMember): bool
     {
         return $user->id === $participantGroupMember->user_id;
     }
 
-    public function forceDelete(User $user, ParticipantGroupMember $participantGroupMember): bool
+    public function forceDelete(Profile $user, ParticipantGroupMember $participantGroupMember): bool
     {
         return $user->id === $participantGroupMember->user_id;
     }

@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\DailyRecommendation;
 
 class DailyRecommendationPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, DailyRecommendation $dailyRecommendation): bool
+    public function view(Profile $user, DailyRecommendation $dailyRecommendation): bool
     {
         return $user->id === $dailyRecommendation->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, DailyRecommendation $dailyRecommendation): bool
+    public function update(Profile $user, DailyRecommendation $dailyRecommendation): bool
     {
         return $user->id === $dailyRecommendation->user_id;
     }
 
-    public function delete(User $user, DailyRecommendation $dailyRecommendation): bool
+    public function delete(Profile $user, DailyRecommendation $dailyRecommendation): bool
     {
         return $user->id === $dailyRecommendation->user_id;
     }
 
-    public function restore(User $user, DailyRecommendation $dailyRecommendation): bool
+    public function restore(Profile $user, DailyRecommendation $dailyRecommendation): bool
     {
         return $user->id === $dailyRecommendation->user_id;
     }
 
-    public function forceDelete(User $user, DailyRecommendation $dailyRecommendation): bool
+    public function forceDelete(Profile $user, DailyRecommendation $dailyRecommendation): bool
     {
         return $user->id === $dailyRecommendation->user_id;
     }

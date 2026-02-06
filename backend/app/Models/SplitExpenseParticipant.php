@@ -12,7 +12,11 @@ class SplitExpenseParticipant extends Model
     protected $fillable = [
         'split_expense_id',
         'name',
-        'share_amount',
+        'email',
+        'phone',
+        'amount_owed',
+        'amount_paid',
+        'is_creator',
     ];
 
     //

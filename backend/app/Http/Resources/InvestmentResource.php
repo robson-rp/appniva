@@ -14,6 +14,18 @@ class InvestmentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'name' => $this->name,
+            'investment_type' => $this->investment_type,
+            'principal_amount' => (float) $this->principal_amount,
+            'start_date' => $this->start_date,
+            'maturity_date' => $this->maturity_date,
+            'currency' => $this->currency,
+            'institution_name' => $this->institution_name,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

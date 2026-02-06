@@ -24,11 +24,10 @@ class UpdateGoalRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:255',
             'target_amount' => 'sometimes|numeric|min:0.01',
-            'current_amount' => 'sometimes|numeric|min:0',
-            'deadline' => 'sometimes|date|after:today|nullable',
-            'category' => 'sometimes|string|max:100|nullable',
-            'priority' => 'sometimes|in:low,medium,high',
+            'current_saved_amount' => 'sometimes|numeric|min:0',
+            'target_date' => 'sometimes|date|after:today|nullable',
             'status' => 'sometimes|in:active,paused,completed',
+            'currency' => 'sometimes|string|size:3',
         ];
     }
     

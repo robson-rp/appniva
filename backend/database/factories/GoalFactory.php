@@ -21,11 +21,10 @@ class GoalFactory extends Factory
             'user_id' => Profile::factory(),
             'name' => $this->faker->randomElement(['Emergency Fund', 'Vacation', 'New Car', 'House Down Payment', 'Retirement']),
             'target_amount' => $this->faker->randomFloat(2, 50000, 5000000),
-            'current_amount' => $this->faker->randomFloat(2, 0, 50000),
-            'deadline' => $this->faker->dateTimeBetween('+1 month', '+5 years')->format('Y-m-d'),
-            'category' => $this->faker->randomElement(['savings', 'investment', 'purchase', 'debt_payoff']),
-            'priority' => $this->faker->randomElement(['low', 'medium', 'high']),
-            'status' => $this->faker->randomElement(['active', 'completed', 'paused']),
+            'current_saved_amount' => $this->faker->randomFloat(2, 0, 50000),
+            'target_date' => $this->faker->dateTimeBetween('+1 month', '+5 years')->format('Y-m-d'),
+            'status' => $this->faker->randomElement(['active', 'completed', 'abandoned']),
+            'currency' => 'AOA',
         ];
     }
 }

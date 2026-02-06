@@ -34,6 +34,7 @@ class TransactionTest extends TestCase
         $category = Category::factory()->create(['user_id' => $profile->id]);
 
         Transaction::factory()->count(5)->create([
+            'user_id' => $profile->id,
             'account_id' => $account->id,
             'category_id' => $category->id,
         ]);
@@ -43,6 +44,7 @@ class TransactionTest extends TestCase
         $otherAccount = Account::factory()->create(['user_id' => $otherProfile->id]);
         $otherCategory = Category::factory()->create(['user_id' => $otherProfile->id]);
         Transaction::factory()->count(3)->create([
+            'user_id' => $otherProfile->id,
             'account_id' => $otherAccount->id,
             'category_id' => $otherCategory->id,
         ]);
@@ -78,8 +80,9 @@ class TransactionTest extends TestCase
         $response = $this->postJson('/api/v1/transactions', $transactionData);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('data.description', 'Grocery shopping')
-                 ->assertJsonPath('data.amount', 5000.00);
+                 ->assertJsonPath('data.description', 'Grocery shopping');
+        
+        $this->assertEquals(5000.00, $response->json('data.amount'));
 
         $this->assertDatabaseHas('transactions', [
             'account_id' => $account->id,
@@ -111,6 +114,7 @@ class TransactionTest extends TestCase
         $account = Account::factory()->create(['user_id' => $profile->id]);
         $category = Category::factory()->create(['user_id' => $profile->id]);
         $transaction = Transaction::factory()->create([
+            'user_id' => $profile->id,
             'account_id' => $account->id,
             'category_id' => $category->id,
         ]);
@@ -133,6 +137,7 @@ class TransactionTest extends TestCase
         $otherAccount = Account::factory()->create(['user_id' => $otherProfile->id]);
         $otherCategory = Category::factory()->create(['user_id' => $otherProfile->id]);
         $transaction = Transaction::factory()->create([
+            'user_id' => $otherProfile->id,
             'account_id' => $otherAccount->id,
             'category_id' => $otherCategory->id,
         ]);
@@ -153,6 +158,7 @@ class TransactionTest extends TestCase
         $account = Account::factory()->create(['user_id' => $profile->id]);
         $category = Category::factory()->create(['user_id' => $profile->id]);
         $transaction = Transaction::factory()->create([
+            'user_id' => $profile->id,
             'account_id' => $account->id,
             'category_id' => $category->id,
             'description' => 'Old description',
@@ -183,6 +189,7 @@ class TransactionTest extends TestCase
         $account = Account::factory()->create(['user_id' => $profile->id]);
         $category = Category::factory()->create(['user_id' => $profile->id]);
         $transaction = Transaction::factory()->create([
+            'user_id' => $profile->id,
             'account_id' => $account->id,
             'category_id' => $category->id,
         ]);

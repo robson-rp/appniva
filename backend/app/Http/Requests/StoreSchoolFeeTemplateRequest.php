@@ -14,12 +14,12 @@ class StoreSchoolFeeTemplateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'school_name' => 'required|string|max:100',
-            'grade_level' => 'required|string|max:50',
-            'monthly_amount' => 'required|numeric|min:0',
-            'enrollment_fee' => 'nullable|numeric|min:0',
-            'start_month' => 'required|integer|min:1|max:12',
-            'end_month' => 'required|integer|min:1|max:12',
+            'name' => 'required|string|max:255',
+            'school_name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'education_level' => 'required|string|max:255',
+            'fee_type' => 'required|string|max:255',
+            'is_recurring' => 'sometimes|boolean',
         ];
     }
 

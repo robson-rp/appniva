@@ -3,14 +3,14 @@
 namespace App\Policies;
 
 use App\Models\{Goal};
-use App\Models\User;
+use App\Models\Profile;
 
 class GoalPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
@@ -18,7 +18,7 @@ class GoalPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Goal $goal): bool
+    public function view(Profile $user, Goal $goal): bool
     {
         return $user->id === $goal->user_id;
     }
@@ -26,7 +26,7 @@ class GoalPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
@@ -34,7 +34,7 @@ class GoalPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Goal $goal): bool
+    public function update(Profile $user, Goal $goal): bool
     {
         return $user->id === $goal->user_id;
     }
@@ -42,7 +42,7 @@ class GoalPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Goal $goal): bool
+    public function delete(Profile $user, Goal $goal): bool
     {
         return $user->id === $goal->user_id;
     }
@@ -50,7 +50,7 @@ class GoalPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Goal $goal): bool
+    public function restore(Profile $user, Goal $goal): bool
     {
         return $user->id === $goal->user_id;
     }
@@ -58,7 +58,7 @@ class GoalPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Goal $goal): bool
+    public function forceDelete(Profile $user, Goal $goal): bool
     {
         return $user->id === $goal->user_id;
     }

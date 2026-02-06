@@ -14,6 +14,18 @@ class SplitExpenseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'creator_id' => $this->creator_id,
+            'description' => $this->description,
+            'total_amount' => (float) $this->total_amount,
+            'expense_date' => $this->expense_date,
+            'currency' => $this->currency,
+            'is_settled' => (bool) $this->is_settled,
+            'receipt_url' => $this->receipt_url,
+            'share_token' => $this->share_token,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

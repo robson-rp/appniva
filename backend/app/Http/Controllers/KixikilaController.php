@@ -23,8 +23,8 @@ class KixikilaController extends Controller
     public function store(StoreKixikilaRequest $request)
     {
         $validated = $request->validated();
-                $validated['user_id'] = auth()->id();
-                $kixikila = Kixikila::create($validated);
+        $validated['user_id'] = auth()->id();
+        $kixikila = Kixikila::create($validated);
         
         return new KixikilaResource($kixikila);
     }

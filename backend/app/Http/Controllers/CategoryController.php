@@ -15,7 +15,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $query = auth()->user()->Categorys();
+        $query = auth()->user()->categories();
         
         // Paginação
         $perPage = $request->input('per_page', 15);

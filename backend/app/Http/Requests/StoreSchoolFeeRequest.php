@@ -14,13 +14,15 @@ class StoreSchoolFeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'template_id' => 'required|exists:school_fee_templates,id',
-            'student_name' => 'required|string|max:100',
-            'amount' => 'required|numeric|min:0',
+            'school_name' => 'required|string|max:255',
+            'student_name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'academic_year' => 'required|string|size:4',
             'due_date' => 'required|date',
-            'is_paid' => 'boolean',
-            'payment_date' => 'nullable|date',
-            'notes' => 'nullable|string',
+            'education_level' => 'required|string|max:255',
+            'fee_type' => 'required|string|max:255',
+            'paid' => 'sometimes|boolean',
+            'payment_proof_url' => 'nullable|string|max:255',
         ];
     }
 

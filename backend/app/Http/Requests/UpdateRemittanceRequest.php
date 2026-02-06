@@ -14,17 +14,17 @@ class UpdateRemittanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'from_account_id' => 'required|exists:accounts,id',
-            'to_account_id' => 'required|exists:accounts,id',
-            'amount' => 'sometimes|numeric|min:0.01',
-            'from_currency' => 'sometimes|string|size:3',
-            'to_currency' => 'sometimes|string|size:3',
+            'sender_name' => 'sometimes|string|max:255',
+            'recipient_name' => 'sometimes|string|max:255',
+            'amount_sent' => 'sometimes|numeric|min:0.01',
+            'amount_received' => 'sometimes|numeric|min:0.01',
+            'currency_from' => 'sometimes|string|size:3',
+            'currency_to' => 'sometimes|string|size:3',
             'exchange_rate' => 'sometimes|numeric|min:0',
-            'fee' => 'nullable|numeric|min:0',
-            'status' => 'sometimes|in:pending,completed,cancelled',
-            'date' => 'sometimes|date',
-            'recipient_name' => 'nullable|string|max:100',
-            'notes' => 'nullable|string',
+            'fee' => 'sometimes|numeric|min:0',
+            'service_provider' => 'sometimes|string|max:255',
+            'transfer_date' => 'sometimes|date',
+            'status' => 'sometimes|in:pending,completed,failed',
         ];
     }
 

@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\Tag;
 
 class TagPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Tag $tag): bool
+    public function view(Profile $user, Tag $tag): bool
     {
         return $user->id === $tag->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, Tag $tag): bool
+    public function update(Profile $user, Tag $tag): bool
     {
         return $user->id === $tag->user_id;
     }
 
-    public function delete(User $user, Tag $tag): bool
+    public function delete(Profile $user, Tag $tag): bool
     {
         return $user->id === $tag->user_id;
     }
 
-    public function restore(User $user, Tag $tag): bool
+    public function restore(Profile $user, Tag $tag): bool
     {
         return $user->id === $tag->user_id;
     }
 
-    public function forceDelete(User $user, Tag $tag): bool
+    public function forceDelete(Profile $user, Tag $tag): bool
     {
         return $user->id === $tag->user_id;
     }

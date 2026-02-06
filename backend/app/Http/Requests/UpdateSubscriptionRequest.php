@@ -14,13 +14,14 @@ class UpdateSubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:100',
+            'name' => 'sometimes|string|max:255',
             'amount' => 'sometimes|numeric|min:0',
-            'billing_cycle' => 'sometimes|in:monthly,yearly,weekly',
-            'next_billing_date' => 'sometimes|date',
+            'billing_cycle' => 'sometimes|in:monthly,quarterly,annual',
+            'next_renewal_date' => 'sometimes|date',
+            'is_active' => 'sometimes|boolean',
             'category_id' => 'nullable|exists:categories,id',
-            'is_active' => 'boolean',
-            'reminder_days' => 'nullable|integer|min:0',
+            'account_id' => 'nullable|exists:accounts,id',
+            'alert_days_before' => 'nullable|integer|min:0',
         ];
     }
 

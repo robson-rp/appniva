@@ -14,13 +14,14 @@ class StoreSubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
-            'billing_cycle' => 'required|in:monthly,yearly,weekly',
-            'next_billing_date' => 'required|date',
+            'billing_cycle' => 'required|in:monthly,quarterly,annual',
+            'next_renewal_date' => 'required|date',
+            'is_active' => 'sometimes|boolean',
             'category_id' => 'nullable|exists:categories,id',
-            'is_active' => 'boolean',
-            'reminder_days' => 'nullable|integer|min:0',
+            'account_id' => 'nullable|exists:accounts,id',
+            'alert_days_before' => 'nullable|integer|min:0',
         ];
     }
 

@@ -15,7 +15,7 @@ class DebtController extends Controller
      */
     public function index(Request $request)
     {
-        $query = auth()->user()->Debts();
+        $query = auth()->user()->debts();
         
         // Paginação
         $perPage = $request->input('per_page', 15);

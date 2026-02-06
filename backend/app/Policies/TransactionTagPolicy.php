@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\TransactionTag;
 
 class TransactionTagPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, TransactionTag $transactionTag): bool
+    public function view(Profile $user, TransactionTag $transactionTag): bool
     {
         return $user->id === $transactionTag->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, TransactionTag $transactionTag): bool
+    public function update(Profile $user, TransactionTag $transactionTag): bool
     {
         return $user->id === $transactionTag->user_id;
     }
 
-    public function delete(User $user, TransactionTag $transactionTag): bool
+    public function delete(Profile $user, TransactionTag $transactionTag): bool
     {
         return $user->id === $transactionTag->user_id;
     }
 
-    public function restore(User $user, TransactionTag $transactionTag): bool
+    public function restore(Profile $user, TransactionTag $transactionTag): bool
     {
         return $user->id === $transactionTag->user_id;
     }
 
-    public function forceDelete(User $user, TransactionTag $transactionTag): bool
+    public function forceDelete(Profile $user, TransactionTag $transactionTag): bool
     {
         return $user->id === $transactionTag->user_id;
     }

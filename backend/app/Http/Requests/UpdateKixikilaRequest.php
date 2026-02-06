@@ -14,13 +14,13 @@ class UpdateKixikilaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:100',
-            'description' => 'nullable|string',
-            'total_amount' => 'sometimes|numeric|min:0',
-            'contribution_frequency' => 'sometimes|in:weekly,monthly',
-            'start_date' => 'sometimes|date',
-            'end_date' => 'nullable|date',
-            'is_active' => 'boolean',
+            'name' => 'sometimes|string|max:255',
+            'contribution_amount' => 'sometimes|numeric|min:0.01',
+            'frequency' => 'sometimes|in:weekly,biweekly,monthly',
+            'current_round' => 'sometimes|integer|min:1',
+            'total_members' => 'sometimes|integer|min:2',
+            'status' => 'sometimes|in:active,completed,suspended',
+            'currency' => 'sometimes|string|size:3',
         ];
     }
 

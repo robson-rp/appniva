@@ -14,11 +14,12 @@ class UpdateSplitExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'transaction_id' => 'required|exists:transactions,id',
-            'group_id' => 'nullable|exists:participant_groups,id',
-            'total_amount' => 'sometimes|numeric|min:0.01',
             'description' => 'sometimes|string|max:255',
-            'status' => 'required|in:pending,settled,partially_paid',
+            'total_amount' => 'sometimes|numeric|min:0.01',
+            'expense_date' => 'sometimes|date',
+            'currency' => 'sometimes|string|size:3',
+            'is_settled' => 'sometimes|boolean',
+            'receipt_url' => 'nullable|string|max:255',
         ];
     }
 

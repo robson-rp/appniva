@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\AdminAuditLog;
 
 class AdminAuditLogPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return $user->is_admin; // Apenas admins
     }
 
-    public function view(User $user, AdminAuditLog $adminAuditLog): bool
+    public function view(Profile $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return $user->is_admin;
     }
 
-    public function update(User $user, AdminAuditLog $adminAuditLog): bool
+    public function update(Profile $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
 
-    public function delete(User $user, AdminAuditLog $adminAuditLog): bool
+    public function delete(Profile $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
 
-    public function restore(User $user, AdminAuditLog $adminAuditLog): bool
+    public function restore(Profile $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }
 
-    public function forceDelete(User $user, AdminAuditLog $adminAuditLog): bool
+    public function forceDelete(Profile $user, AdminAuditLog $adminAuditLog): bool
     {
         return $user->is_admin;
     }

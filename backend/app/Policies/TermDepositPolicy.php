@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\TermDeposit;
 
 class TermDepositPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, TermDeposit $termDeposit): bool
+    public function view(Profile $user, TermDeposit $termDeposit): bool
     {
         return $user->id === $termDeposit->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, TermDeposit $termDeposit): bool
+    public function update(Profile $user, TermDeposit $termDeposit): bool
     {
         return $user->id === $termDeposit->user_id;
     }
 
-    public function delete(User $user, TermDeposit $termDeposit): bool
+    public function delete(Profile $user, TermDeposit $termDeposit): bool
     {
         return $user->id === $termDeposit->user_id;
     }
 
-    public function restore(User $user, TermDeposit $termDeposit): bool
+    public function restore(Profile $user, TermDeposit $termDeposit): bool
     {
         return $user->id === $termDeposit->user_id;
     }
 
-    public function forceDelete(User $user, TermDeposit $termDeposit): bool
+    public function forceDelete(Profile $user, TermDeposit $termDeposit): bool
     {
         return $user->id === $termDeposit->user_id;
     }

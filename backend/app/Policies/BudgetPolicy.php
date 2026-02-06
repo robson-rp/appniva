@@ -3,14 +3,14 @@
 namespace App\Policies;
 
 use App\Models\{Budget};
-use App\Models\User;
+use App\Models\Profile;
 
 class BudgetPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
@@ -18,7 +18,7 @@ class BudgetPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Budget $budget): bool
+    public function view(Profile $user, Budget $budget): bool
     {
         return $user->id === $budget->user_id;
     }
@@ -26,7 +26,7 @@ class BudgetPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
@@ -34,7 +34,7 @@ class BudgetPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Budget $budget): bool
+    public function update(Profile $user, Budget $budget): bool
     {
         return $user->id === $budget->user_id;
     }
@@ -42,7 +42,7 @@ class BudgetPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Budget $budget): bool
+    public function delete(Profile $user, Budget $budget): bool
     {
         return $user->id === $budget->user_id;
     }
@@ -50,7 +50,7 @@ class BudgetPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Budget $budget): bool
+    public function restore(Profile $user, Budget $budget): bool
     {
         return $user->id === $budget->user_id;
     }
@@ -58,7 +58,7 @@ class BudgetPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Budget $budget): bool
+    public function forceDelete(Profile $user, Budget $budget): bool
     {
         return $user->id === $budget->user_id;
     }

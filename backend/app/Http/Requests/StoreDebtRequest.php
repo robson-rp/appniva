@@ -23,13 +23,14 @@ class StoreDebtRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'creditor' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:0.01',
-            'interest_rate' => 'nullable|numeric|min:0',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after:start_date',
-            'type' => 'required|in:personal,mortgage,auto,credit_card,student,other',
-            'status' => 'required|in:active,paid,overdue',
+            'principal_amount' => 'required|numeric|min:0.01',
+            'current_balance' => 'required|numeric|min:0',
+            'type' => 'required|in:personal_loan,credit_card,mortgage,auto_loan,student_loan,other',
+            'status' => 'required|in:active,paid_off,defaulted',
+            'interest_rate_annual' => 'nullable|numeric|min:0|max:1',
+            'installment_frequency' => 'nullable|in:daily,weekly,biweekly,monthly,quarterly,annual',
+            'installment_amount' => 'nullable|numeric|min:0',
+            'next_payment_date' => 'nullable|date',
         ];
     }
     

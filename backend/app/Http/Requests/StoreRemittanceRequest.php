@@ -14,17 +14,17 @@ class StoreRemittanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'from_account_id' => 'required|exists:accounts,id',
-            'to_account_id' => 'required|exists:accounts,id',
-            'amount' => 'required|numeric|min:0.01',
-            'from_currency' => 'required|string|size:3',
-            'to_currency' => 'required|string|size:3',
+            'sender_name' => 'required|string|max:255',
+            'recipient_name' => 'required|string|max:255',
+            'amount_sent' => 'required|numeric|min:0.01',
+            'amount_received' => 'required|numeric|min:0.01',
+            'currency_from' => 'required|string|size:3',
+            'currency_to' => 'required|string|size:3',
             'exchange_rate' => 'required|numeric|min:0',
-            'fee' => 'nullable|numeric|min:0',
-            'status' => 'required|in:pending,completed,cancelled',
-            'date' => 'required|date',
-            'recipient_name' => 'nullable|string|max:100',
-            'notes' => 'nullable|string',
+            'fee' => 'sometimes|numeric|min:0',
+            'service_provider' => 'required|string|max:255',
+            'transfer_date' => 'required|date',
+            'status' => 'sometimes|in:pending,completed,failed',
         ];
     }
 

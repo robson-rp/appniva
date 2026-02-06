@@ -23,27 +23,36 @@ class SplitExpenseController extends Controller
     public function store(StoreSplitExpenseRequest $request)
     {
         $validated = $request->validated();
-                $validated['user_id'] = auth()->id();
-                $splitExpense = SplitExpense::create($validated);
+        $validated['creator_id'] = auth()->id();
+        $splitExpense = SplitExpense::create($validated);
         
         return new SplitExpenseResource($splitExpense);
     }
 
     public function show(SplitExpense $splitExpense)
-    {        $this->authorize('view', $splitExpense);
-                return new SplitExpenseResource($splitExpense);
+    {
+        if ($splitExpense->creator_id !== auth()->id()) {
+            abort(403);
+        }
+        return new SplitExpenseResource($splitExpense);
     }
 
     public function update(UpdateSplitExpenseRequest $request, SplitExpense $splitExpense)
-    {        $this->authorize('update', $splitExpense);
-                $splitExpense->update($request->validated());
+    {
+        if ($splitExpense->creator_id !== auth()->id()) {
+            abort(403);
+        }
+        $splitExpense->update($request->validated());
         
         return new SplitExpenseResource($splitExpense);
     }
 
     public function destroy(SplitExpense $splitExpense)
-    {        $this->authorize('delete', $splitExpense);
-                $splitExpense->delete();
+    {
+        if ($splitExpense->creator_id !== auth()->id()) {
+            abort(403);
+        }
+        $splitExpense->delete();
         
         return response()->noContent();
     }

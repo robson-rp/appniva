@@ -17,18 +17,19 @@ class DebtFactory extends Factory
      */
     public function definition(): array
     {
-        $startDate = $this->faker->dateTimeBetween('-2 years', 'now');
+        $principalAmount = $this->faker->randomFloat(2, 10000, 1000000);
 
         return [
             'user_id' => Profile::factory(),
             'name' => $this->faker->randomElement(['Car Loan', 'Credit Card', 'Personal Loan', 'Mortgage', 'Student Loan']),
-            'creditor' => $this->faker->company(),
-            'amount' => $this->faker->randomFloat(2, 10000, 1000000),
-            'interest_rate' => $this->faker->randomFloat(2, 5, 25),
-            'start_date' => $startDate->format('Y-m-d'),
-            'end_date' => $this->faker->dateTimeBetween($startDate, '+10 years')->format('Y-m-d'),
-            'type' => $this->faker->randomElement(['credit_card', 'personal_loan', 'mortgage', 'car_loan', 'student_loan']),
+            'principal_amount' => $principalAmount,
+            'current_balance' => $this->faker->randomFloat(2, $principalAmount * 0.1, $principalAmount),
+            'type' => $this->faker->randomElement(['credit_card', 'personal_loan', 'mortgage', 'auto_loan', 'student_loan', 'other']),
             'status' => $this->faker->randomElement(['active', 'paid_off', 'defaulted']),
+            'interest_rate_annual' => $this->faker->randomFloat(4, 0.05, 0.25),
+            'installment_frequency' => $this->faker->randomElement(['daily', 'weekly', 'biweekly', 'monthly', 'quarterly', 'annual']),
+            'installment_amount' => $this->faker->randomFloat(2, 500, 10000),
+            'next_payment_date' => $this->faker->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
         ];
     }
 }

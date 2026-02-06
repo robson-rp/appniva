@@ -20,13 +20,14 @@ class DebtTest extends TestCase
 
         $debtData = [
             'name' => 'Car Loan',
-            'creditor' => 'BFA Bank',
-            'amount' => 500000.00,
-            'interest_rate' => 12.5,
-            'start_date' => '2026-01-01',
-            'end_date' => '2030-12-31',
-            'type' => 'car_loan',
+            'principal_amount' => 500000.00,
+            'current_balance' => 450000.00,
+            'interest_rate_annual' => 0.125,
+            'type' => 'auto_loan',
             'status' => 'active',
+            'installment_frequency' => 'monthly',
+            'installment_amount' => 15000.00,
+            'next_payment_date' => '2026-03-01',
         ];
 
         $response = $this->postJson('/api/v1/debts', $debtData);

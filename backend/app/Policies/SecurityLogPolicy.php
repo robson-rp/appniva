@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\SecurityLog;
 
 class SecurityLogPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, SecurityLog $securityLog): bool
+    public function view(Profile $user, SecurityLog $securityLog): bool
     {
         return $user->id === $securityLog->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, SecurityLog $securityLog): bool
+    public function update(Profile $user, SecurityLog $securityLog): bool
     {
         return $user->id === $securityLog->user_id;
     }
 
-    public function delete(User $user, SecurityLog $securityLog): bool
+    public function delete(Profile $user, SecurityLog $securityLog): bool
     {
         return $user->id === $securityLog->user_id;
     }
 
-    public function restore(User $user, SecurityLog $securityLog): bool
+    public function restore(Profile $user, SecurityLog $securityLog): bool
     {
         return $user->id === $securityLog->user_id;
     }
 
-    public function forceDelete(User $user, SecurityLog $securityLog): bool
+    public function forceDelete(Profile $user, SecurityLog $securityLog): bool
     {
         return $user->id === $securityLog->user_id;
     }

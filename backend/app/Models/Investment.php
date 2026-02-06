@@ -2,22 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class Investment extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'name',
-        'type',
-        'initial_amount',
-        'current_amount',
+        'investment_type',
+        'principal_amount',
         'start_date',
-        'expected_return',
-        'risk_level',
+        'maturity_date',
+        'currency',
+        'institution_name',
     ];
 
     //

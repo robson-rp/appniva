@@ -15,7 +15,7 @@ class TransactionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = auth()->user()->Transactions();
+        $query = auth()->user()->transactions();
         
         // Paginação
         $perPage = $request->input('per_page', 15);

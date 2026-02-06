@@ -23,7 +23,7 @@ class CategoryFactory extends Factory
             'type' => $this->faker->randomElement(['income', 'expense']),
             'icon' => $this->faker->randomElement(['💰', '🏠', '🚗', '🍔', '✈️', '🎓']),
             'color' => $this->faker->hexColor(),
-            'parent_id' => null,
+            'is_default' => false,
         ];
     }
 }

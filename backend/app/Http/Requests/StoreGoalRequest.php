@@ -24,11 +24,10 @@ class StoreGoalRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'target_amount' => 'required|numeric|min:0.01',
-            'current_amount' => 'nullable|numeric|min:0',
-            'deadline' => 'nullable|date|after:today',
-            'category' => 'nullable|string|max:100',
-            'priority' => 'required|in:low,medium,high',
+            'current_saved_amount' => 'nullable|numeric|min:0',
+            'target_date' => 'nullable|date|after:today',
             'status' => 'required|in:active,paused,completed',
+            'currency' => 'required|string|size:3',
         ];
     }
     

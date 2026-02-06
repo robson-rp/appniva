@@ -14,14 +14,13 @@ class UpdateInvestmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'account_id' => 'required|exists:accounts,id',
-            'type' => 'sometimes|in:stock,bond,fund,crypto,real_estate,other',
             'name' => 'sometimes|string|max:255',
-            'amount_invested' => 'sometimes|numeric|min:0',
-            'current_value' => 'nullable|numeric|min:0',
-            'purchase_date' => 'sometimes|date',
-            'maturity_date' => 'nullable|date',
-            'annual_return' => 'nullable|numeric',
+            'investment_type' => 'sometimes|in:term_deposit,bond,otnr,stock,mutual_fund,crypto',
+            'principal_amount' => 'sometimes|numeric|min:0.01',
+            'start_date' => 'sometimes|date',
+            'maturity_date' => 'nullable|date|after_or_equal:start_date',
+            'currency' => 'sometimes|string|size:3',
+            'institution_name' => 'nullable|string|max:255',
         ];
     }
 

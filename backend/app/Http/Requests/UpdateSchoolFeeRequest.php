@@ -14,13 +14,15 @@ class UpdateSchoolFeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'template_id' => 'required|exists:school_fee_templates,id',
-            'student_name' => 'sometimes|string|max:100',
-            'amount' => 'sometimes|numeric|min:0',
+            'school_name' => 'sometimes|string|max:255',
+            'student_name' => 'sometimes|string|max:255',
+            'amount' => 'sometimes|numeric|min:0.01',
+            'academic_year' => 'sometimes|string|size:4',
             'due_date' => 'sometimes|date',
-            'is_paid' => 'boolean',
-            'payment_date' => 'nullable|date',
-            'notes' => 'nullable|string',
+            'education_level' => 'sometimes|string|max:255',
+            'fee_type' => 'sometimes|string|max:255',
+            'paid' => 'sometimes|boolean',
+            'payment_proof_url' => 'nullable|string|max:255',
         ];
     }
 

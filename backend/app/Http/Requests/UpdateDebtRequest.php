@@ -23,13 +23,14 @@ class UpdateDebtRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|string|max:255',
-            'creditor' => 'sometimes|string|max:255',
-            'amount' => 'sometimes|numeric|min:0.01',
-            'interest_rate' => 'sometimes|numeric|min:0|nullable',
-            'start_date' => 'sometimes|date',
-            'end_date' => 'sometimes|date|after:start_date|nullable',
-            'type' => 'sometimes|in:personal,mortgage,auto,credit_card,student,other',
-            'status' => 'sometimes|in:active,paid,overdue',
+            'principal_amount' => 'sometimes|numeric|min:0.01',
+            'current_balance' => 'sometimes|numeric|min:0',
+            'type' => 'sometimes|in:personal_loan,credit_card,mortgage,auto_loan,student_loan,other',
+            'status' => 'sometimes|in:active,paid_off,defaulted',
+            'interest_rate_annual' => 'sometimes|numeric|min:0|max:1|nullable',
+            'installment_frequency' => 'sometimes|in:daily,weekly,biweekly,monthly,quarterly,annual|nullable',
+            'installment_amount' => 'sometimes|numeric|min:0|nullable',
+            'next_payment_date' => 'sometimes|date|nullable',
         ];
     }
     

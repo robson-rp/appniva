@@ -14,14 +14,13 @@ class StoreInvestmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'account_id' => 'required|exists:accounts,id',
-            'type' => 'required|in:stock,bond,fund,crypto,real_estate,other',
             'name' => 'required|string|max:255',
-            'amount_invested' => 'required|numeric|min:0',
-            'current_value' => 'nullable|numeric|min:0',
-            'purchase_date' => 'required|date',
-            'maturity_date' => 'nullable|date',
-            'annual_return' => 'nullable|numeric',
+            'investment_type' => 'required|in:term_deposit,bond,otnr,stock,mutual_fund,crypto',
+            'principal_amount' => 'required|numeric|min:0.01',
+            'start_date' => 'required|date',
+            'maturity_date' => 'nullable|date|after_or_equal:start_date',
+            'currency' => 'sometimes|string|size:3',
+            'institution_name' => 'nullable|string|max:255',
         ];
     }
 

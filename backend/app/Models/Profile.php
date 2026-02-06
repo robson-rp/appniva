@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
-class Profile extends Model
+class Profile extends Authenticatable
 {
+    use HasApiTokens, HasFactory;
+
     protected $keyType = 'string';
     public $incrementing = false;
     protected $guarded = [];
@@ -97,7 +101,7 @@ class Profile extends Model
 
     public function splitExpenses(): HasMany
     {
-        return $this->hasMany(SplitExpense::class, 'user_id');
+        return $this->hasMany(SplitExpense::class, 'creator_id');
     }
 
     public function participantGroups(): HasMany

@@ -19,17 +19,51 @@ class TransactionFactory extends Factory
      */
     public function definition(): array
     {
-        $profile = Profile::factory()->create();
+        $type = $this->faker->randomElement(['income', 'expense', 'transfer']);
 
         return [
-            'account_id' => Account::factory()->create(['user_id' => $profile->id]),
+            'user_id' => Profile::factory(),
+            'account_id' => Account::factory(),
             'amount' => $this->faker->randomFloat(2, 10, 10000),
-            'type' => $this->faker->randomElement(['income', 'expense']),
-            'date' => $this->faker->date(),
+            'type' => $type,
+            'date' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'description' => $this->faker->sentence(),
-            'category_id' => Category::factory()->create(['user_id' => $profile->id]),
+            'category_id' => Category::factory(),
             'cost_center_id' => null,
-            'related_account_id' => null,
+            'related_account_id' => $type === 'transfer' ? Account::factory() : null,
         ];
+    }
+
+    /**
+     * Indicate that the transaction is an expense.
+     */
+    public function expense(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'expense',
+            'related_account_id' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the transaction is income.
+     */
+    public function income(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'income',
+            'related_account_id' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the transaction is a transfer.
+     */
+    public function transfer(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'transfer',
+            'related_account_id' => Account::factory(),
+        ]);
     }
 }

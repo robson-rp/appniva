@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\SchoolFeeTemplate;
 
 class SchoolFeeTemplatePolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
+    public function view(Profile $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
         return $user->id === $schoolFeeTemplate->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
+    public function update(Profile $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
         return $user->id === $schoolFeeTemplate->user_id;
     }
 
-    public function delete(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
+    public function delete(Profile $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
         return $user->id === $schoolFeeTemplate->user_id;
     }
 
-    public function restore(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
+    public function restore(Profile $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
         return $user->id === $schoolFeeTemplate->user_id;
     }
 
-    public function forceDelete(User $user, SchoolFeeTemplate $schoolFeeTemplate): bool
+    public function forceDelete(Profile $user, SchoolFeeTemplate $schoolFeeTemplate): bool
     {
         return $user->id === $schoolFeeTemplate->user_id;
     }

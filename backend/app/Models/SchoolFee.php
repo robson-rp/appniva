@@ -2,19 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo};
-
-
 use Illuminate\Database\Eloquent\Model;
 
 class SchoolFee extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'school_fee_template_id',
+        'user_id',
+        'school_name',
         'student_name',
         'amount',
+        'academic_year',
         'due_date',
-        'status',
+        'education_level',
+        'fee_type',
+        'paid',
+        'payment_proof_url',
     ];
 
     //

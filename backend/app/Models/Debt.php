@@ -2,23 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class Debt extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'name',
-        'creditor',
-        'amount',
-        'interest_rate',
-        'start_date',
-        'end_date',
+        'principal_amount',
+        'current_balance',
         'type',
         'status',
+        'interest_rate_annual',
+        'installment_frequency',
+        'installment_amount',
+        'next_payment_date',
     ];
 
     public function profile(): BelongsTo

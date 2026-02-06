@@ -2,42 +2,42 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\Scenario;
 
 class ScenarioPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(Profile $user): bool
     {
         return true;
     }
 
-    public function view(User $user, Scenario $scenario): bool
+    public function view(Profile $user, Scenario $scenario): bool
     {
         return $user->id === $scenario->user_id;
     }
 
-    public function create(User $user): bool
+    public function create(Profile $user): bool
     {
         return true;
     }
 
-    public function update(User $user, Scenario $scenario): bool
+    public function update(Profile $user, Scenario $scenario): bool
     {
         return $user->id === $scenario->user_id;
     }
 
-    public function delete(User $user, Scenario $scenario): bool
+    public function delete(Profile $user, Scenario $scenario): bool
     {
         return $user->id === $scenario->user_id;
     }
 
-    public function restore(User $user, Scenario $scenario): bool
+    public function restore(Profile $user, Scenario $scenario): bool
     {
         return $user->id === $scenario->user_id;
     }
 
-    public function forceDelete(User $user, Scenario $scenario): bool
+    public function forceDelete(Profile $user, Scenario $scenario): bool
     {
         return $user->id === $scenario->user_id;
     }
