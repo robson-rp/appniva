@@ -12,7 +12,7 @@ class RecurringTransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = auth()->user()->recurringTransactions();
+        $query = auth()->user()->recurringTransactions()->with(['account', 'category', 'costCenter']);
         
         $perPage = $request->input('per_page', 15);
         $resources = $query->paginate($perPage);

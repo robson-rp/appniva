@@ -14,6 +14,16 @@ class KixikilaMembersController extends Controller
     {
         $query = auth()->user()->kixikilaMembers();
         
+        if ($request->has('kixikila_id')) {
+            $query->where('kixikila_id', $request->kixikila_id);
+        }
+
+        if ($request->has('order_by')) {
+            $query->orderBy($request->order_by, $request->input('order_direction', 'asc'));
+        } else {
+            $query->orderBy('order_number');
+        }
+        
         $perPage = $request->input('per_page', 15);
         $resources = $query->paginate($perPage);
         

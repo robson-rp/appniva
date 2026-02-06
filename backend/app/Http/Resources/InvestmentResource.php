@@ -24,6 +24,8 @@ class InvestmentResource extends JsonResource
             'maturity_date' => $this->maturity_date,
             'currency' => $this->currency,
             'institution_name' => $this->institution_name,
+            'term_deposit' => new TermDepositResource($this->termDeposits->first()),
+            'bond_otnr' => new BondOtnrResource($this->bondOtnrs->first()),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

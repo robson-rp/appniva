@@ -39,5 +39,8 @@ class RecurringTransaction extends Model
         return $this->belongsTo(Category::class);
     }
 
-
+    public function costCenter(): BelongsTo
+    {
+        return $this->belongsTo(CostCenter::class);
+    }
 }

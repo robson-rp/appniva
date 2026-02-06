@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\SplitExpenseParticipantResource;
 
 class SplitExpenseResource extends JsonResource
 {
@@ -24,6 +25,7 @@ class SplitExpenseResource extends JsonResource
             'is_settled' => (bool) $this->is_settled,
             'receipt_url' => $this->receipt_url,
             'share_token' => $this->share_token,
+            'participants' => SplitExpenseParticipantResource::collection($this->whenLoaded('participants')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

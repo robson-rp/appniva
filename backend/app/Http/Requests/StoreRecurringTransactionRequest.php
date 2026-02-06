@@ -24,6 +24,7 @@ class StoreRecurringTransactionRequest extends FormRequest
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'next_execution_date' => 'required|date|after_or_equal:start_date',
             'category_id' => 'sometimes|nullable|exists:categories,id',
+            'cost_center_id' => 'sometimes|nullable|exists:cost_centers,id',
         ];
     }
 

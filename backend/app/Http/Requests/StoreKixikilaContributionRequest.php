@@ -17,8 +17,11 @@ class StoreKixikilaContributionRequest extends FormRequest
             'kixikila_id' => 'required|exists:kixikilas,id',
             'member_id' => 'required|exists:kixikila_members,id',
             'amount' => 'required|numeric|min:0.01',
-            'contribution_date' => 'required|date',
+            'round_number' => 'required|integer|min:1',
+            'paid_at' => 'required|date',
             'notes' => 'nullable|string',
+            'account_id' => 'nullable|uuid|exists:accounts,id',
+            'transaction_type' => 'nullable|in:expense,income',
         ];
     }
 

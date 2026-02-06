@@ -21,6 +21,10 @@ class StoreKixikilaRequest extends FormRequest
             'total_members' => 'required|integer|min:2',
             'status' => 'sometimes|in:active,completed,suspended',
             'currency' => 'sometimes|string|size:3',
+            'members' => 'required|array|min:2',
+            'members.*.name' => 'required|string|max:255',
+            'members.*.order_number' => 'required|integer',
+            'members.*.is_creator' => 'required|boolean',
         ];
     }
 

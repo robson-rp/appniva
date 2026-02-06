@@ -11,9 +11,9 @@
 - ✅ Row-level authorization
 - ✅ 12 factories for core entities
 - ✅ Database seeder (15k+ records)
-- 🎯 **Current Phase**: Phase 9 - Business Logic Migration (Active)
+- 🎯 **Current Phase**: Phase 9 - Frontend Integration (Final Verification)
 - ✅ **Phase 8**: Testing & Quality Assurance - **COMPLETE** (86/86 Tests)
-- [/] **Phase 9**: Frontend Integration - **IN PROGRESS** (Finance Core & Tracking Integrated, ~75%)
+- [/] **Phase 9**: Frontend Integration - **95% COMPLETE** (All Financial Modules Migrated)
 - ✅ **Contract Tests**: **COMPLETE** (API-Frontend Schema Alignment Verified)
 
 ## ✅ Phase 3: Database Migrations - COMPLETED
@@ -305,13 +305,13 @@
 - ✅ **Contract Tests**: **COMPLETE** (Verified via `ContractTest.php`).
 - ⏳ **Performance Testing**: NOT STARTED (Baseline established with 15k records, but no stress testing yet).
 
-## [/] Phase 9: Frontend Integration - **IN PROGRESS** 🔄
+## [/] Phase 9: Frontend Integration - **95% COMPLETE** 🔄
 - ✅ **Authentication**: Migrated from Supabase to Laravel Sanctum.
 - ✅ **Profile**: Integrated `/me` endpoint and profile management.
 - ✅ **API Helper**: Created `api.ts` with token handling.
 - ✅ **Core Modules**: `Accounts`, `Transactions`, `Categories`, `Tags` migrated to Laravel API.
-- ❌ **Advanced Modules**: `Investments`, `SplitExpenses`, `Kixikila` still use Supabase SDK.
-- ❌ **Data Sync**: Frontend now reads Core Financials from local Laravel DB (MySQL).
+- ✅ **Advanced Modules**: `Investments`, `SplitExpenses`, `Kixikila`, `RecurringTransactions` migrated to Laravel API.
+- ✅ **Data Sync**: Frontend now reads Core & Advanced Financials from local Laravel DB (MySQL).
 
 ### Phase 10: LLM Integration (FINAL)
 - Setup Gemini
@@ -345,6 +345,37 @@
 ---
 
 **Last Updated**: 2026-02-06
-**Current Status**: Phase 9 In Progress (Financials Migrated) ✅
-**Next Focus**: Phase 9.2 - Planning & Tracking Migration
+**Current Status**: Phase 9.4 Completed - All Main Modules Migrated ✅
+**Next Focus**: Phase 10 - LLM Integration
+
+### Phase 9.3: Advanced Modules & Analytics - **COMPLETED**
+- [x] Refactor `useInvestments.ts` - **Completed**
+  - Updated to use Laravel API `investments` endpoint.
+  - Added atomic creation logic in `InvestmentController`.
+  - Added `stats` endpoint.
+- [x] Refactor `useSplitExpenses.ts` - **Completed**
+  - Updated to use Laravel API `split-expenses` endpoint.
+  - Implemented atomic creation for expenses and participants.
+  - Added `uploadReceipt` and `recordPayment` endpoints.
+- [x] Refactor `useKixikila.ts` - **Completed**
+  - Updated to use Laravel API `kixikilas` endpoint.
+  - Implemented atomic creation for kixikilas and members.
+  - Added `updateMemberOrder` endpoint for bulk reordering.
+  - Added `kixikila_id` filtering for members and contributions.
+- [x] Refactor `useRecurringTransactions.ts` - **Completed**
+  - Updated to use Laravel API `recurring-transactions` endpoint.
+  - Updated resource to include joined data (Account, Category, Cost Center).
+- [x] Refactor `useParticipantGroups.ts` - **Completed**
+  - Updated to use Laravel API `participant-groups` endpoint.
+  - Implemented atomic creation for Groups + Members.
+  - Updated controller to support eager loading.
+
+### Phase 9.4: Final Verification & Cleanup - **COMPLETED**
+- [x] Verify removal of Supabase SDK from converted hooks.
+- [x] Run backend feature tests - **Passed**.
+- [x] List remaining legacy hooks for future phases:
+  - `useAuth` (some parts), `useSecurityLogs`, `useAuditLog`
+  - `useRemittances`, `useSchoolFees`, `useMaturityProfile`
+  - `useAdminProducts`, `useInflationRates`, `useInsights`
+
 **LLM Integration**: Active Integration (Gemini)

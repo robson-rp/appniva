@@ -20,6 +20,11 @@ class StoreSplitExpenseRequest extends FormRequest
             'currency' => 'sometimes|string|size:3',
             'is_settled' => 'sometimes|boolean',
             'receipt_url' => 'nullable|string|max:255',
+            'participants' => 'required|array|min:1',
+            'participants.*.name' => 'required|string|max:255',
+            'participants.*.amount_owed' => 'required|numeric|min:0',
+            'participants.*.is_creator' => 'required|boolean',
+            'account_id' => 'nullable|uuid|exists:accounts,id',
         ];
     }
 

@@ -28,6 +28,18 @@ class RecurringTransactionResource extends JsonResource
             'last_executed_at' => $this->last_executed_at,
             'next_execution_date' => $this->next_execution_date,
             'category_id' => $this->category_id,
+            'cost_center_id' => $this->cost_center_id,
+            'account' => $this->whenLoaded('account', fn() => [
+                'name' => $this->account->name,
+                'currency' => $this->account->currency,
+            ]),
+            'category' => $this->whenLoaded('category', fn() => [
+                'name' => $this->category->name,
+                'color' => $this->category->color,
+            ]),
+            'cost_center' => $this->whenLoaded('costCenter', fn() => [
+                'name' => $this->costCenter->name,
+            ]),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\KixikilaMembersResource;
 
 class KixikilaResource extends JsonResource
 {
@@ -24,6 +25,7 @@ class KixikilaResource extends JsonResource
             'total_members' => $this->total_members,
             'status' => $this->status,
             'currency' => $this->currency,
+            'members' => KixikilaMembersResource::collection($this->whenLoaded('members')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

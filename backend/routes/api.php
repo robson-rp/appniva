@@ -89,6 +89,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('recurring-transactions', RecurringTransactionController::class);
         Route::apiResource('debts', DebtController::class);
         Route::apiResource('debt-payments', DebtPaymentController::class);
+        Route::get('investments/stats', [InvestmentController::class, 'stats']);
         Route::apiResource('investments', InvestmentController::class);
         Route::apiResource('term-deposits', TermDepositController::class);
         Route::apiResource('bond-otnrs', BondOtnrController::class);
@@ -129,13 +130,19 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('remittances', RemittanceController::class);
 
     // Shared Expenses
+    Route::get('split-expenses/stats', [SplitExpenseController::class, 'stats']);
+    Route::post('split-expenses/{split_expense}/upload-receipt', [SplitExpenseController::class, 'uploadReceipt']);
     Route::apiResource('split-expenses', SplitExpenseController::class);
+    
+    Route::post('split-expense-participants/{participant}/payment', [SplitExpenseParticipantController::class, 'recordPayment']);
     Route::apiResource('split-expense-participants', SplitExpenseParticipantController::class);
     Route::apiResource('split-expense-payment-histories', SplitExpensePaymentHistoryController::class);
     Route::apiResource('participant-groups', ParticipantGroupController::class);
     Route::apiResource('participant-group-members', ParticipantGroupMemberController::class);
 
     // Savings Circles
+    // Savings Circles
+    Route::put('kixikilas/update-member-order', [KixikilaController::class, 'updateMemberOrder']);
     Route::apiResource('kixikilas', KixikilaController::class);
     Route::apiResource('kixikila-members', KixikilaMembersController::class);
     Route::apiResource('kixikila-contributions', KixikilaContributionController::class);

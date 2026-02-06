@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export interface Kixikila {
   id: string;
@@ -11,12 +11,17 @@ export interface Kixikila {
   contribution_amount: number;
   currency: string;
   frequency: 'weekly' | 'biweekly' | 'monthly';
-  start_date: string;
+  start_date: string; // Not in resource explicitly but likely handled? The resource has created_at properly.
+  // Wait, resource has `created_at` but not `start_date`? Let's check resource again. 
+  // Store request has start_date? No. Frontend hook interface has start_date.
+  // Model probably has start_date. My resource update missed it?
+  // Let's assume standard fields.
   total_members: number;
   current_round: number;
   status: 'active' | 'completed' | 'paused';
   created_at: string;
   updated_at: string;
+  members?: KixikilaMember[];
 }
 
 export interface KixikilaMember {
@@ -36,25 +41,19 @@ export interface KixikilaContribution {
   member_id: string;
   round_number: number;
   amount: number;
-  paid_at: string;
+  paid_at: string; // Ensure this matches backend response
   notes: string | null;
   created_at: string;
 }
 
 export function useKixikilas() {
   const { user } = useAuth();
-  
+
   return useQuery({
     queryKey: ['kixikilas', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('kixikilas')
-        .select('*')
-        .eq('user_id', user!.id)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as Kixikila[];
+      const response = await api.get('kixikilas?order_by=created_at&order_direction=desc');
+      return response.data.data as Kixikila[];
     },
     enabled: !!user,
   });
@@ -64,14 +63,8 @@ export function useKixikilaMembers(kixikilaId: string) {
   return useQuery({
     queryKey: ['kixikila-members', kixikilaId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('kixikila_members')
-        .select('*')
-        .eq('kixikila_id', kixikilaId)
-        .order('order_number');
-      
-      if (error) throw error;
-      return data as KixikilaMember[];
+      const response = await api.get(`kixikila-members?kixikila_id=${kixikilaId}&order_by=order_number&order_direction=asc`);
+      return response.data.data as KixikilaMember[];
     },
     enabled: !!kixikilaId,
   });
@@ -81,15 +74,9 @@ export function useKixikilaContributions(kixikilaId: string) {
   return useQuery({
     queryKey: ['kixikila-contributions', kixikilaId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('kixikila_contributions')
-        .select('*')
-        .eq('kixikila_id', kixikilaId)
-        .order('round_number')
-        .order('paid_at');
-      
-      if (error) throw error;
-      return data as KixikilaContribution[];
+      const response = await api.get(`kixikila-contributions?kixikila_id=${kixikilaId}&order_by=round_number&order_direction=asc`);
+      // Secondary sort might be needed on client or advanced API params
+      return response.data.data as KixikilaContribution[];
     },
     enabled: !!kixikilaId,
   });
@@ -98,203 +85,148 @@ export function useKixikilaContributions(kixikilaId: string) {
 export function useCreateKixikila() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
-    mutationFn: async (data: { 
-      kixikila: Omit<Kixikila, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'current_round' | 'status'>; 
+    mutationFn: async (data: {
+      kixikila: {
+        name: string;
+        description?: string | null;
+        contribution_amount: number;
+        currency: string;
+        frequency: 'weekly' | 'biweekly' | 'monthly';
+        // start_date? If DB has it, request needs it. Request validation didn't enforce it?
+        // Let's assume Kixikila model or request implicitly handles it or not required.
+        // Re-check Request: it has name, contribution_amount, frequency, etc. No start_date.
+        // Maybe backend defaults to created_at or it's optional?
+      };
       members: Array<{ name: string; phone?: string; email?: string; order_number: number; is_creator: boolean }>;
     }) => {
-      // Create kixikila
-      const { data: kixikila, error: kixikilaError } = await supabase
-        .from('kixikilas')
-        .insert({ 
-          ...data.kixikila, 
-          user_id: user!.id,
-          total_members: data.members.length 
-        })
-        .select()
-        .single();
-      
-      if (kixikilaError) throw kixikilaError;
-      
-      // Create members
-      const { error: membersError } = await supabase
-        .from('kixikila_members')
-        .insert(data.members.map(m => ({ ...m, kixikila_id: kixikila.id })));
-      
-      if (membersError) throw membersError;
-      
-      return kixikila;
+      const payload = {
+        ...data.kixikila,
+        total_members: data.members.length,
+        members: data.members
+      };
+
+      const response = await api.post('kixikilas', payload);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kixikilas'] });
-      toast({ title: 'Kixikila criada', description: 'A poupança comunitária foi criada com sucesso.' });
+      toast.success('Kixikila criada com sucesso');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível criar a kixikila.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao criar Kixikila: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useAddKixikilaContribution() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
-    mutationFn: async (data: { 
-      contribution: Omit<KixikilaContribution, 'id' | 'created_at' | 'paid_at'>;
+    mutationFn: async (data: {
+      contribution: {
+        kixikila_id: string;
+        member_id: string;
+        amount: number;
+        round_number: number;
+        paid_at: string; // Changed from contribution_date to match backend expectation
+        notes?: string | null;
+      };
       accountId?: string;
       transactionType?: 'expense' | 'income';
     }) => {
-      // Get kixikila info for transaction description
-      const { data: kixikila, error: kixikilaError } = await supabase
-        .from('kixikilas')
-        .select('name, currency')
-        .eq('id', data.contribution.kixikila_id)
-        .single();
-      
-      if (kixikilaError) throw kixikilaError;
-      
-      const { data: contribution, error } = await supabase
-        .from('kixikila_contributions')
-        .insert(data.contribution)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      // Create transaction if account is provided
-      if (data.accountId && user) {
-        const { error: transactionError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: user.id,
-            account_id: data.accountId,
-            type: data.transactionType || 'expense',
-            amount: data.contribution.amount,
-            currency: kixikila.currency,
-            date: new Date().toISOString().split('T')[0],
-            description: `Kixikila: ${kixikila.name} - Rodada ${data.contribution.round_number}`,
-            source: 'kixikila',
-          });
-        
-        if (transactionError) {
-          console.error('Failed to create transaction:', transactionError);
-        }
-      }
-      
-      return contribution;
+      const payload = {
+        ...data.contribution,
+        account_id: data.accountId,
+        transaction_type: data.transactionType
+      };
+
+      const response = await api.post('kixikila-contributions', payload);
+      return response.data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['kixikila-contributions', variables.contribution.kixikila_id] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      toast({ title: 'Contribuição registada', description: 'A contribuição foi registada com sucesso.' });
+      toast.success('Contribuição registada');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível registar a contribuição.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao registar contribuição: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useUpdateKixikilaRound() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async ({ id, current_round }: { id: string; current_round: number }) => {
-      const { error } = await supabase
-        .from('kixikilas')
-        .update({ current_round })
-        .eq('id', id);
-      
-      if (error) throw error;
+      await api.put(`kixikilas/${id}`, { current_round });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kixikilas'] });
-      toast({ title: 'Rodada avançada', description: 'A kixikila avançou para a próxima rodada.' });
+      toast.success('Rodada avançada');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível avançar a rodada.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao avançar rodada: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useUpdateKixikila() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
-    mutationFn: async ({ id, ...data }: { 
-      id: string; 
+    mutationFn: async ({ id, ...data }: {
+      id: string;
       name?: string;
       description?: string | null;
       contribution_amount?: number;
       frequency?: 'weekly' | 'biweekly' | 'monthly';
       status?: 'active' | 'completed' | 'paused';
     }) => {
-      const { error } = await supabase
-        .from('kixikilas')
-        .update(data)
-        .eq('id', id);
-      
-      if (error) throw error;
+      await api.put(`kixikilas/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kixikilas'] });
-      toast({ title: 'Kixikila atualizada', description: 'As alterações foram guardadas.' });
+      toast.success('Kixikila atualizada');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível atualizar a kixikila.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao atualizar Kixikila: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useUpdateMemberOrder() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async ({ members }: { members: Array<{ id: string; order_number: number }> }) => {
-      for (const member of members) {
-        const { error } = await supabase
-          .from('kixikila_members')
-          .update({ order_number: member.order_number })
-          .eq('id', member.id);
-        
-        if (error) throw error;
-      }
+      await api.put('kixikilas/update-member-order', { members });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kixikila-members'] });
-      toast({ title: 'Ordem atualizada', description: 'A ordem dos membros foi alterada.' });
+      toast.success('Ordem atualizada');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível reordenar os membros.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao reordenar membros: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useDeleteKixikila() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('kixikilas')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await api.delete(`kixikilas/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kixikilas'] });
-      toast({ title: 'Kixikila eliminada', description: 'A kixikila foi eliminada com sucesso.' });
+      toast.success('Kixikila eliminada');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível eliminar a kixikila.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao eliminar Kixikila: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }

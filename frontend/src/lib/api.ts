@@ -4,8 +4,15 @@ async function request(endpoint: string, options: RequestInit = {}) {
     const token = localStorage.getItem('auth_token');
 
     const headers = new Headers(options.headers);
-    headers.set('Accept', 'application/json');
-    headers.set('Content-Type', 'application/json');
+
+    if (!headers.has('Accept')) {
+        headers.set('Accept', 'application/json');
+    }
+
+    // Only set Content-Type to JSON if it's not already set and body is not FormData
+    if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
 
     if (token) {
         headers.set('Authorization', `Bearer ${token}`);
@@ -21,6 +28,10 @@ async function request(endpoint: string, options: RequestInit = {}) {
         // We could trigger a redirect here, but better handled by AuthContext
     }
 
+    if (response.status === 204) {
+        return null;
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -34,8 +45,22 @@ async function request(endpoint: string, options: RequestInit = {}) {
 }
 
 export const api = {
-    get: (endpoint: string) => request(endpoint, { method: 'GET' }),
-    post: (endpoint: string, data: any) => request(endpoint, { method: 'POST', body: JSON.stringify(data) }),
-    put: (endpoint: string, data: any) => request(endpoint, { method: 'PUT', body: JSON.stringify(data) }),
-    delete: (endpoint: string) => request(endpoint, { method: 'DELETE' }),
+    get: (endpoint: string, options: RequestInit = {}) => request(endpoint, { ...options, method: 'GET' }),
+    post: (endpoint: string, data: any, options: RequestInit = {}) => {
+        const isFormData = data instanceof FormData;
+        return request(endpoint, {
+            ...options,
+            method: 'POST',
+            body: isFormData ? data : JSON.stringify(data)
+        });
+    },
+    put: (endpoint: string, data: any, options: RequestInit = {}) => {
+        const isFormData = data instanceof FormData;
+        return request(endpoint, {
+            ...options,
+            method: 'PUT',
+            body: isFormData ? data : JSON.stringify(data)
+        });
+    },
+    delete: (endpoint: string, options: RequestInit = {}) => request(endpoint, { ...options, method: 'DELETE' }),
 };

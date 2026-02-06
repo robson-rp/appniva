@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export interface ParticipantGroup {
   id: string;
@@ -26,32 +26,13 @@ export interface ParticipantGroupWithMembers extends ParticipantGroup {
 
 export function useParticipantGroups() {
   const { user } = useAuth();
-  
+
   return useQuery({
     queryKey: ['participant-groups', user?.id],
     queryFn: async () => {
-      const { data: groups, error: groupsError } = await supabase
-        .from('participant_groups')
-        .select('*')
-        .eq('user_id', user!.id)
-        .order('name');
-      
-      if (groupsError) throw groupsError;
-      
-      const groupIds = groups.map(g => g.id);
-      if (groupIds.length === 0) return [];
-      
-      const { data: members, error: membersError } = await supabase
-        .from('participant_group_members')
-        .select('*')
-        .in('group_id', groupIds);
-      
-      if (membersError) throw membersError;
-      
-      return groups.map(group => ({
-        ...group,
-        members: members.filter(m => m.group_id === group.id),
-      })) as ParticipantGroupWithMembers[];
+      const response = await api.get('participant-groups?per_page=100'); // Get enough for dropdowns
+      // The controller returns ParticipantGroupResource collection which includes members
+      return response.data.data as ParticipantGroupWithMembers[];
     },
     enabled: !!user,
   });
@@ -60,65 +41,39 @@ export function useParticipantGroups() {
 export function useCreateParticipantGroup() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async (data: {
       name: string;
       members: Array<{ name: string; phone?: string; email?: string }>;
     }) => {
-      const { data: group, error: groupError } = await supabase
-        .from('participant_groups')
-        .insert({ name: data.name, user_id: user!.id })
-        .select()
-        .single();
-      
-      if (groupError) throw groupError;
-      
-      if (data.members.length > 0) {
-        const { error: membersError } = await supabase
-          .from('participant_group_members')
-          .insert(data.members.map(m => ({
-            group_id: group.id,
-            name: m.name,
-            phone: m.phone || null,
-            email: m.email || null,
-          })));
-        
-        if (membersError) throw membersError;
-      }
-      
-      return group;
+      // Backend expects 'members' array in the payload
+      const response = await api.post('participant-groups', data);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['participant-groups'] });
-      toast({ title: 'Grupo criado', description: 'O grupo de participantes foi criado com sucesso.' });
+      toast.success('Grupo de participantes criado com sucesso');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível criar o grupo.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao criar grupo: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useDeleteParticipantGroup() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('participant_groups')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await api.delete(`participant-groups/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['participant-groups'] });
-      toast({ title: 'Grupo eliminado', description: 'O grupo foi eliminado com sucesso.' });
+      toast.success('Grupo eliminado com sucesso');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível eliminar o grupo.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao eliminar grupo: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }

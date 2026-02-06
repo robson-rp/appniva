@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
-export type RecurringFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type RecurringFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annual';
 export type TransactionType = 'income' | 'expense' | 'transfer';
 
 export interface RecurringTransaction {
@@ -24,7 +24,7 @@ export interface RecurringTransaction {
   created_at: string;
   updated_at: string;
   // Joined data
-  account?: { name: string; currency: string };
+  account: { name: string; currency: string };
   category?: { name: string; color: string };
   cost_center?: { name: string };
 }
@@ -49,18 +49,11 @@ export function useRecurringTransactions() {
   return useQuery({
     queryKey: ['recurring-transactions', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('recurring_transactions')
-        .select(`
-          *,
-          account:accounts(name, currency),
-          category:categories(name, color),
-          cost_center:cost_centers(name)
-        `)
-        .eq('user_id', user!.id)
-        .order('next_execution_date', { ascending: true });
-
-      if (error) throw error;
+      const response = await api.get('recurring-transactions?order_by=next_execution_date&order_direction=asc');
+      // Assuming resource collection unwrapping handled by api or needing manual unwrapping
+      // Usually api.get returns axios response. data property has the JSON body.
+      // Laravel resource collection: { data: [...] }
+      const data = response.data.data || response.data;
       return data as RecurringTransaction[];
     },
     enabled: !!user,
@@ -68,30 +61,22 @@ export function useRecurringTransactions() {
 }
 
 export function useCreateRecurringTransaction() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (input: RecurringTransactionInput) => {
-      const { data, error } = await supabase
-        .from('recurring_transactions')
-        .insert({
-          ...input,
-          user_id: user!.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const response = await api.post('recurring-transactions', input);
+      return response.data; // Returns wrapped resource? or unwrapped? 
+      // Laravel Resource: data key. But api.ts might not auto-unwrap fully.
+      // Usually { data: { ... } }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring-transactions'] });
       toast.success('Transação recorrente criada com sucesso');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error creating recurring transaction:', error);
-      toast.error('Erro ao criar transação recorrente');
+      toast.error('Erro ao criar transação recorrente: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
@@ -101,23 +86,16 @@ export function useUpdateRecurringTransaction() {
 
   return useMutation({
     mutationFn: async ({ id, ...input }: Partial<RecurringTransactionInput> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('recurring_transactions')
-        .update(input)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const response = await api.put(`recurring-transactions/${id}`, input);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring-transactions'] });
       toast.success('Transação recorrente actualizada');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error updating recurring transaction:', error);
-      toast.error('Erro ao actualizar transação recorrente');
+      toast.error('Erro ao actualizar transação recorrente: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
@@ -127,20 +105,15 @@ export function useDeleteRecurringTransaction() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('recurring_transactions')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`recurring-transactions/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring-transactions'] });
       toast.success('Transação recorrente eliminada');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error deleting recurring transaction:', error);
-      toast.error('Erro ao eliminar transação recorrente');
+      toast.error('Erro ao eliminar transação recorrente: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
@@ -150,23 +123,18 @@ export function useToggleRecurringTransaction() {
 
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { data, error } = await supabase
-        .from('recurring_transactions')
-        .update({ is_active })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const response = await api.put(`recurring-transactions/${id}`, { is_active });
+      return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['recurring-transactions'] });
-      toast.success(data.is_active ? 'Transação reactivada' : 'Transação pausada');
+      // data.data.is_active if wrapped
+      const isActive = data.data?.is_active ?? data.is_active;
+      toast.success(isActive ? 'Transação reactivada' : 'Transação pausada');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error toggling recurring transaction:', error);
-      toast.error('Erro ao alterar estado da transação');
+      toast.error('Erro ao alterar estado da transação: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }

@@ -15,12 +15,15 @@ class StoreInvestmentRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'investment_type' => 'required|in:term_deposit,bond,otnr,stock,mutual_fund,crypto',
+            'investment_type' => 'required|in:term_deposit,bond,otnr,bond_otnr,stock,mutual_fund,crypto,other',
             'principal_amount' => 'required|numeric|min:0.01',
             'start_date' => 'required|date',
             'maturity_date' => 'nullable|date|after_or_equal:start_date',
             'currency' => 'sometimes|string|size:3',
             'institution_name' => 'nullable|string|max:255',
+            'account_id' => 'nullable|uuid|exists:accounts,id',
+            'term_deposit' => 'nullable|array',
+            'bond_otnr' => 'nullable|array',
         ];
     }
 

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export interface SplitExpense {
   id: string;
@@ -10,7 +10,6 @@ export interface SplitExpense {
   total_amount: number;
   currency: string;
   expense_date: string;
-  category: string | null;
   is_settled: boolean;
   receipt_url: string | null;
   share_token: string | null;
@@ -35,94 +34,65 @@ export interface SplitExpenseWithParticipants extends SplitExpense {
   participants: SplitExpenseParticipant[];
 }
 
-// Predefined categories for split expenses
-export const SPLIT_EXPENSE_CATEGORIES = [
-  { value: 'dinner', label: 'Jantar', icon: '🍽️' },
-  { value: 'lunch', label: 'Almoço', icon: '🥗' },
-  { value: 'travel', label: 'Viagem', icon: '✈️' },
-  { value: 'shopping', label: 'Compras', icon: '🛍️' },
-  { value: 'event', label: 'Evento', icon: '🎉' },
-  { value: 'gift', label: 'Presente', icon: '🎁' },
-  { value: 'utilities', label: 'Contas', icon: '💡' },
-  { value: 'entertainment', label: 'Entretenimento', icon: '🎬' },
-  { value: 'transport', label: 'Transporte', icon: '🚗' },
-  { value: 'other', label: 'Outros', icon: '📦' },
-];
+export interface SplitExpenseStats {
+  totalOwed: number;
+  totalSettled: number;
+  activeExpenses: number;
+  totalExpenses: number;
+}
 
 export function useSplitExpenses() {
   const { user } = useAuth();
-  
+
   return useQuery({
     queryKey: ['split-expenses', user?.id],
     queryFn: async () => {
-      const { data: expenses, error: expensesError } = await supabase
-        .from('split_expenses')
-        .select('*')
-        .eq('creator_id', user!.id)
-        .order('expense_date', { ascending: false });
-      
-      if (expensesError) throw expensesError;
-      
-      // Get all participants for these expenses
-      const expenseIds = expenses.map(e => e.id);
-      if (expenseIds.length === 0) return [];
-      
-      const { data: participants, error: participantsError } = await supabase
-        .from('split_expense_participants')
-        .select('*')
-        .in('expense_id', expenseIds);
-      
-      if (participantsError) throw participantsError;
-      
-      // Combine expenses with their participants
-      return expenses.map(expense => ({
-        ...expense,
-        participants: participants.filter(p => p.expense_id === expense.id),
-      })) as SplitExpenseWithParticipants[];
+      const response = await api.get('split-expenses?order_by=expense_date&order_direction=desc');
+      // The API returns paginated data inside 'data' key or just collection?
+      // Standard Resource collection returns { data: [...], links: ..., meta: ... }
+      // api.get returns axios response. response.data is the body.
+      // So response.data.data is the array if passing Resource Collection.
+      // Let's assume api.ts interceptor handles unwrapping or we check response structure.
+      // The standard Laravel Resource returns wrapped in 'data'.
+      // If we look at useAccounts, useTransactions, etc., we usually cast response.data or response.data.data.
+      // Let's assume response.data is the full object.
+      // If api.ts unwraps, then response is the data.
+      // But typically we manually unwrap: returning response.data
+      const data = response.data.data || response.data;
+      return data as SplitExpenseWithParticipants[];
     },
     enabled: !!user,
   });
 }
 
 export function useSplitExpenseStats() {
-  const { data: expenses = [] } = useSplitExpenses();
-  
-  const totalOwed = expenses
-    .filter(e => !e.is_settled)
-    .reduce((sum, e) => {
-      return sum + e.participants
-        .filter(p => !p.is_creator)
-        .reduce((pSum, p) => pSum + (p.amount_owed - p.amount_paid), 0);
-    }, 0);
-  
-  const totalSettled = expenses
-    .filter(e => e.is_settled)
-    .reduce((sum, e) => sum + e.total_amount, 0);
-  
-  const activeExpenses = expenses.filter(e => !e.is_settled).length;
-  
-  return {
-    totalOwed,
-    totalSettled,
-    activeExpenses,
-    totalExpenses: expenses.length,
-  };
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['split-expenses', 'stats', user?.id],
+    queryFn: async () => {
+      const response = await api.get('split-expenses/stats');
+      return response.data as SplitExpenseStats;
+    },
+    enabled: !!user,
+  });
 }
 
 // Calculate balance between people across all expenses
+// This logic stays on client for now as it aggregates across loaded expenses
 export function useBalanceCalculation() {
   const { data: expenses = [] } = useSplitExpenses();
-  
+
   // Map: personName -> amount they owe to you (negative means you owe them)
   const balances: Record<string, { name: string; phone?: string; email?: string; balance: number }> = {};
-  
-  expenses.filter(e => !e.is_settled).forEach(expense => {
+
+  expenses.filter((e) => !e.is_settled).forEach(expense => {
     expense.participants.forEach(p => {
       if (p.is_creator) return;
-      
+
       const key = p.name.toLowerCase().trim();
       const owes = p.amount_owed - p.amount_paid;
-      
+
       if (!balances[key]) {
         balances[key] = { name: p.name, phone: p.phone || undefined, email: p.email || undefined, balance: 0 };
       }
@@ -131,247 +101,130 @@ export function useBalanceCalculation() {
       if (p.email) balances[key].email = p.email;
     });
   });
-  
-  return Object.values(balances).filter(b => b.balance !== 0).sort((a, b) => b.balance - a.balance);
-}
 
-function generateShareToken(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return Object.values(balances).filter(b => b.balance !== 0).sort((a, b) => b.balance - a.balance);
 }
 
 export function useCreateSplitExpense() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async (data: {
-      expense: Omit<SplitExpense, 'id' | 'creator_id' | 'created_at' | 'updated_at' | 'share_token'>;
+      expense: {
+        description: string;
+        total_amount: number;
+        currency: string;
+        expense_date: string;
+        is_settled?: boolean;
+      };
       participants: Array<{ name: string; phone?: string; email?: string; amount_owed: number; is_creator: boolean }>;
       receiptFile?: File;
-      accountId?: string; // Optional: account to record the expense transaction
+      accountId?: string;
     }) => {
-      // Generate share token
-      const shareToken = generateShareToken();
-      
-      // Create expense
-      const { data: expense, error: expenseError } = await supabase
-        .from('split_expenses')
-        .insert({ 
-          ...data.expense, 
-          creator_id: user!.id,
-          share_token: shareToken,
-        })
-        .select()
-        .single();
-      
-      if (expenseError) throw expenseError;
-      
+      // Create expense + participants + transaction in one go
+      const payload = {
+        ...data.expense,
+        participants: data.participants,
+        account_id: data.accountId
+      };
+
+      const response = await api.post('split-expenses', payload);
+      const expense = response.data;
+
       // Upload receipt if provided
-      if (data.receiptFile) {
-        const fileExt = data.receiptFile.name.split('.').pop();
-        const filePath = `${user!.id}/${expense.id}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('expense-receipts')
-          .upload(filePath, data.receiptFile);
-        
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage
-            .from('expense-receipts')
-            .getPublicUrl(filePath);
-          
-          await supabase
-            .from('split_expenses')
-            .update({ receipt_url: urlData.publicUrl })
-            .eq('id', expense.id);
-        }
+      if (data.receiptFile && expense.id) {
+        const formData = new FormData();
+        formData.append('file', data.receiptFile);
+
+        await api.post(`split-expenses/${expense.id}/upload-receipt`, formData);
       }
-      
-      // Create participants
-      const { error: participantsError } = await supabase
-        .from('split_expense_participants')
-        .insert(data.participants.map(p => ({
-          ...p,
-          expense_id: expense.id,
-          amount_paid: p.is_creator ? p.amount_owed : 0,
-        })));
-      
-      if (participantsError) throw participantsError;
-      
-      // Create transaction if account is provided
-      if (data.accountId) {
-        const { error: transactionError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: user!.id,
-            account_id: data.accountId,
-            type: 'expense',
-            amount: data.expense.total_amount,
-            currency: data.expense.currency,
-            date: data.expense.expense_date,
-            description: `Despesa partilhada: ${data.expense.description}`,
-          });
-        
-        if (transactionError) {
-          console.error('Failed to create transaction:', transactionError);
-          // Don't throw - the split expense was created successfully
-        }
-      }
-      
+
       return expense;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      toast({ title: 'Despesa criada', description: 'A despesa partilhada foi criada com sucesso.' });
+      toast.success('Despesa partilhada criada com sucesso');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível criar a despesa.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao criar despesa: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useRecordPayment() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async ({ participantId, amount }: { participantId: string; amount: number }) => {
-      // Get current participant data
-      const { data: participant, error: getError } = await supabase
-        .from('split_expense_participants')
-        .select('amount_paid, amount_owed, is_creator')
-        .eq('id', participantId)
-        .single();
-      
-      if (getError) throw getError;
-      
-      // Don't allow payment for creators (they paid the bill)
-      if (participant.is_creator) {
-        throw new Error('O criador já pagou a conta.');
-      }
-      
-      // Calculate remaining amount
-      const remaining = participant.amount_owed - participant.amount_paid;
-      
-      // Don't allow if already fully paid
-      if (remaining <= 0) {
-        throw new Error('Este participante já pagou o valor total.');
-      }
-      
-      // Limit payment to remaining amount
-      const actualAmount = Math.min(amount, remaining);
-      
-      const { error } = await supabase
-        .from('split_expense_participants')
-        .update({ amount_paid: participant.amount_paid + actualAmount })
-        .eq('id', participantId);
-      
-      if (error) throw error;
-      
-      // Record in payment history
-      await supabase
-        .from('split_expense_payment_history')
-        .insert({
-          participant_id: participantId,
-          amount: actualAmount,
-        });
-      
-      return { actualAmount, remaining };
+      const response = await api.post(`split-expense-participants/${participantId}/payment`, { amount });
+      return response.data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['payment-history'] });
-      toast({ title: 'Pagamento registado', description: `Foi registado ${data?.actualAmount ? `o valor de ${data.actualAmount}` : 'o pagamento'} com sucesso.` });
+      // queryClient.invalidateQueries({ queryKey: ['payment-history'] }); // We don't have a hook for this yet, but if we did
+      const amount = data.actualAmount;
+      toast.success(`Pagamento de ${amount} registado com sucesso`);
     },
-    onError: (error: Error) => {
-      toast({ title: 'Erro', description: error.message || 'Não foi possível registar o pagamento.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao registar pagamento: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useSettleSplitExpense() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('split_expenses')
-        .update({ is_settled: true })
-        .eq('id', id);
-      
-      if (error) throw error;
+      await api.put(`split-expenses/${id}`, { is_settled: true });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
-      toast({ title: 'Despesa liquidada', description: 'A despesa foi marcada como liquidada.' });
+      toast.success('Despesa liquidada');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível liquidar a despesa.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao liquidar despesa: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useDeleteSplitExpense() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('split_expenses')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await api.delete(`split-expenses/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
-      toast({ title: 'Despesa eliminada', description: 'A despesa foi eliminada com sucesso.' });
+      toast.success('Despesa eliminada');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível eliminar a despesa.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao eliminar despesa: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
 
 export function useUploadReceipt() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  
+
   return useMutation({
     mutationFn: async ({ expenseId, file }: { expenseId: string; file: File }) => {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${user!.id}/${expenseId}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('expense-receipts')
-        .upload(filePath, file, { upsert: true });
-      
-      if (uploadError) throw uploadError;
-      
-      const { data: urlData } = supabase.storage
-        .from('expense-receipts')
-        .getPublicUrl(filePath);
-      
-      const { error: updateError } = await supabase
-        .from('split_expenses')
-        .update({ receipt_url: urlData.publicUrl })
-        .eq('id', expenseId);
-      
-      if (updateError) throw updateError;
-      
-      return urlData.publicUrl;
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post(`split-expenses/${expenseId}/upload-receipt`, formData);
+
+      return response.data.url;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['split-expenses'] });
-      toast({ title: 'Recibo anexado', description: 'O recibo foi anexado à despesa.' });
+      toast.success('Recibo anexado');
     },
-    onError: () => {
-      toast({ title: 'Erro', description: 'Não foi possível anexar o recibo.', variant: 'destructive' });
+    onError: (error: any) => {
+      toast.error('Erro ao anexar recibo: ' + (error.message || 'Erro desconhecido'));
     },
   });
 }
